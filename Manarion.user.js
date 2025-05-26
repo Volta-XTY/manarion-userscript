@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.2
+// @version      0.3
 // @description  Manarion Chinese Translation and Quest notification
 // @author       VoltaXTY
 // @match        https://manarion.com/*
@@ -10,6 +10,7 @@
 // @run-at       document-start
 // ==/UserScript==
 const DoTranslate = true; // 把这里的true改成false就可以关闭翻译，反之亦然。
+const DEBUG = true;
 const GetItem = (key) => JSON.parse(window.localStorage.getItem(key) ?? "null");
 const SetItem = (key, value) => window.localStorage.setItem(key, JSON.stringify(value));
 const css = 
@@ -283,6 +284,7 @@ const Translation = new Map([
     ["Total Actions", "总行动数"],
     ["Battle Quest #", "战斗任务 #"],
     ["Gather Quest #", "采集任务 #"],
+    ["Enchanting", "附魔"],
     // text
     ["Are you sure you want to reset your codex boosts?", "确定要重置所有法典升级吗？"],
     ["You have invested ", "你已经投入了 "],
@@ -558,8 +560,28 @@ const Translation = new Map([
     [" experience", " 点经验"],
     ["You received the following loot:", "你获得了以下物品："],
     ["Set name", "设置名称"],
-    ["Combat", "战斗"],
+    ["1. Respect Others", "1. 尊重他人"],
+    ["No harassment, personal attacks, or targeted insults.", "禁止羞辱行为，人身攻击，或者有针对的侮辱。"],
+    ["2. Keep It Safe For Everyone", "2. 为所有人维护适宜的环境"],
+    ["No NSFW content, racism, sexism, or hate speech of any kind.", "禁止不适宜工作展示 (NSFW) 的内容，种族歧视，性别歧视，或者任何形式的仇恨言论。"],
+    ["3. No Automation", "3. 禁止自动化"],
+    ["Any form of botting, scripting, or macroing is forbidden.", "禁止任何形式的自动机器人、脚本、宏。"],
+    ["4. No Scamming", "4. 禁止欺诈"],
+    ["All trade agreements must be honored. Scamming wastes moderator time and will result in bans.", "所有的交易约定都应得到遵守。欺诈行为浪费管理员的时间，将会导致封禁。"],
+    ["5. One Account Per Person", "5. 一人一号"],
+    ["If multiple people play from the same location, they may not play in a way that provides excessive benefit to any account other than their own.", "如果多个人在同一地点游玩，他们不能以任意形式为彼此提供利益。"],
+    ["6. No Account Sharing", "6. 禁止共享账号"],
+    ["Do not share your account. You are responsible for all activity on your account.", "不要分享你的账号。你为你账号的左右行动负责。"],
+    ["7. No Bug Abuse", "7. 禁止恶意利用漏洞"],
+    ["If you find an exploit, report it privately to a staff member. Abusing bugs will result in a ban.", "如果你发现了一个漏洞，请私下向制作人员反馈。恶意利用漏洞将会导致封禁。"],
+    ["Currencies", "通用物品"],
+    ["Resources", "资源"],
+    ["Orbs", "特殊球"],
+    ["Herbs", "药草"],
+    ["Enchanting Reagents", "附魔材料"],
+    ["Enchanting Formulas", "附魔术式"],
     // nav link
+    ["Combat", "战斗"],
     ["Town", "城镇"],
     ["Research", "研究"],
     ["Inventory", "仓库"],
@@ -759,7 +781,18 @@ const FindAndReplaceText = () => {
             }); 
             break;
         }
+        case "/rules":{
+            document.querySelectorAll("main h2.text-lg:not([translated]), main p.text-md:not([translated]), main h1:not([translated])").forEach(p => {
+                p.setAttribute("translated", "")
+                _Translate(p);
+            });
+            break;
+        }
         case "/inventory":{
+            document.querySelectorAll("main div.mt-2.mb-1.text-xl:not([translated]), main span.text-2xl:not([translated]), main div.text-2xl:not([translated]), main div.space-y-1 div.text-md div.w-15:not([translated])").forEach(div => {
+                div.setAttribute("translated", "");
+                _Translate(div);
+            })
             break;
         }
     }
@@ -787,12 +820,12 @@ const FindAndReplaceText = () => {
     });
     // popup translation
     document.querySelectorAll(popupSelector).forEach(div => {
-        document.body.append(div.cloneNode(true));
+        if(DEBUG) document.body.append(div.cloneNode(true));
         if(div.childNodes[0].nodeType === Node.TEXT_NODE){
             _Translate(div.childNodes[0]);
             return;
         }
-        document.body.append(div.cloneNode(true));
+        if(DEBUG) document.body.append(div.cloneNode(true));
     });
     // item translation
     document.querySelectorAll("span.rarity-common:not([translated]), span.rarity-uncommon:not([translated]), span.rarity-rare:not([translated]), span.rarity-epic:not([translated]), span.rarity-legendary:not([translated])").forEach(span => {
@@ -843,7 +876,7 @@ const FindAndReplaceText = () => {
         _Translate(span);
     });
     document.querySelectorAll('button[role="combobox"][aria-controls^="radix-"] span[data-slot="select-value"]:nth-child(1):not([translated19])').forEach(span => {
-        document.body.append(span.cloneNode(true));
+        if(DEBUG) document.body.append(span.cloneNode(true));
         span.setAttribute("translated19", "")
         if(span.parentElement.title === "Attack with magic type"){
             span.parentElement.title = "选择用于攻击的元素类型";
@@ -863,7 +896,7 @@ const FindAndReplaceText = () => {
         span.insertAdjacentElement("afterend", clone);
         _Translate(clone);
         span.setAttribute("hidden", "")
-        new MutationObserver(() => {console.log("trigger"); clone.textContent = span.textContent; _Translate(clone);}).observe(span, {childList: true, subtree: true, characterData: true});
+        new MutationObserver(() => {const _clone = span.cloneNode(true); _Translate(_clone); _clone.removeAttribute("hidden"); span.nextElementSibling.replaceWith(_clone)}).observe(span, {childList: true, subtree: true, characterData: true});
     });
 };
 const WatchEvent = () => {
