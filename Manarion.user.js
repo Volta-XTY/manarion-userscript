@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.3
+// @version      0.4
 // @description  Manarion Chinese Translation and Quest notification
 // @author       VoltaXTY
 // @match        https://manarion.com/*
@@ -820,12 +820,12 @@ const FindAndReplaceText = () => {
     });
     // popup translation
     document.querySelectorAll(popupSelector).forEach(div => {
+        div.setAttribute("translated13", "")
         if(DEBUG) document.body.append(div.cloneNode(true));
         if(div.childNodes[0].nodeType === Node.TEXT_NODE){
             _Translate(div.childNodes[0]);
             return;
         }
-        if(DEBUG) document.body.append(div.cloneNode(true));
     });
     // item translation
     document.querySelectorAll("span.rarity-common:not([translated]), span.rarity-uncommon:not([translated]), span.rarity-rare:not([translated]), span.rarity-epic:not([translated]), span.rarity-legendary:not([translated])").forEach(span => {
