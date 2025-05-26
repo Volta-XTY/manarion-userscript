@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.1
-// @description  try to take over the world!
+// @version      0.2
+// @description  Manarion Chinese Translation and Quest notification
 // @author       VoltaXTY
 // @match        https://manarion.com/*
 // @icon         http://manarion.com/favicon.ico
@@ -422,7 +422,7 @@ const Translation = new Map([
     ["Increased ", "增加 "],
     [" drop rate by 50%", " 掉落率 50%"],
     [" drop rate by 25%", " 掉落率 25%"],
-    ["Added option to filter items for any gathering skill in market, armory, inventory", "新增在市场、装备库、背包过滤指定采集技能装备的选项"],
+    ["Added option to filter items for any gathering skill in market, armory, inventory", "新增在市场、装备库、仓库过滤指定采集技能装备的选项"],
     ["Equipment order prices can now be edited", "装备出售挂牌价格现在可以编辑了"],
     ["Added Quality column and secondary boost filter for combat skills to equipment market", "为装备市场增加了品质列和战斗第二加成过滤选项"],
     ["Fixed notification going through when player is ignored", "修复玩家被屏蔽时通知不生效的问题"],
@@ -537,6 +537,35 @@ const Translation = new Map([
     ["Rift of Power (Event)", "力量洪流（活动）"],
     ["Unlink", "解除绑定"],
     ["Logout", "登出"],
+    ["Your guild received:", "你的公会获得了："],
+    ["Battle XP", "战斗经验"],
+    ["Player", "玩家"],
+    ["Ward Strength: ", "抗性强度："],
+    ["Average Damage Per Spell:", "每次施法平均伤害："],
+    ["You spent ", "你消耗了 "],
+    [" mana", " 点魔力"],
+    [".", "."],
+    ["Kills: ", "击杀数："],
+    ["Deaths: ", "死亡数："],
+    ["Winrate:", "胜率："],
+    ["Enemy", "敌人"],
+    ["Average Damage Per Attack:", "每次攻击平均伤害："],
+    ["You went ", "你进行了一次"],
+    ["mining", "采矿"],
+    ["fishing", "捕鱼"],
+    ["woodcutting", "伐木"],
+    [" and gained", "，获得了"],
+    [" experience", " 点经验"],
+    ["You received the following loot:", "你获得了以下物品："],
+    ["Set name", "设置名称"],
+    ["Combat", "战斗"],
+    // nav link
+    ["Town", "城镇"],
+    ["Research", "研究"],
+    ["Inventory", "仓库"],
+    ["Market", "市场"],
+    ["Rankings", "排行榜"],
+    ["Battle", "战斗"],
 ]);
 //[...Translation.values()].forEach(value => Translation.set(value, value));
 const EquipTranslation = new Map([
@@ -666,6 +695,72 @@ const FindAndReplaceText = () => {
                     _Translate(node);
                 })
             })
+            break;
+        }
+        case "/":{
+            // main translation 1
+            document.querySelectorAll("html.dark.notranslate body div#root div.flex.max-h-screen.min-h-screen.flex-col.overflow-x-hidden div.flex.max-w-screen.grow.flex-col.overflow-y-scroll.lg\\:flex-row.lg\\:flex-wrap main.grow.p-2.lg\\:w-1.lg\\:p-4 div.space-y-2 div.bg-primary\\/20.mt-4.rounded.p-3:nth-child(3):not([translated14])").forEach(div => {
+                div.setAttribute("translated14", "");
+                [
+                    div.children[0]?.childNodes[0],
+                    div.children[0]?.childNodes[3],
+                    div.children[1]?.childNodes[0],
+                    div.children[1]?.childNodes[2],
+                    div.children[1]?.childNodes[4],
+                    div.children[1]?.childNodes[6],
+                    div.children[2]?.childNodes[0],
+                    div.children[2]?.childNodes[2],
+                ].filter(ele => ele).forEach(_Translate);
+            });
+            // main translation 2
+            document.querySelectorAll("html.dark.notranslate body div#root div.flex.max-h-screen.min-h-screen.flex-col.overflow-x-hidden div.flex.max-w-screen.grow.flex-col.overflow-y-scroll.lg\\:flex-row.lg\\:flex-wrap main.grow.p-2.lg\\:w-1.lg\\:p-4 div.space-y-2 div.bg-primary\\/20.mt-4.rounded.p-3:nth-child(4):not([translated15])").forEach(div => {
+                div.setAttribute("translated15", "");
+                [
+                    div.childNodes[0],
+                    div.children[1]?.childNodes[0],
+                    [...[...div.children[1]?.children[0]?.children].at(-1)?.childNodes].at(-1)
+                ].filter(ele => ele).forEach(_Translate);
+            });
+            document.querySelectorAll("html.dark.notranslate body div#root div.flex.max-h-screen.min-h-screen.flex-col.overflow-x-hidden div.flex.max-w-screen.grow.flex-col.overflow-y-scroll.lg\\:flex-row.lg\\:flex-wrap main>div:not([class]):not([translated])").forEach(div => {
+                div.setAttribute("translated", "");
+                [
+                    div?.children[0]?.children[0]?.childNodes[0],
+                    div?.children[0]?.children[0]?.childNodes[1],
+                    div?.children[0]?.children[0]?.childNodes[2],
+                    div?.children[0]?.children[0]?.childNodes[5],
+                    div?.children[1]?.childNodes[0],
+                    div?.children[1]?.children[1]?.childNodes[0],
+                ].filter(ele => ele).forEach(_Translate);
+            });
+            // main translation 3
+            document.querySelectorAll("html.dark.notranslate body div#root div.flex.max-h-screen.min-h-screen.flex-col.overflow-x-hidden div.flex.max-w-screen.grow.flex-col.overflow-y-scroll.lg\\:flex-row.lg\\:flex-wrap main.grow.p-2.lg\\:w-1.lg\\:p-4 div.space-y-2 div.mt-4.grid.grid-cols-2.gap-4:nth-child(5)").forEach(div => {
+                if(div.hasAttribute("translated", "")){
+                    const lackMana = div.children[0].children[3].childNodes[3];
+                    if(lackMana.textContent !== "."){
+                        const result = /[0-9]+/.exec(lackMana.textContent);
+                        //, and lacked 1684 mana
+                        lackMana.textContent = `，并且缺少 ${result[0]} 点魔力`;
+                    }
+                    return;
+                }
+                div.setAttribute("translated", "");
+                [
+                    div.children[0].children[0],
+                    div.children[0].children[1].childNodes[0],
+                    div.children[0].children[2].childNodes[0],
+                    ...[...div.children[0].children[3].childNodes].filter(node => node.nodeType === Node.TEXT_NODE && !/[0-9]/.exec(node.textContent)),
+                    div.children[0].children[4].children[0].childNodes[0],
+                    div.children[0].children[4].children[1].childNodes[0],
+                    div.children[0].children[4].children[2].childNodes[0],
+                    div.children[1].children[0],
+                    div.children[1].children[1].childNodes[0],
+                    div.children[1].children[2].childNodes[0],
+                ].forEach(_Translate);
+            }); 
+            break;
+        }
+        case "/inventory":{
+            break;
         }
     }
     document.querySelectorAll('main a[href^="/market"]:not([translated10])').forEach(a => {
@@ -674,6 +769,11 @@ const FindAndReplaceText = () => {
         _Translate(a.parentElement.children[0]);
         _Translate(a.parentElement.children[1]);
     });
+    // nav translation
+    document.querySelectorAll(`html body div#root div.flex.max-h-screen.min-h-screen.flex-col.overflow-x-hidden nav.bg-card.small-caps.border-primary.z-1.w-full.max-w-screen.border-b.shadow-md div.flex.items-center.px-4.py-2 div.ml-auto.flex.w-full.max-w-full.items-center.gap-2 div.flex.w-0.flex-shrink.flex-grow.justify-end.gap-1.overflow-x-hidden a.text-muted-foreground.hover\\:bg-primary\\/50.ring-primary.mx-1.my-1.flex.flex-shrink-0.items-center.gap-2.rounded-lg.px-1.py-1.transition.hover\\:ring:not([translated])`).forEach(a => {
+        a.setAttribute("translated", "")
+        _Translate(a.children[1]);
+    })
     // label translation
     document.querySelectorAll("label:not([translated11])").forEach((label) => {
         label.setAttribute("translated11", "");
@@ -693,28 +793,6 @@ const FindAndReplaceText = () => {
             return;
         }
         document.body.append(div.cloneNode(true));
-    });
-    // main translation 1
-    document.querySelectorAll("html.dark.notranslate body div#root div.flex.max-h-screen.min-h-screen.flex-col.overflow-x-hidden div.flex.max-w-screen.grow.flex-col.overflow-y-scroll.lg\\:flex-row.lg\\:flex-wrap main.grow.p-2.lg\\:w-1.lg\\:p-4 div.space-y-2 div.bg-primary\\/20.mt-4.rounded.p-3:nth-child(3):not([translated14])").forEach(div => {
-        div.setAttribute("translated14", "");
-        [
-            div.children[0]?.childNodes[0],
-            div.children[0]?.childNodes[3],
-            div.children[1]?.childNodes[0],
-            div.children[1]?.childNodes[2],
-            div.children[1]?.childNodes[4],
-            div.children[1]?.childNodes[6],
-            div.children[2]?.childNodes[0],
-            div.children[2]?.childNodes[2],
-        ].filter(ele => ele).forEach(_Translate);
-    });
-    // main translation 2
-    document.querySelectorAll("html.dark.notranslate body div#root div.flex.max-h-screen.min-h-screen.flex-col.overflow-x-hidden div.flex.max-w-screen.grow.flex-col.overflow-y-scroll.lg\\:flex-row.lg\\:flex-wrap main.grow.p-2.lg\\:w-1.lg\\:p-4 div.space-y-2 div.bg-primary\\/20.mt-4.rounded.p-3:nth-child(3):not([translated15])").forEach(div => {
-        div.setAttribute("translated15", "");
-        [
-            div.childNodes[0],
-            
-        ]
     });
     // item translation
     document.querySelectorAll("span.rarity-common:not([translated]), span.rarity-uncommon:not([translated]), span.rarity-rare:not([translated]), span.rarity-epic:not([translated]), span.rarity-legendary:not([translated])").forEach(span => {
