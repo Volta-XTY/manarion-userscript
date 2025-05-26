@@ -10,7 +10,7 @@
 // @run-at       document-start
 // ==/UserScript==
 const DoTranslate = true; // 把这里的true改成false就可以关闭翻译，反之亦然。
-const DEBUG = true;
+const DEBUG = false;
 const GetItem = (key) => JSON.parse(window.localStorage.getItem(key) ?? "null");
 const SetItem = (key, value) => window.localStorage.setItem(key, JSON.stringify(value));
 const css = 
