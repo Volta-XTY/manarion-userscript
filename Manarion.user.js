@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.4
+// @version      0.3
 // @description  Manarion Chinese Translation and Quest notification
 // @author       VoltaXTY
 // @match        https://manarion.com/*
@@ -46,9 +46,9 @@ const HTML = (tagname, attrs, ...children) => {
     for(const child of children) if(child) ele.append(child);
     return ele;
 };
-const popupSelector = 'div[data-slot="tooltip-content"]:not([translated13])';
+const popupSelector = 'div[data-slot="tooltip-content"]:not([translated])';
 const Translation = new Map([
-    // left side stat panel translation
+    // #region stat panel
     ["Battle Level:", "战斗等级:"],
     ["Experience:", "经验值:"],
     ["Actions:", "行动计数:"],
@@ -88,7 +88,8 @@ const Translation = new Map([
     ["Increases your mana pool", "增加你的魔力值"],
     ["Decreases enemy ward strength", "降低敌人的防御强度"],
     ["Increases your mana regeneration", "增加你的魔法回复"],
-    // common item names
+    // #endregion
+    // #region item names
     ["[Mana Dust]", "[魔法尘]"],
     ["Mana Dust", "魔法尘"],
     ["[Elemental Shards]", "[元素碎片]"],
@@ -139,14 +140,16 @@ const Translation = new Map([
         [`Formula: ${key}`, `术式：${value}`],
         [`[Formula: ${key}]`, `[术式：${value}]`],
     ]),
-    // tab translation
+    // #endregion
+    // #region tab
     ["Base Power", "基础能力值"],
     ["Combat Skills", "战斗加成"],
     ["Enchants", "附魔技能"],
     ["Gathering", "采集升级"],
     ["Farm", "农场"],
     ["Potions", "药水"],
-    // market translation
+    // #endregion
+    // #region market
     ["Quantity", "数量"],
     ["Unit Price", "单价"],
     ["Sell", "出售"],
@@ -164,7 +167,8 @@ const Translation = new Map([
     ["Marketplace", "市场"],
     ["All prices are in Mana Dust", "所有价格的单位都是魔法尘"],
     ["Back to market", "回到市场"],
-    // guild translation
+    // #endregion
+    // #region guild
     ["Create", "创建"],
     ["Guild Name", "公会名"],
     ["Level", "等级"],
@@ -177,7 +181,8 @@ const Translation = new Map([
     ["Active", "状态"],
     ["Rank", "职位"],
     ["Borrow", "借出"],
-    // button translation
+    // #endregion
+    // #region button 
     ["Transfer", "赠送"],
     ["Seller", "出售者"],
     ["Quality", "品质"],
@@ -204,10 +209,12 @@ const Translation = new Map([
     ["Next →", "下一页 →"],
     ["Brew", "制作"],
     ["Collect", "采摘"],
-    // chat channel translation
+    // #endregion
+    // #region chat chan
     ["All", "所有"],
     ["Whispers", "私信"],
-    // research translation
+    // #endregion
+    // #region research 
     ["Staff (Damage)", "法杖（元素伤害）"],
     ["Cloak (Resistance)", "斗篷（元素抗性）"],
     ["Head (Base XP)", "头部（基础经验值）"],
@@ -242,13 +249,15 @@ const Translation = new Map([
     ["Drop Boost", "掉落加成"],
     ["Multistat", "多重属性掉落"],
     ["Actions", "行动次数"],
-    // popup translation
+    // #endregion
+    // #region equip detail 
     ["Link", "链接至聊天"],
     ["Quality", "品质"],
     ["Currently Equipped", "已被装备"],
     ["Battle Level", "战斗等级"],
     ["Gather Level", "采集等级"],
-    // rarity
+    // #endregion
+    // #region equip
     ["Common", "普通"], ["Uncommon", "稀有"], ["Rare", "罕见"], ["Epic", "史诗"], ["Legendary", "传说"],
     ["Ward Boost", "抗性增幅"],
     ["Battle Experience", "战斗经验"],
@@ -266,7 +275,8 @@ const Translation = new Map([
     ["Base Resource Amount", "基础资源量"],
     ["Focus Boost", "集中增幅"],
     ["Mana Boost", "魔力增幅"],
-    // label
+    // #endregion
+    // #region label
     ["Stat Drop Tracker", "属性值掉落记录"],
     ["Item Drop Tracker", "掉落物记录"],
     ["Step Size", "步幅"],
@@ -276,7 +286,8 @@ const Translation = new Map([
     ["Mass Disenchant", "批量分解"],
     ["Amount", "数量"],
     ["Tier", "等级"],
-    // dropdown
+    // #endregion
+    // #region dropdown
     ["Mining Level", "采矿等级"],
     ["Fishing Level", "捕鱼等级"],
     ["Woodcutting Level", "伐木等级"],
@@ -285,7 +296,8 @@ const Translation = new Map([
     ["Battle Quest #", "战斗任务 #"],
     ["Gather Quest #", "采集任务 #"],
     ["Enchanting", "附魔"],
-    // text
+    // #endregion
+    // #region battle text
     ["Are you sure you want to reset your codex boosts?", "确定要重置所有法典升级吗？"],
     ["You have invested ", "你已经投入了 "],
     [" will be deducted as a reset cost.", " 将作为重置费用被扣除。"],
@@ -298,6 +310,8 @@ const Translation = new Map([
     [" times.", " 次。"],
     ["Enemy attacked you ", "敌人对你攻击了 "],
     ["You found the following loot:", "你获得的战利品有："],
+    // #endregion
+    // #region research text
     ["Increases base spellpower.", "增加基础法术强度。"],
     ["Increases base ward strength.", "增加基础抗性。"],
     ["Provides a base damage multiplier to fire spells.", "为火系法术提供基础伤害增幅。"],
@@ -336,6 +350,8 @@ const Translation = new Map([
     ["Increases your chance to get additional stat rolls and mastery.", "提升获得额外属性值和法系增幅值的概率。"],
     ["Increases the maximum amount of actions you can do.", "增加最大行动次数。"],
     ["Increases your chance to find nearly any item drop.", "提升获得绝大多数掉落物的概率。"],
+    // #endregion
+    // #region guild text
     ["Manage Ranks (Admin)", "调整职位（管理员）"],
     ["Invite Members", "邀请成员"],
     ["Kick Members", "踢出成员"],
@@ -356,7 +372,7 @@ const Translation = new Map([
     ["+0.5% resources per level", "每级使成员资源获取 +0.5%"],
     ["Council Chamber", "会议厅"],
     ["Increases the maximum amount of guild members by 1 per level", "每级 +1 最大成员数"],
-    ["Level ", "等级"],
+    ["Level ", "等级 "],
     ["Cloakroom", "衣帽间"],
     ["Increases the capacity of the armory by 50 items per level", "每级 +50 装备库容量"],
     ["Nexus Crystal", "连结水晶"],
@@ -369,7 +385,9 @@ const Translation = new Map([
     ["Increases base experience gains by 1% per level", "每级使成员基础经验值 +1%"],
     ["Sleeping Quarters", "睡眠区"],
     ["Increases maximum actions by 1% per level", "每级使成员最大行动次数 +1%"],
-    ["The first type of event has been added: Rift of Power. Randomly opens every 3-6 hours for 10 minutes.", "新增第一种活动：力量洪流。活动将间隔随机 3 到 6 小时开启，每次持续 10 分钟。"],
+    // #endregion
+    // #region update text
+    ["The first type of event has been added: Rift of Power. Randomly opens every 3-6 hours for 10 minutes.", "新增第一种事件：力量洪流。活动将间隔随机 3 到 6 小时开启，每次持续 10 分钟。"],
     [" When you siphon it you have a chance each action (starting at 100% each rift dropping to 10% as you siphon more) to apply the effect of an", " 当你汲取力量洪流时，每次行动都有一定概率（初始值 100%，每次成功降低 10%，最低 10%）施加一个"],
     [" ", " "],
     [" to your lowest quality equipped item.", " 的效果，作用于你装备的最低品质的物品上。"],
@@ -409,12 +427,12 @@ const Translation = new Map([
     ["Added pulsing animation to potion icon 10 minutes before potion expires", "当药水效果仅余少于 10 分钟时，为药水图标新增闪烁动画"],
     ["Potions from belt only consumed when matching current action type", "现在只会从药水带中使用对应于当前行动的药水"],
     ["Added notification option for potion expiring", "新增药水耗尽通知选项"],
-    ["Added extra confirmation to potion belt purchases and spellpower/ward when gathering", "为药水带容量升级和采集时法术强度/抗性升级新增二次确认"],
+    ["Added extra confirmation to potion belt purchases and spellpower/ward when gathering", "为药水腰带容量升级和采集时法术强度/抗性升级新增二次确认"],
     ["Pushed down loot tracker sooner on smaller layouts", "提高下沉掉落跟踪面板的屏幕尺寸阈值"],
     ["Changed number formatting to be independent of browser localisation", "现在数值格式化不随浏览器本地化设置而改变"],
     ["Reduced battle xp needed per level by 50%", "升级所需战斗经验减少 50%"],
     ["Increased weight of battle levels in shard drop calculation, slowed scaling based on total level", "提高了元素碎片掉落数量计算时战斗等级的权重，降低基于总等级的增长速度"],
-    ["Can now upgrade/discard potions in potion belt", "现在可以升级/丢弃药水带中的药水了"],
+    ["Can now upgrade/discard potions in potion belt", "现在可以升级/丢弃药水腰带中的药水了"],
     ["Added extra confirmation for brewing potion not matching active action type", "制作不符合当前行动的药水时，新增二次确认"],
     ["Added farming + potions", "新增农场和药水"],
     ["Next guild upgrade can now be marked for anyone to complete", "下一个公会升级现在可以被标记，任何成员均可完成"],
@@ -436,7 +454,7 @@ const Translation = new Map([
     ["Increased average/maximum roll values for non-legendary items", "增加了非传说物品属性值的平均值/最大值"],
     ["Significantly buffed mana regeneration from spirit", "极大增加了精神属性提供的魔力回复"],
     ["Can leave price field blank in market to sell/buy at market price", "在价格输入框留空可以直接以当前市场价出售/购买"],
-    ["Can click funds in guild to prefill", ""],
+    ["Can click funds in guild to prefill", "可以在公会页中点击仓库剩余数量填充捐赠输入框"],
     ["Added /ignored, /wire, /afk, /profile commands", "新增 /ignored, /wire, /afk, /profile 命令"],
     ["Added ability to add text on profile page", "新增主页自定义文字功能"],
     ["Allowed line breaks in guild description", "公会介绍现在可以换行了"],
@@ -454,43 +472,45 @@ const Translation = new Map([
     ["Can enchant items from profiles", "可以在个人主页附魔装备"],
     ["Added ignore functionality and /help command", "新增屏蔽功能和 /help 命令"],
     ["Guilds can tax ", "公会可以对 "],
-    [", withdraw", " 收税，回收"],
+    [", withdraw", " 收税，凭借新增的公会权限回收"],
     ["/", "/"],
     [" with new rank permission", ""],
     ["Slightly nerfed enemy ward/focus scaling in final areas", "略微削弱了最终区域敌人的抗性/集中增长率"],
     ["Changed battle xp curve, reducing by up to 11% under level 160, increasing later", "调整了战斗经验曲线，160 等级以下所需经验最高减少 11%，在之后"],
-    ["Armory shows if borrowed items are unequipped", ""],
-    ["Reverted part of enemy scaling due to error", ""],
-    ["Display online/active player count", ""],
-    ["Display last active time in guild roster", ""],
-    ["Added detailed notification settings, support for multiple devices", ""],
-    ["Updated battle code, slightly reduced randomness of enemy damage", ""],
-    ["Added color options for theme and chat colors in settings", ""],
-    ["Added /transferguild command", ""],
-    ["Enchanting reagent cost scaling changed to 3 per level", ""],
-    ["Fire/Water/Nature Essence added to gathering skill drop tables", ""],
-    ["Adjusted droprates of some reagents", ""],
-    ["Added leaderboard for strongest enemy defeated in final zones", ""],
-    ["Leaderboards filtered to remove admins/inactive players", ""],
-    ["Can favorite items to prevent mass disenchant", ""],
-    ["Mass disenchant only applies to filtered item list", ""],
-    ["Fixed issues with item links in chat input", ""],
-    ["Can no longer transfer items to banned/guest accounts", ""],
-    ["Added leaderboards for different categories", ""],
-    ["Added gather actions count to profile, some early data missing", ""],
-    ["Added guild upgrade for increased actions", ""],
-    ["3 actions per codex (retroactive)", ""],
-    ["Gather gear more likely to roll for active skill", ""],
-    ["Item transfers now show in whispers for persistence", ""],
-    ["Whisper tab shows unread count, including in All tab", ""],
-    ["Manual refresh may be needed to see changes", ""],
-    ["New guild upgrade: Study Room +1% base experience per level for gatherers and battlers", ""],
-    ["Banned players’ names struck through on guild roster and profile", ""],
-    [" logic updated to preserve existing modifier types", ""],
-    [" from quest rewards changed to", ""],
-    [" until quest counter reaches 1000", ""],
-    ["Normal tradeable codex drop rates buffed to 1/4k base", ""],
-    ["Closed 50 accounts for multi farming/botting", ""],
+    ["Armory shows if borrowed items are unequipped", "装备库现在显示借出但未被装备的物品"],
+    ["Reverted part of enemy scaling due to error", "由于报错，回退了一部分敌人成长调整"],
+    ["Display online/active player count", "显示在线/活动玩家数量"],
+    ["Display last active time in guild roster", "在公会名单中显示上次活动时间"],
+    ["Added detailed notification settings, support for multiple devices", "新增详细通知设置，支持多设备"],
+    ["Updated battle code, slightly reduced randomness of enemy damage", "更新战斗代码，稍微降低了敌人伤害的随机性"],
+    ["Added color options for theme and chat colors in settings", "在设置中新增主题颜色和聊天颜色选项"],
+    ["Added /transferguild command", "新增 /transferguild 命令"],
+    ["Enchanting reagent cost scaling changed to 3 per level", "附魔材料消耗调整至每级 3 个"],
+    ["Fire/Water/Nature Essence added to gathering skill drop tables", "火/水/自然精华加入采集技能掉落表中"],
+    ["Adjusted droprates of some reagents", "调整了某些附魔材料的掉落率"],
+    ["Added leaderboard for strongest enemy defeated in final zones", "新增最终区域击败的最强敌人排行榜"],
+    ["Leaderboards filtered to remove admins/inactive players", "排行榜现在会过滤管理员和不活跃玩家"],
+    ["Can favorite items to prevent mass disenchant", "可以保护物品，防止其被批量分解"],
+    ["Mass disenchant only applies to filtered item list", "批量分解现在只会分解过滤后的物品清单"],
+    ["Fixed issues with item links in chat input", "修复了聊天输入框关于物品链接的问题"],
+    ["Can no longer transfer items to banned/guest accounts", "无法再向封禁/访客账号发送物品"],
+    ["Added leaderboards for different categories", "新增不同类别的排行榜"],
+    ["Added gather actions count to profile, some early data missing", "个人资料页新增采集行动数统计，一些早期数据已丢失"],
+    ["Added guild upgrade for increased actions", "新增可以增加最大行动数的公会升级"],
+    ["3 actions per codex (retroactive)", "每本法典提升 3 行动数（溯及既往）"],
+    ["Gather gear more likely to roll for active skill", "掉落的采集装备现在更有可能对应于当前行动"],
+    ["Item transfers now show in whispers for persistence", "物品收发记录现在在私聊栏中长期显示"],
+    ["Whisper tab shows unread count, including in All tab", "私聊栏现在显示未读数量，包括「所有」栏"],
+    ["Manual refresh may be needed to see changes", "改动可能需要手动刷新生效"],
+    ["New guild upgrade: Study Room +1% base experience per level for gatherers and battlers", "新的公会升级：学习室。每级使战斗和采集成员基础经验值 +1%"],
+    ["Banned players’ names struck through on guild roster and profile", "封禁玩家的名字会在个人资料页和公会名单上用删除线划去"],
+    [" logic updated to preserve existing modifier types", " 机制变为保留已有的属性"],
+    [" from quest rewards changed to", " 在任务奖励中变为"],
+    [" until quest counter reaches 1000", "，直至任务数字到达 1000"],
+    ["Normal tradeable codex drop rates buffed to 1/4k base", "普通的可交易法典掉落率增加至 1/4000 基础值"],
+    ["Closed 50 accounts for multi farming/botting", "封禁了 50 个小号/脚本"],
+    // #endregion
+    // #region town text
     ["Welcome to Manarion", "欢迎来到 Manarion"],
     ["Battle Zones", "战斗区"],
     ["Radiant Grove (Beginner)", "辉光树林（新手）"],
@@ -508,9 +528,10 @@ const Translation = new Map([
     ["Hall of Fame", "荣耀大厅"],
     ["Notice Board (Rules)", "告示板（游戏规则）"],
     ["News Board", "新闻栏"],
-    // label translation
+    // #endregion
+    // #region label 
     ["Adjust personal contribution", "调整个人上税"],
-    ["Example", "例子"],
+    ["Example", "示例"],
     ["Sign in with Discord", "使用 Discord 登录"],
     ["Sign in with Twitch", "使用 Twitch 登录"],
     ["Join Us on Discord", "加入我们的 Discord"],
@@ -532,13 +553,10 @@ const Translation = new Map([
     ["Mastery gained:", "获得法系增幅:"],
     ["Tracked time:", "记录时间:"],
     ["Total stats:", "总获得属性点:"],
-    ["Quest Complete", "任务完成"],
-    ["Fatigue", "行动计数归零"],
-    ["Whisper", "私聊"],
-    ["Potion expired", "药水耗尽"],
-    ["Rift of Power (Event)", "力量洪流（活动）"],
     ["Unlink", "解除绑定"],
     ["Logout", "登出"],
+    // #endregion
+    // #region battle text
     ["Your guild received:", "你的公会获得了："],
     ["Battle XP", "战斗经验"],
     ["Player", "玩家"],
@@ -559,7 +577,9 @@ const Translation = new Map([
     [" and gained", "，获得了"],
     [" experience", " 点经验"],
     ["You received the following loot:", "你获得了以下物品："],
+    // #endregion
     ["Set name", "设置名称"],
+    // #region rule text
     ["1. Respect Others", "1. 尊重他人"],
     ["No harassment, personal attacks, or targeted insults.", "禁止羞辱行为，人身攻击，或者有针对的侮辱。"],
     ["2. Keep It Safe For Everyone", "2. 为所有人维护适宜的环境"],
@@ -574,6 +594,12 @@ const Translation = new Map([
     ["Do not share your account. You are responsible for all activity on your account.", "不要分享你的账号。你为你账号的左右行动负责。"],
     ["7. No Bug Abuse", "7. 禁止恶意利用漏洞"],
     ["If you find an exploit, report it privately to a staff member. Abusing bugs will result in a ban.", "如果你发现了一个漏洞，请私下向制作人员反馈。恶意利用漏洞将会导致封禁。"],
+    // #endregion
+    // #region siphon text
+    ["You are currently siphoning power into your lowest quality equipped item...", "正在汲取力量至装备的最低品质物品..."],
+    ["Siphoning power into ", "汲取力量至 "],
+    ["You don't have any items equipped.", "你没有装备任何物品。"],
+    // #endregion
     ["Currencies", "通用物品"],
     ["Resources", "资源"],
     ["Orbs", "特殊球"],
@@ -588,8 +614,79 @@ const Translation = new Map([
     ["Market", "市场"],
     ["Rankings", "排行榜"],
     ["Battle", "战斗"],
+    ["Rules", "规则"],
+    ["News", "新闻"],
+    ["Settings", "设置"],
 ]);
-//[...Translation.values()].forEach(value => Translation.set(value, value));
+const SettingsTranslation = new Map([
+    ["Referrer Link", "推荐链接"],
+    ["Guild Taxes", "公会税收"],
+    ["Push Notifications", "推送通知"],
+    ["Customize Colors", "自定义颜色"],
+    ["Theme", "主题"],
+    ["Whispers", "私信消息"],
+    ["General", "通用频道"],
+    ["Trade", "交易频道"],
+    ["Guild", "公会频道"],
+    ["Help", "帮助频道"],
+    ["Identity Providers", "身份验证服务"],
+    ["Quest Complete", "任务完成"],
+    ["Fatigue", "行动计数归零"],
+    ["Whisper", "私信"],
+    ["Potion expired", "药水耗尽"],
+    ["Rift of Power (Event)", "力量洪流（事件）"],
+    ["Added on", "添加于"],
+    ["Refer your friends to the game and get an additional 5% of any", "将游戏推荐给朋友，然后额外获得他们掉落的"],
+    [" they find.", " 的5%。"],
+    ["You must both verify your account by linking an identity provider to earn rewards.", "双方均需绑定账号以获取奖励。"],
+    ["Other devices", "其他设备"],
+    ["任务完成", "任务完成"],
+    ["行动计数归零", "行动计数归零"],
+    ["私信", "私信"],
+    ["药水耗尽", "药水耗尽"],
+    ["力量洪流（事件）", "力量洪流（事件）"],
+]);
+// #region FarmTrans
+const FarmTranslation = new Map([
+    ["", ""],
+    ["Your farm has been growing for ", "你的农场已经生长了 "],
+    ["Your farm has been growing for less than a minute", "你的农场已经生长了不到一分钟"],
+    [" hours", " 小时"],
+    [" hours ", " 小时 "],
+    [" hour", " 小时"],
+    [" hour ", " 小时 "],
+    [" minutes", " 分钟"],
+    [" minute", " 分钟"],
+    [" herbs/hour)", "药草/小时)"],
+    ["(Your farm continues to grow for up to 24 hours)", "(你的农场可以持续生长 24 小时)"],
+    ["Upgrades", "升级"],
+    ["Harvest Golems", "收割傀儡"],
+    ["Fertilizer", "肥料"],
+    ["Plots", "地块"],
+    ["Improves growth, increasing the yield of all plots.", "促进生长，增加所有地块产出。"],
+    ["Constantly tends to your plots, increasing the yield of all plots.", "不间断地照料田地，增加所有地块产出。"],
+    ["Expands your farming area, increasing the yield.", "扩大你的田地，增加产出。"],
+    ["Current Boost: ", "当前加成："],
+    ["Increase ", "提升 "],
+    [" times (+", " 级 (+"],
+    [") for ", "), 消耗 "],
+    ["Potion of Renewal", "刷新药水"],
+    ["Potion of Wisdom", "智慧药水"],
+    ["Potion of Harvesting", "收获药水"],
+    ["Restores 200 actions when you run out.", "当行动次数不足时回复 200 次数"],
+    ["当行动次数不足时回复 ", "当行动次数不足时回复 "],
+    [" 200 次数", " 200 次数"],
+    [" Battle Experience for 1 hour.", " 战斗经验，持续 1 小时。"],
+    [" Base Resource Amount for 1 hour.", " 基础资源量，持续 1 小时。"],
+    ["Potion Belt", "药水腰带"],
+    ["Potion belt", "药水腰带"],
+    ["Brewing", "酿药"],
+    ["Increases the maximum amount of potions you can store.", "增加你最多可以保存的药水数量。"]
+]);
+[...FarmTranslation.values()].forEach(value => FarmTranslation.set(value, value));
+// #endregion FarmTrans
+if(!DEBUG) [...Translation.values()].forEach(value => Translation.set(value, value));
+// #region EquipTrans
 const EquipTranslation = new Map([
     // quality
     ["Worn", "破旧的"], ["Refined", "精制的"], ["Runed", "铭文的"], ["Ascended", "进阶的"], ["Eternal", "永恒的"],
@@ -598,6 +695,7 @@ const EquipTranslation = new Map([
     // part
     ["Staff", "法杖"], ["Hood", "兜帽"], ["Pendant", "项链"], ["Cloak", "斗篷"], ["Robes", "法袍"], ["Gloves", "手套"], ["Sandals", "鞋子"], ["Ring", "戒指"], [" of Water", "水"], [" of Fire", "火"], [" of Nature", "自然"], ["Helmet", "头盔"], ["Pickaxe", "镐子"], ["Axe", "斧头"], ["Rod", "鱼竿"], ["Jacket", "夹克"], ["Cape", "披风"], ["Boots", "靴子"], ["Hat", "帽子"], ["Tunic", "外衣"],
 ]);
+// #endregion
 const equipRegex = /(?<lbracket>\[?)(?<quality>Worn|Refined|Runed|Ascended|Eternal) (?<type>[A-Za-z']+) (?<part>[A-Za-z]+)(?<elementType> of Water| of Fire| of Nature)?(?<upgradeLevel> \+[0-9]+)? \((?<level>[0-9]+)\)(?<rbracket>\]?)/;
 const EquipTranslate = (ele) => {
     const equip = equipRegex.exec(ele.textContent);
@@ -606,32 +704,49 @@ const EquipTranslate = (ele) => {
         ele.textContent = `${group.lbracket ?? ""}${EquipTranslation.get(group.quality)}${EquipTranslation.get(group.type)}${group.elementType ? EquipTranslation.get(group.elementType) : ""}${EquipTranslation.get(group.part) ?? group.part}${group.upgradeLevel ?? ""} (${group.level})${group.rbracket ?? ""}`;
     }
     else{
-        console.log("Cound not translate item: ", ele.textContent);
+        console.log("could not translate item: ", ele.textContent);
     }
 }
-const researchSelector = ["-content-mana-dust", "-content-combat-skills", "-content-enchants", "-content-gathering", "-content-codex"].map(id => `div[data-state="active"][id$="${id.replaceAll(":", "\\:")}"]:not([data-state="translated17"])`).join(",");
+const researchSelector = ["-content-mana-dust", "-content-combat-skills", "-content-enchants", "-content-gathering", "-content-codex"].map(id => `div[data-state="active"][id$="${id.replaceAll(":", "\\:")}"]:not([data-state="translated"])`).join(",");
 const _FailedTranslate = new Set();
+const __TypedTranslation = new Map([
+    ["equipment", EquipTranslation],
+    ["settings", SettingsTranslation],
+    ["farm", FarmTranslation],
+    ["default", Translation],
+]);
 const _Translate = (ele, type = "default") => {
     if(ele.nodeType !== Node.TEXT_NODE && (!ele.textContent || ele.childNodes.length !== 1 || ele.childNodes[0].nodeType !== Node.TEXT_NODE)) return;
     const text = ele.textContent;
-    switch(type){
-        case "equipment": ele.textContent = (EquipTranslation.get(text) ?? (console.log("未翻译", ele.outerHTML), "未翻译")); break;
-        default: ele.textContent = (Translation.get(text) ?? (console.log("未翻译", ele.outerHTML), "未翻译")); break;
-    }
+    const translation = __TypedTranslation.get(type) ?? Translation;
+    ele.textContent = (translation.get(text) ?? (console.log("未翻译", type, ele.outerHTML), "未翻译"));
     if(ele.textContent === "未翻译"){
-        _FailedTranslate.add(text);
+        _FailedTranslate.add({
+            type: type,
+            text: text
+        });
         return false;
     }
     else return true;
 };
-unsafeWindow.ExportFailedTranslate = () => {
-    console.log([..._FailedTranslate.keys()].map(text => `    ["${text}", ""],`).join("\n"));
+const _TypedTranslate = (type) => {
+    return (ele) => _Translate(ele, type);
 };
-const FindAndReplaceText = () => {
+unsafeWindow.ExportFailedTranslate = (nocomment = true) => {
+    console.log([..._FailedTranslate.keys()].map(data => `    ["${data.text}", ""],${nocomment ? ` // ${data.type}` : ""}`).join("\n"));
+};
+const CheckTranslation = (scope, selector, callback) => {
+    scope.querySelectorAll(`${scope === document ? "" : ":scope "}${selector}:not([translated])`).forEach(ele => {
+        ele.setAttribute("translated", "");
+        callback(ele);
+    });
+};
+const FindAndReplaceText = () => {try {
     switch(window.location.pathname){
+        // #region /town
         case "/town":{
-            document.querySelectorAll("main > div:not([translated1]):nth-child(1)").forEach(div => {
-                div.setAttribute("translated1", "");
+            document.querySelectorAll("main > div:not([translated]):nth-child(1)").forEach(div => {
+                div.setAttribute("translated", "");
                 [
                     div.children[0]/* title */,
                     div.children[1]/* panels */.children[0]/* battle panel */.children[0]/* battle panel title*/,
@@ -654,40 +769,48 @@ const FindAndReplaceText = () => {
             })
             break;
         }
+        // #endregion
+        // #region /market/*
         case "/market/my-orders":
         case "/market":{
-            document.querySelectorAll(`div#root div.flex.max-h-screen.min-h-screen.flex-col.overflow-x-hidden div.flex.max-w-screen.grow.flex-col.overflow-y-scroll.lg\\:flex-row.lg\\:flex-wrap main.grow.p-2.lg\\:w-1.lg\\:p-4 div.min-h-100 div.flex.flex-col.gap-2 div.flex-1.outline-none.flex.items-center.gap-2 div:not([translated2])`).forEach(div => {
-                div.setAttribute("translated2", "");
+            document.querySelectorAll(`div#root div.flex.max-h-screen.min-h-screen.flex-col.overflow-x-hidden div.flex.max-w-screen.grow.flex-col.overflow-y-scroll.lg\\:flex-row.lg\\:flex-wrap main.grow.p-2.lg\\:w-1.lg\\:p-4 div.min-h-100 div.flex.flex-col.gap-2 div.flex-1.outline-none.flex.items-center.gap-2 div:not([translated])`).forEach(div => {
+                div.setAttribute("translated", "");
             });
-            document.querySelectorAll(`div#root div.flex.max-h-screen.min-h-screen.flex-col.overflow-x-hidden div.flex.max-w-screen.grow.flex-col.overflow-y-scroll.lg\\:flex-row.lg\\:flex-wrap main.grow.p-2.lg\\:w-1.lg\\:p-4 div.min-h-100 div.mt-4.flex.flex-wrap:not([translated3])`).forEach(div => {
-                div.setAttribute("translated3", "");
+            document.querySelectorAll(`div#root div.flex.max-h-screen.min-h-screen.flex-col.overflow-x-hidden div.flex.max-w-screen.grow.flex-col.overflow-y-scroll.lg\\:flex-row.lg\\:flex-wrap main.grow.p-2.lg\\:w-1.lg\\:p-4 div.min-h-100 div.mt-4.flex.flex-wrap:not([translated])`).forEach(div => {
+                div.setAttribute("translated", "");
                 div.querySelectorAll(":scope label").forEach(label => _Translate(label));
                 div.querySelectorAll(":scope th:nth-child(-n+2)").forEach(th => _Translate(th));
                 div.querySelectorAll(":scope h2.text-lg").forEach(h2 => _Translate(h2));
             });
-            document.querySelectorAll(`div#root div.flex.max-h-screen.min-h-screen.flex-col.overflow-x-hidden div.flex.max-w-screen.grow.flex-col.overflow-y-scroll.lg\\:flex-row.lg\\:flex-wrap main.grow.p-2.lg\\:w-1.lg\\:p-4 div.min-h-100 div.mt-4.flex.flex-wrap div.w-1\\/2.min-w-80.p-2 table.w-full.table-auto.text-left tbody tr.even\\:bg-primary\\/30.mb-2.cursor-pointer.items-center td:not([translated4]):nth-child(2)`).forEach(td =>{
-                td.setAttribute("translated4", "");
+            document.querySelectorAll(`div#root div.flex.max-h-screen.min-h-screen.flex-col.overflow-x-hidden div.flex.max-w-screen.grow.flex-col.overflow-y-scroll.lg\\:flex-row.lg\\:flex-wrap main.grow.p-2.lg\\:w-1.lg\\:p-4 div.min-h-100 div.mt-4.flex.flex-wrap div.w-1\\/2.min-w-80.p-2 table.w-full.table-auto.text-left tbody tr.even\\:bg-primary\\/30.mb-2.cursor-pointer.items-center td:not([translated]):nth-child(2)`).forEach(td =>{
+                td.setAttribute("translated", "");
                 _Translate(td.childNodes[1])
             });
             break;
         }
+        // #endregion
+        // #region /research
         case "/research":{
-            document.querySelectorAll('div[data-slot="dialog-header"]:not([translated5])').forEach(div => {
-                div.setAttribute("translated5", "");
+            document.querySelectorAll('div[data-slot="dialog-header"]:not([translated])').forEach(div => {
+                div.setAttribute("translated", "");
                 [div.children[0], div.children[1].children[0].childNodes[0], div.children[1].children[1].childNodes[3]].forEach(_Translate);
             })
             break;
         }
+        // #endregion
+        // #region /log
         case "/guild/log":
         case "/activity-log":{
-            document.querySelectorAll("div.space-x-1.text-sm.leading-4:not([translated6])").forEach(div => {
-                div.setAttribute("translated6", "");
+            document.querySelectorAll("div.space-x-1.text-sm.leading-4:not([translated])").forEach(div => {
+                div.setAttribute("translated", "");
             })
             break;
         }
+        // #endregion
+        // #region /guild/*
         case "/guild/ranks":{
-            document.querySelectorAll('div.hover\\:bg-primary\\/20:not([translated7])').forEach(div => {
-                div.setAttribute("translated7", '');
+            document.querySelectorAll('div.hover\\:bg-primary\\/20:not([translated])').forEach(div => {
+                div.setAttribute("translated", '');
                 div.children[1].textContent = div.children[1].textContent.split(", ").map(word => Translation.get(word) ?? "未翻译").join(", ");
                 [
                     div.children[2].childNodes[0],
@@ -699,19 +822,25 @@ const FindAndReplaceText = () => {
             break;
         }
         case "/guild/upgrades":{
-            document.querySelectorAll("div.border-primary.flex.w-full.flex-col.border.p-2.md\\:w-80:not([translated8])").forEach(div => {
-                div.setAttribute("translated8", "");
+            document.querySelectorAll("div.border-primary.flex.w-full.flex-col.border.p-2.md\\:w-80:not([translated])").forEach(div => {
+                div.setAttribute("translated", "");
                 [
                     div.children[0],
                     div.children[1],
                     div.children[2].children[0].childNodes[0],
+                    ...[...div.children[3].children].map(ele => ele.childNodes[1]),
                 ].forEach(_Translate);
+                const text201 = div.children[2].children[0].childNodes[1].textContent;
+                const result201 = /([^ ]+) (.*)/.exec(text201);
+                text201.textContent = `${result201[1]} ${Translation.get(result201[2])}`;
             })
             break;
         }
+        // #endregion
+        // #region /news
         case "/news":{
-            document.querySelectorAll(`html.dark.notranslate body div#root div.flex.max-h-screen.min-h-screen.flex-col.overflow-x-hidden div.flex.max-w-screen.grow.flex-col.overflow-y-scroll.lg\\:flex-row.lg\\:flex-wrap main.grow.p-2.lg\\:w-1.lg\\:p-4 div.space-y-4.p-2 div div ul.ml-6.list-disc li span:not([translated9])`).forEach(span => {
-                span.setAttribute("translated9", "");
+            document.querySelectorAll(`html.dark.notranslate body div#root div.flex.max-h-screen.min-h-screen.flex-col.overflow-x-hidden div.flex.max-w-screen.grow.flex-col.overflow-y-scroll.lg\\:flex-row.lg\\:flex-wrap main.grow.p-2.lg\\:w-1.lg\\:p-4 div.space-y-4.p-2 div div ul.ml-6.list-disc li span:not([translated])`).forEach(span => {
+                span.setAttribute("translated", "");
                 [...span.childNodes].forEach(node => {
                     if(node.nodeType !== Node.TEXT_NODE) return;
                     _Translate(node);
@@ -719,10 +848,12 @@ const FindAndReplaceText = () => {
             })
             break;
         }
+        // #endregion
+        // #region /
         case "/":{
             // main translation 1
-            document.querySelectorAll("html.dark.notranslate body div#root div.flex.max-h-screen.min-h-screen.flex-col.overflow-x-hidden div.flex.max-w-screen.grow.flex-col.overflow-y-scroll.lg\\:flex-row.lg\\:flex-wrap main.grow.p-2.lg\\:w-1.lg\\:p-4 div.space-y-2 div.bg-primary\\/20.mt-4.rounded.p-3:nth-child(3):not([translated14])").forEach(div => {
-                div.setAttribute("translated14", "");
+            document.querySelectorAll("html.dark.notranslate body div#root div.flex.max-h-screen.min-h-screen.flex-col.overflow-x-hidden div.flex.max-w-screen.grow.flex-col.overflow-y-scroll.lg\\:flex-row.lg\\:flex-wrap main.grow.p-2.lg\\:w-1.lg\\:p-4 div.space-y-2 div.bg-primary\\/20.mt-4.rounded.p-3:nth-child(3):not([translated])").forEach(div => {
+                div.setAttribute("translated", "");
                 [
                     div.children[0]?.childNodes[0],
                     div.children[0]?.childNodes[3],
@@ -735,13 +866,20 @@ const FindAndReplaceText = () => {
                 ].filter(ele => ele).forEach(_Translate);
             });
             // main translation 2
-            document.querySelectorAll("html.dark.notranslate body div#root div.flex.max-h-screen.min-h-screen.flex-col.overflow-x-hidden div.flex.max-w-screen.grow.flex-col.overflow-y-scroll.lg\\:flex-row.lg\\:flex-wrap main.grow.p-2.lg\\:w-1.lg\\:p-4 div.space-y-2 div.bg-primary\\/20.mt-4.rounded.p-3:nth-child(4):not([translated15])").forEach(div => {
-                div.setAttribute("translated15", "");
+            document.querySelectorAll("html.dark.notranslate body div#root div.flex.max-h-screen.min-h-screen.flex-col.overflow-x-hidden div.flex.max-w-screen.grow.flex-col.overflow-y-scroll.lg\\:flex-row.lg\\:flex-wrap main.grow.p-2.lg\\:w-1.lg\\:p-4 div.space-y-2 div.bg-primary\\/20.mt-4.rounded.p-3:nth-child(4):not([translated])").forEach(div => {
+                div.setAttribute("translated", "");
                 [
                     div.childNodes[0],
                     div.children[1]?.childNodes[0],
-                    [...[...div.children[1]?.children[0]?.children].at(-1)?.childNodes].at(-1)
                 ].filter(ele => ele).forEach(_Translate);
+                /* TODO
+                if(div.children[1]){
+                    const temp = div.children[1].children[0];
+                    console.log(temp);
+                    const temp1 = temp[temp.length - 1];
+                    if(temp1 && temp1.childNodes[2]) _Translate(temp1.childNodes[2]);
+                }
+                */
             });
             document.querySelectorAll("html.dark.notranslate body div#root div.flex.max-h-screen.min-h-screen.flex-col.overflow-x-hidden div.flex.max-w-screen.grow.flex-col.overflow-y-scroll.lg\\:flex-row.lg\\:flex-wrap main>div:not([class]):not([translated])").forEach(div => {
                 div.setAttribute("translated", "");
@@ -761,7 +899,7 @@ const FindAndReplaceText = () => {
                     if(lackMana.textContent !== "."){
                         const result = /[0-9]+/.exec(lackMana.textContent);
                         //, and lacked 1684 mana
-                        lackMana.textContent = `，并且缺少 ${result[0]} 点魔力`;
+                        lackMana.textContent = `，缺少了 ${result[0]} 点魔力`;
                     }
                     return;
                 }
@@ -781,6 +919,8 @@ const FindAndReplaceText = () => {
             }); 
             break;
         }
+        // #endregion
+        // #region /rules
         case "/rules":{
             document.querySelectorAll("main h2.text-lg:not([translated]), main p.text-md:not([translated]), main h1:not([translated])").forEach(p => {
                 p.setAttribute("translated", "")
@@ -788,6 +928,8 @@ const FindAndReplaceText = () => {
             });
             break;
         }
+        // #endregion
+        // #region /inventory
         case "/inventory":{
             document.querySelectorAll("main div.mt-2.mb-1.text-xl:not([translated]), main span.text-2xl:not([translated]), main div.text-2xl:not([translated]), main div.space-y-1 div.text-md div.w-15:not([translated])").forEach(div => {
                 div.setAttribute("translated", "");
@@ -795,39 +937,145 @@ const FindAndReplaceText = () => {
             })
             break;
         }
+        // #endregion
+        // #region /settings
+        case "/settings":{
+            document.querySelectorAll("main>div:not([translated])").forEach((div) => {
+                div.setAttribute("translated", "");
+                [
+                    div.children[1].childNodes[0],
+                    div.children[1].childNodes[3],
+                    div.children[3],
+                ].filter(div => div).forEach((div) => _Translate(div, "settings"));
+            });
+            document.querySelectorAll("main h2.text-2xl:not([translated]), main label:not([translated]), main span.w-20.text-lg:not([translated]), main div.text-xl:not([translated])").forEach(div => {
+                div.setAttribute("translated", "");
+                _Translate(div, "settings");
+            });
+            document.querySelectorAll(`main div.space-y-2 div div div.flex.flex-wrap.items-center.justify-between.gap-2.p-2 div div.space-x-2 span.text-xs:not([translated])`).forEach(span => {
+                span.setAttribute("translated", "");
+                _Translate(span.childNodes[0], "settings");
+            });
+            document.querySelectorAll(`main div.space-y-2 div.ml-2 div.ml-4:not([translated])`).forEach(div => {
+                div.setAttribute("translated", "");
+                div.replaceChildren(...div.textContent.split(", "));
+                [...div.childNodes].forEach(node => _Translate(node, "settings"));
+            })
+            break;
+        }
+        // #endregion
+        // #region /farm
+        case "/farm":{
+            const farmId = `div[id$="\\:-content-farm"]`;
+            const potionsId = `div[id$="\\:-content-potions"]`;
+            CheckTranslation(document, `${farmId}>div.flex.flex-wrap.items-center.justify-between>div.space-x-1`, (div) => {
+                console.log("here");
+                const growTime = div.children[0];
+                const growTimeTranslation = (multlist, observer) => {
+                    observer?.disconnect();
+                    const text = growTime.textContent;
+                    const result = /([A-Za-z ]+)([0-9]+)?([A-Za-z ]+)?([0-9]+)?([A-Za-z ]+)?/.exec(text);
+                    console.log(result);
+                    growTime.textContent = result.slice(1).map(part => FarmTranslation.get(part ?? "") ?? part).join("");
+                    observer?.observe(growTime, {subtree: true, childList: true, characterData: true});
+                };
+                growTimeTranslation();
+                new MutationObserver(growTimeTranslation).observe(growTime, {subtree: true, childList: true, characterData: true});
+                _Translate(div.children[1].childNodes[2], "farm");
+            });
+            CheckTranslation(document, `${farmId}>div.flex.flex-wrap.items-center.justify-between>div.space-x-2`, (div) => {
+                const growTime = div.children[0];
+                const growTimeTranslation = (mutlist, observer) => {
+                    observer?.disconnect();
+                    const text = growTime.textContent;
+                    const result = /([A-Za-z ]+)([0-9]+)?([A-Za-z ]+)?([0-9]+)?([A-Za-z ]+)?/.exec(text);
+                    console.log(result);
+                    growTime.textContent = result.slice(2).map(part => FarmTranslation.get(part ?? "") ?? part).join("") + "后可再次采摘";
+                    observer?.observe(growTime, {subtree: true, childList: true, characterData: true});
+                };
+                growTimeTranslation();
+                new MutationObserver(growTimeTranslation).observe(growTime, {subtree: true, childList: true, characterData: true});
+                _Translate(div.children[1], "farm");
+            });
+            CheckTranslation(document, `${farmId}>div.mt-1.text-2xl`, _TypedTranslate("farm"));
+            const TranslateNotation = (ele) => ele.textContent = ele.textContent.replace("potions", "药水").replace("potion", "药水");
+            const UpgradeTranslation =  (div) => {
+                [
+                    div.children[0].children[0].children[0],
+                    div.children[0].children[0].children[1],
+                    div.children[1].childNodes[0],
+                    div.children[3].childNodes[0],
+                    div.children[3].childNodes[2],
+                    div.children[3].childNodes[4],
+                ].forEach(_TypedTranslate("farm"));
+            };
+            CheckTranslation(document, `${farmId}>div.flex.flex-col.gap-2.rounded-lg.p-3`, UpgradeTranslation);
+            CheckTranslation(document, `${potionsId}>div.flex.flex-col.gap-2.rounded-lg.p-3`, UpgradeTranslation);
+            CheckTranslation(document, `${potionsId} div.text-2xl`, _TypedTranslate("farm"));
+            CheckTranslation(document, `${potionsId} div.space-y-1 div.flex.items-center`, (div) => {
+                _Translate(div.children[0].childNodes[2], "farm");
+                const node04 = div.children[0].childNodes[4];
+                if(node04.nodeType === Node.TEXT_NODE){
+                    node04.textContent = node04.textContent.replace("Tier", "等级");
+                }
+                else _Translate(node04, "farm");
+            });
+            CheckTranslation(document, `${potionsId} span.text-sm`, (span) => {
+                const text = span.textContent;
+                if(!text.startsWith("+")){
+                    console.log("direct", text);
+                    span.textContent = FarmTranslation.get(text);
+                    return;
+                }
+                const splitPos = text.indexOf(" ");
+                const prefix = text.substring(0, splitPos);
+                span.textContent = `${prefix}${FarmTranslation.get(text.substring(splitPos))}`;
+            });
+            CheckTranslation(document, `${potionsId} div.space-x-2>span:nth-child(1)`, _TypedTranslate("farm"));
+            break;
+        }
+        // #endregion
     }
-    document.querySelectorAll('main a[href^="/market"]:not([translated10])').forEach(a => {
-        a.setAttribute("translated10", "");
+    document.querySelectorAll('main a[href^="/market"]:not([translated])').forEach(a => {
+        a.setAttribute("translated", "");
         _Translate(a);
         _Translate(a.parentElement.children[0]);
         _Translate(a.parentElement.children[1]);
     });
-    // nav translation
+    // #region nav
     document.querySelectorAll(`html body div#root div.flex.max-h-screen.min-h-screen.flex-col.overflow-x-hidden nav.bg-card.small-caps.border-primary.z-1.w-full.max-w-screen.border-b.shadow-md div.flex.items-center.px-4.py-2 div.ml-auto.flex.w-full.max-w-full.items-center.gap-2 div.flex.w-0.flex-shrink.flex-grow.justify-end.gap-1.overflow-x-hidden a.text-muted-foreground.hover\\:bg-primary\\/50.ring-primary.mx-1.my-1.flex.flex-shrink-0.items-center.gap-2.rounded-lg.px-1.py-1.transition.hover\\:ring:not([translated])`).forEach(a => {
         a.setAttribute("translated", "")
         _Translate(a.children[1]);
+    });
+    document.querySelectorAll(`html body div#root div.flex.max-h-screen.min-h-screen.flex-col.overflow-x-hidden nav.bg-card.small-caps.border-primary.z-1.w-full.max-w-screen.border-b.shadow-md div.border-primary.bg-background.absolute.w-full.border-b a.text-muted-foreground.hover\\:bg-primary\\/20.flex.w-full.items-center.gap-3.px-4.py-2.text-left.transition:not([translated])`).forEach(a => {
+        a.setAttribute("translated", "")
+        _Translate(a.childNodes[2]);
     })
-    // label translation
-    document.querySelectorAll("label:not([translated11])").forEach((label) => {
-        label.setAttribute("translated11", "");
+    // #endregion
+    // #region label
+    document.querySelectorAll("label:not([translated])").forEach((label) => {
+        label.setAttribute("translated", "");
         _Translate(label);
     });
-    // left side stat panel translation
-    document.querySelectorAll(`body div#root div.flex.max-h-screen.min-h-screen.flex-col.overflow-x-hidden div.flex.max-w-screen.grow.flex-col.overflow-y-scroll.lg\\:flex-row.lg\\:flex-wrap div.border-primary.w-full.max-lg\\:border-b.lg\\:w-60.lg\\:border-r div.grid.grid-cols-4.gap-x-4.p-2.text-sm.lg\\:grid-cols-2 div.col-span-2.flex.justify-between span:not([translated12]):nth-child(1)`).forEach(span => {
-        span.setAttribute("translated12", "");
+    // #endregion
+    // #region stat panel
+    document.querySelectorAll(`body div#root div.flex.max-h-screen.min-h-screen.flex-col.overflow-x-hidden div.flex.max-w-screen.grow.flex-col.overflow-y-scroll.lg\\:flex-row.lg\\:flex-wrap div.border-primary.w-full.max-lg\\:border-b.lg\\:w-60.lg\\:border-r div.grid.grid-cols-4.gap-x-4.p-2.text-sm.lg\\:grid-cols-2 div.col-span-2.flex.justify-between span:not([translated]):nth-child(1)`).forEach(span => {
+        span.setAttribute("translated", "");
         _Translate(span);
 
     });
-    // popup translation
+    // #endregion
+    // #region popup
     document.querySelectorAll(popupSelector).forEach(div => {
-        div.setAttribute("translated13", "")
+        div.setAttribute("translated", "")
         if(DEBUG) document.body.append(div.cloneNode(true));
         if(div.childNodes[0].nodeType === Node.TEXT_NODE){
             _Translate(div.childNodes[0]);
             return;
         }
     });
-    // item translation
+    // #endregion
+    // #region item
     document.querySelectorAll("span.rarity-common:not([translated]), span.rarity-uncommon:not([translated]), span.rarity-rare:not([translated]), span.rarity-epic:not([translated]), span.rarity-legendary:not([translated])").forEach(span => {
         span.setAttribute("translated", "");
         const itemName = span.textContent;
@@ -837,7 +1085,8 @@ const FindAndReplaceText = () => {
         }
         EquipTranslate(span);
     });
-    // item detail translation
+    // #endregion
+    // #region equip detail
     document.querySelectorAll("div.rarity-common.bg-popover:not([translated]), div.rarity-uncommon.bg-popover:not([translated]), div.rarity-rare.bg-popover:not([translated]), div.rarity-epic.bg-popover:not([translated]), div.rarity-legendary.bg-popover:not([translated])").forEach(div => {
         div.setAttribute("translated", "");
         div.querySelectorAll(":scope div.font-bold.text-lg").forEach(div => EquipTranslate(div));
@@ -849,14 +1098,16 @@ const FindAndReplaceText = () => {
         // Enchantment
         div.querySelectorAll(":scope div.flex.justify-between.text-green-500").forEach(div => _Translate(div.children[0]));
     });
-    // button translation
-    document.querySelectorAll('button[role="tab"]:not([translated16]), button[data-slot="button"]:not([translated16])').forEach(button => {
-        button.setAttribute("translated16", "");
+    // #endregion
+    // #region tab button
+    document.querySelectorAll('button[role="tab"]:not([translated]), button[data-slot="button"]:not([translated])').forEach(button => {
+        button.setAttribute("translated", "");
         _Translate(button);
     });
-    // research translation
+    // #endregion
+    // #region research 
     document.querySelectorAll(researchSelector).forEach(div => {
-        div.dataset.state = "translated17";
+        div.dataset.state = "translated";
         div.querySelectorAll(":scope h2.my-4.text-2xl").forEach(h2 => _Translate(h2.childNodes[0]));
         div.querySelectorAll(":scope div.small-caps.text-xl:nth-child(1)").forEach(div => {
             _Translate(div.children[0]);
@@ -870,14 +1121,16 @@ const FindAndReplaceText = () => {
             div.childNodes[4].textContent = ")，消耗 ";
         });
     });
-    // select translation
-    document.querySelectorAll(`div[role="option"][data-slot="select-item"] span[id^="radix-"]:not([translated18])`).forEach(span => {
-        span.setAttribute("translated18", "");
+    // #endregion
+    // #region select
+    document.querySelectorAll(`div[role="option"][data-slot="select-item"] span[id^="radix-"]:not([translated])`).forEach(span => {
+        span.setAttribute("translated", "");
         _Translate(span);
     });
-    document.querySelectorAll('button[role="combobox"][aria-controls^="radix-"] span[data-slot="select-value"]:nth-child(1):not([translated19])').forEach(span => {
+    // #endregion
+    document.querySelectorAll('button[role="combobox"][aria-controls^="radix-"] span[data-slot="select-value"]:nth-child(1):not([translated])').forEach(span => {
         if(DEBUG) document.body.append(span.cloneNode(true));
-        span.setAttribute("translated19", "")
+        span.setAttribute("translated", "")
         if(span.parentElement.title === "Attack with magic type"){
             span.parentElement.title = "选择用于攻击的元素类型";
             return;
@@ -898,7 +1151,7 @@ const FindAndReplaceText = () => {
         span.setAttribute("hidden", "")
         new MutationObserver(() => {const _clone = span.cloneNode(true); _Translate(_clone); _clone.removeAttribute("hidden"); span.nextElementSibling.replaceWith(_clone)}).observe(span, {childList: true, subtree: true, characterData: true});
     });
-};
+} catch(e) {console.error(e);}};
 const WatchEvent = () => {
 
 };
