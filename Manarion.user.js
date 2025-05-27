@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.6
+// @version      0.7
 // @description  Manarion Chinese Translation and Quest notification
 // @author       VoltaXTY
 // @match        https://manarion.com/*
@@ -46,7 +46,7 @@ const HTML = (tagname, attrs, ...children) => {
     for(const child of children) if(child) ele.append(child);
     return ele;
 };
-const popupSelector = 'div[data-slot="tooltip-content"]:not([translated])';
+const popupSelector = 'div[data-slot="tooltip-content"]:not([translated]), div[data-slot="popover-content"]:not([translated])';
 const Translation = new Map([
     ["Actions:", "行动次数"],
     // #region stat panel
@@ -66,7 +66,7 @@ const Translation = new Map([
     ].flatMap(([key, value]) => [
         [key, value],
         [`${key}:`, `${value}:`],
-        [`+1 ${key}`, `+1 ${value}`],
+        [` +1 ${key} `, ` +1 ${value} `],
     ]),
     ["Quest Progress:", "任务进度:"],
     ["Increases your spell damage", "增强你的法术伤害"],
@@ -93,7 +93,7 @@ const Translation = new Map([
         ["Orb of Divinity", "神圣球"],
         ["Sunpetal", "太阳花瓣"],
         ["Sageroot", "智慧之根"],
-        ["Bloomwell", "Bloomwell"],
+        ["Bloomwell", "繁茂精华"],
         ["Fire Essence", "火之精华"],
         ["Water Essence", "水之精华"],
         ["Nature Essence", "自然精华"],
@@ -166,6 +166,7 @@ const Translation = new Map([
     ["Marketplace", "市场"],
     ["All prices are in Mana Dust", "所有价格的单位都是魔法尘"],
     ["Back to market", "回到市场"],
+    ["Item", "物品"],
     // #endregion
     // #region guild
     ["Create", "创建"],
@@ -208,8 +209,6 @@ const Translation = new Map([
     ["Next →", "下一页 →"],
     ["Brew", "制作"],
     ["Collect", "采摘"],
-    // #endregion
-    // #region chat chan
     // #endregion
     // #region research 
     ["Staff (Damage)", "法杖（元素伤害）"],
@@ -646,10 +645,17 @@ const Translation = new Map([
     ["A mystical stone that resonates.", "一块共振的神秘石头。"],
     // #endregion
     // #region quest/event
-    ["Defeat ", "击败 "], // default
-    [" enemies.", " 个敌人"], // default
-    ["Quest Progress", "任务进度"], // default
-    [" ticks remaining", ""], // default
+    ["Defeat ", "击败 "],
+    [" enemies.", " 个敌人"],
+    ["Complete ", "完成 "],
+    [" harvests.", " 次采集"],
+    ["Quest Progress", "任务进度"],
+    [" ticks remaining", " 刻剩余"],
+    // #endregion
+    // #region misc
+    ["Edit Profile", "编辑资料"], // default
+    ["Enchant", "附魔"], // default
+    ["📜 Game Rules", "📜 游戏规则"], // default
     // #endregion
 ]);
 // #region SettingTrans
@@ -731,7 +737,7 @@ const GuildTranslation = new Map([
     ["Owner", "所有者"],
     ["Members", "成员数量"],
 ]);
-const ChatTranslateion = new Map([
+const ChatTranslation = new Map([
     ["Global", "广播"],
     ["Whispers", "私信"],
     ["Whispers ", "私信 "],
@@ -740,6 +746,25 @@ const ChatTranslateion = new Map([
     ["Trade", "交易"], 
     ["Guild", "公会"], 
     ["Help", "帮助"], 
+]);
+const MenuItemTranslation = new Map([
+    ["View Profile", "查看资料页"],
+    ["Wire", "给予物品"],
+    ["Whisper", "私聊"],
+    ["Ignore", "屏蔽"],
+    ["Transfer", "赠送"],
+    ["Borrow", "借出"],
+    ["Enchant", "附魔"],
+    ["Upgrade", "升级"],
+    ["Favorite", "保护"],
+    ["Sell", "出售"],
+    ["Disenchant", "分解"],
+    ["Donate to armory", "捐赠至装备库"],
+]);
+const MarketTranslation = new Map([
+    ["Your Sell Orders", "你的出售挂单"],
+    ["Your Buy Orders", "你的出售挂单"],
+    ["Equipment", "装备挂单"],
 ]);
 if(!DEBUG) [...Translation.values()].forEach(value => Translation.set(value, value));
 // #region EquipTrans
@@ -770,11 +795,13 @@ const __TypedTranslation = new Map([
     ["settings", SettingsTranslation],
     ["farm", FarmTranslation],
     ["guild", GuildTranslation],
-    ["chat", ChatTranslateion],
+    ["chat", ChatTranslation],
+    ["market", MarketTranslation],
+    ["menuitem", MenuItemTranslation],
     ["default", Translation],
 ]);
 const _Translate = (ele, type = "default", keepOriginalText = false) => {
-    if(ele.nodeType !== Node.TEXT_NODE && (!ele.textContent || ele.childNodes.length !== 1 || ele.childNodes[0].nodeType !== Node.TEXT_NODE)) return;
+    if(ele?.nodeType !== Node.TEXT_NODE && (!ele || !ele.textContent || ele.childNodes.length !== 1 || ele.childNodes[0].nodeType !== Node.TEXT_NODE)) return;
     const text = ele.textContent;
     const translation = __TypedTranslation.get(type) ?? Translation;
     ele.textContent = (translation.get(text) ?? (console.log("未翻译", type, ele.outerHTML), (DEBUG && !keepOriginalText) ? "未翻译" : text));
@@ -833,7 +860,18 @@ const FindAndReplaceText = () => {try {
         // #endregion
         // #region /market/*
         case "/market/my-orders":
+            CheckTranslation(document, "main div.text-xl", _TypedTranslate("market"));
+            if(window.location.pathname === "/market/my-orders") CheckTranslation(document, "main table.w-full.table-auto.text-left thead tr th", _Translate);
         case "/market":{
+            if(document.querySelector('button[id$="\\:-trigger-equipment"][data-state="active"]')){
+                document.querySelectorAll("tbody tr td:nth-child(4):not([translated])").forEach(td => {
+                    td.setAttribute("translated", "");
+                    const text = td.textContent;
+                    const splitPos = text.indexOf(" ");
+                    text.textContent = `${text.substring(0, splitPos)} ${Translation.get(text.substring(splitPos + 1) ?? text.substring(splitPos + 1))}`;
+                })
+            }
+            CheckTranslation(document, "th span.mr-1", _TypedTranslate("market"));
             document.querySelectorAll(`div#root div.flex.max-h-screen.min-h-screen.flex-col.overflow-x-hidden div.flex.max-w-screen.grow.flex-col.overflow-y-scroll.lg\\:flex-row.lg\\:flex-wrap main.grow.p-2.lg\\:w-1.lg\\:p-4 div.min-h-100 div.flex.flex-col.gap-2 div.flex-1.outline-none.flex.items-center.gap-2 div:not([translated])`).forEach(div => {
                 div.setAttribute("translated", "");
             });
@@ -917,35 +955,29 @@ const FindAndReplaceText = () => {try {
         // #endregion
         // #region /
         case "/":{
+            // monster name
+            CheckTranslation(document, "main>div.space-y-2>div.grid.grid-cols-1>div.mt-4:nth-child(2)", _Translate)
             // main translation 1
-            document.querySelectorAll("html.dark.notranslate body div#root div.flex.max-h-screen.min-h-screen.flex-col.overflow-x-hidden div.flex.max-w-screen.grow.flex-col.overflow-y-scroll.lg\\:flex-row.lg\\:flex-wrap main.grow.p-2.lg\\:w-1.lg\\:p-4 div.space-y-2 div.bg-primary\\/20.mt-4.rounded.p-3:nth-child(3):not([translated])").forEach(div => {
-                div.setAttribute("translated", "");
-                [
-                    div.children[0]?.childNodes[0],
-                    div.children[0]?.childNodes[3],
-                    div.children[1]?.childNodes[0],
-                    div.children[1]?.childNodes[2],
-                    div.children[1]?.childNodes[4],
-                    div.children[1]?.childNodes[6],
-                    div.children[2]?.childNodes[0],
-                    div.children[2]?.childNodes[2],
-                ].filter(ele => ele).forEach(_Translate);
+            CheckTranslation(document, "main>div.space-y-2>div:nth-child(3)>p:nth-child(1)", (p) => {
+                _Translate(p.childNodes[0]);
+                _Translate(p.childNodes[3]);
+            });
+            CheckTranslation(document, "main>div.space-y-2>div:nth-child(3)>p:nth-child(2)", (p) => {
+                _Translate(p.childNodes[0]);
+                _Translate(p.childNodes[2]);
+                _Translate(p.childNodes[4]);
+                _Translate(p.childNodes[6]);
+            });
+            CheckTranslation(document, "main>div.space-y-2>div:nth-child(3)>p:nth-child(3)", (p) => {
+                _Translate(p.childNodes[0]);
+                _Translate(p.childNodes[2]);
             });
             // main translation 2
-            document.querySelectorAll("html.dark.notranslate body div#root div.flex.max-h-screen.min-h-screen.flex-col.overflow-x-hidden div.flex.max-w-screen.grow.flex-col.overflow-y-scroll.lg\\:flex-row.lg\\:flex-wrap main.grow.p-2.lg\\:w-1.lg\\:p-4 div.space-y-2 div.bg-primary\\/20.mt-4.rounded.p-3:nth-child(4):not([translated])").forEach(div => {
-                div.setAttribute("translated", "");
-                [
-                    div.childNodes[0],
-                    div.children[1]?.childNodes[0],
-                ].filter(ele => ele).forEach(_Translate);
-                /* TODO
-                if(div.children[1]){
-                    const temp = div.children[1].children[0];
-                    console.log(temp);
-                    const temp1 = temp[temp.length - 1];
-                    if(temp1 && temp1.childNodes[2]) _Translate(temp1.childNodes[2]);
-                }
-                */
+            CheckTranslation(document, "main>div.space-y-2>div:nth-child(4)", (p) => {
+                _Translate(p.childNodes[0]);
+            });
+            CheckTranslation(document, "main>div.space-y-2>div:nth-child(4)>div:nth-child(2)", (p) => {
+                _Translate(p.childNodes[0]);
             });
             document.querySelectorAll("html.dark.notranslate body div#root div.flex.max-h-screen.min-h-screen.flex-col.overflow-x-hidden div.flex.max-w-screen.grow.flex-col.overflow-y-scroll.lg\\:flex-row.lg\\:flex-wrap main>div:not([class]):not([translated])").forEach(div => {
                 div.setAttribute("translated", "");
@@ -1100,6 +1132,13 @@ const FindAndReplaceText = () => {try {
             CheckTranslation(document, `${potionsId} div.space-x-2>span:nth-child(1)`, _TypedTranslate("farm"));
             break;
         }
+        case "/profile":{
+            CheckTranslation(document, 'div[data-slot="card"]:nth-child(1)>div[data-slot="card-content"]>div:nth-child(n + 1)', (kv) => {
+                _Translate(kv.textContent[0]);
+                _Translate(kv.textContent[1], "default", true);
+            });
+            break;
+        }
         // #endregion
     }
     document.querySelectorAll('main a[href^="/market"]:not([translated])').forEach(a => {
@@ -1108,6 +1147,8 @@ const FindAndReplaceText = () => {try {
         _Translate(a.parentElement.children[0]);
         _Translate(a.parentElement.children[1]);
     });
+    // #region menuitem
+    CheckTranslation(document, 'div[data-slot="dropdown-menu-item"]', _TypedTranslate(window.location.pathname.startsWith("/market")? "default" : "menuitem"));
     // #region nav
     document.querySelectorAll(`html body div#root div.flex.max-h-screen.min-h-screen.flex-col.overflow-x-hidden nav.bg-card.small-caps.border-primary.z-1.w-full.max-w-screen.border-b.shadow-md div.flex.items-center.px-4.py-2 div.ml-auto.flex.w-full.max-w-full.items-center.gap-2 div.flex.w-0.flex-shrink.flex-grow.justify-end.gap-1.overflow-x-hidden a.text-muted-foreground.hover\\:bg-primary\\/50.ring-primary.mx-1.my-1.flex.flex-shrink-0.items-center.gap-2.rounded-lg.px-1.py-1.transition.hover\\:ring:not([translated])`).forEach(a => {
         a.setAttribute("translated", "")
@@ -1138,7 +1179,7 @@ const FindAndReplaceText = () => {try {
         if(div.childNodes[0].nodeType === Node.TEXT_NODE){
             _Translate(div.childNodes[0]);
         }
-        else if(div.children.length === 2 && div.children[0].children.length === 2 && div.children[0].children[1].children.length === 2){
+        else if(div.children.length <= 2 && div.children[0].children.length === 2 && div.children[0].children[1].children.length === 2){
             const _div = div.children[0];
             _Translate(_div.children[0]);
             _Translate(_div.children[1].children[0].childNodes[0]);
@@ -1155,7 +1196,10 @@ const FindAndReplaceText = () => {try {
             span.textContent = Translation.get(itemName);
             return;
         }
-        else if(span.dataset.slot === "tooltip-trigger") EquipTranslate(span);
+        else if(span.dataset.slot === "tooltip-trigger" || span.dataset.slot === "popover-trigger"){
+            EquipTranslate(span);
+        }
+        else console.log("cannot translate|"+itemName+"|");
     });
     // #endregion
     // #region equip detail
@@ -1180,6 +1224,7 @@ const FindAndReplaceText = () => {try {
         button.setAttribute("translated", "");
         _Translate(button);
     });
+    CheckTranslation(document, 'span[data-slot="tabs-trigger"]', _Translate);
     // #endregion
     // #region research 
     document.querySelectorAll(researchSelector).forEach(div => {
@@ -1240,11 +1285,25 @@ const TranslateEvent = () => {
             div.setAttribute("translated", "");
             const title = div.children[0];
             const titleClone = title.cloneNode(true);
-            _Translate(div.children[1].childNodes[0]); 
-            _Translate(div.children[1].childNodes[4]);
+            const progressDiv = div.children[1];
+            _Translate(progressDiv.childNodes[0]); 
+            _Translate(progressDiv.childNodes[4]);
             _Translate(titleClone);
             title.setAttribute("hidden", "");
             title.insertAdjacentElement("afterend", titleClone);
+            const OnQuestProgress = (mutlist, observer) => {
+                observer.disconnect();
+                const current = Number(progressDiv.childNodes[1].textContent);
+                const target = Number(progressDiv.childNodes[3].textContent);
+                _Translate(progressDiv.childNodes[0], "default", true); 
+                _Translate(progressDiv.childNodes[4], "default", true);
+                console.log(`${current} / ${target}`);
+                if(current === target) {
+                    new Notification("Quest Complete", { requireInteraction: true, });
+                }
+                observer.observe(progressDiv, {childList: true, subtree: true, characterData: true});
+            };
+            new MutationObserver(OnQuestProgress).observe(progressDiv, {childList: true, subtree: true, characterData: true});
         }
     })
 };
