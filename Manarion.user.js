@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.7
+// @version      0.8
 // @description  Manarion Chinese Translation and Quest notification
 // @author       VoltaXTY
 // @match        https://manarion.com/*
@@ -552,6 +552,8 @@ const Translation = new Map([
     ["Total stats:", "总获得属性点:"],
     ["Unlink", "解除绑定"],
     ["Logout", "登出"],
+    ["Infuse", "注能等级"], 
+    ["Use", "使用"],
     // #endregion
     // #region battle text
     ["Your guild received:", "你的公会获得了："],
@@ -630,7 +632,7 @@ const Translation = new Map([
     ["A tome pulsing with vitality.", "一本因勃勃生机而脉动着的典籍。"],
     ["A tome that strengthens your mana shield ability.", "一本增强你的魔法盾的典籍。"],
     ["Rerolls the values of all item modifiers. Only higher values are kept.", "随机变化装备的所有属性值。只会保留比原先更高的值。"],
-    ["Rerolls all modifiers of an item. Including the skill on gathering items.", "随机变化装备的所有属性。也包括采集装备的采集种类。"],
+    ["Rerolls all modifiers of an item. Including the skill on gathering items.", "随机变化装备的所有属性。包括采集装备的采集种类。"],
     ["Upgrades an Epic item to Legendary.", "将一件史诗装备升级至传说。"],
     ["Used to make Potion of Renewal", "用于合成刷新药水"],
     ["Used to make Potion of Wisdom", "用于合成智慧药水"],
@@ -727,6 +729,7 @@ const FarmTranslation = new Map([
 ]);
 [...FarmTranslation.values()].forEach(value => FarmTranslation.set(value, value));
 // #endregion FarmTrans
+// #region GuildTrans
 const GuildTranslation = new Map([
     ["Name", "玩家名称"],
     ["Guild Name", "公会名称"],
@@ -737,6 +740,7 @@ const GuildTranslation = new Map([
     ["Owner", "所有者"],
     ["Members", "成员数量"],
 ]);
+// #region ChatTrans
 const ChatTranslation = new Map([
     ["Global", "广播"],
     ["Whispers", "私信"],
@@ -747,6 +751,7 @@ const ChatTranslation = new Map([
     ["Guild", "公会"], 
     ["Help", "帮助"], 
 ]);
+// #region MenuItemTL
 const MenuItemTranslation = new Map([
     ["View Profile", "查看资料页"],
     ["Wire", "给予物品"],
@@ -761,10 +766,27 @@ const MenuItemTranslation = new Map([
     ["Disenchant", "分解"],
     ["Donate to armory", "捐赠至装备库"],
 ]);
+// #region MarketTL
 const MarketTranslation = new Map([
     ["Your Sell Orders", "你的出售挂单"],
     ["Your Buy Orders", "你的出售挂单"],
     ["Equipment", "装备挂单"],
+]);
+// #region UpgradeTL
+const UpgradeTranslation = new Map([
+    ["Upgrading", "强化"],
+    ["Upgrading ", "强化 "],
+    ["Enchanting", "附魔"],
+    ["Enchanting  ", "附魔 "],
+    ["Infuse with ", "消耗 "], // upgrade
+    [" increasing all modifiers by", " 注能，增加所有属性值"], // upgrade
+    ["Chance to upgrade at least one boost:", "至少升级一条属性的概率:"],
+    ["Reroll all modifiers. Including the skill on gathering items.", "随机改变所有属性。包括采集装备的采集种类。"],
+    ["Currently ", "当前 "],
+    ["Max ", "最高可附魔 "],
+    ["Increase ", "提升 "],
+    [" times (+", " 级 (+"],
+    [") for ", "), 消耗 "],
 ]);
 if(!DEBUG) [...Translation.values()].forEach(value => Translation.set(value, value));
 // #region EquipTrans
@@ -790,6 +812,7 @@ const EquipTranslate = (ele) => {
 }
 const researchSelector = ["-content-mana-dust", "-content-combat-skills", "-content-enchants", "-content-gathering", "-content-codex"].map(id => `div[data-state="active"][id$="${id.replaceAll(":", "\\:")}"]:not([data-state="translated"])`).join(",");
 const _FailedTranslate = new Set();
+// #region __TypedTL
 const __TypedTranslation = new Map([
     ["equipment", EquipTranslation],
     ["settings", SettingsTranslation],
@@ -798,6 +821,7 @@ const __TypedTranslation = new Map([
     ["chat", ChatTranslation],
     ["market", MarketTranslation],
     ["menuitem", MenuItemTranslation],
+    ["upgrade", UpgradeTranslation],
     ["default", Translation],
 ]);
 const _Translate = (ele, type = "default", keepOriginalText = false) => {
@@ -808,7 +832,7 @@ const _Translate = (ele, type = "default", keepOriginalText = false) => {
     if(ele.textContent === "未翻译"){
         _FailedTranslate.add(JSON.stringify({
             type: type,
-            text: text
+            text: text,
         }));
         return false;
     }
@@ -823,9 +847,9 @@ unsafeWindow.ExportFailedTranslate = (nocomment = true) => {
         return `    ["${data.text}", ""],${nocomment ? ` // ${data.type}` : ""}`;
     }).join("\n"));
 };
-const CheckTranslation = (scope, selector, callback) => {
+const CheckTranslation = (scope, selector, callback, doNotRetrigger = true) => {
     scope.querySelectorAll(`${scope === document ? "" : ":scope "}${selector}:not([translated])`).forEach(ele => {
-        ele.setAttribute("translated", "");
+        if(doNotRetrigger) ele.setAttribute("translated", "");
         callback(ele);
     });
 };
@@ -1130,8 +1154,13 @@ const FindAndReplaceText = () => {try {
                 span.textContent = `${prefix}${FarmTranslation.get(text.substring(splitPos))}`;
             });
             CheckTranslation(document, `${potionsId} div.space-x-2>span:nth-child(1)`, _TypedTranslate("farm"));
+            CheckTranslation(document, `${potionsId} div.ml-1.space-y-4 div.flex.flex-wrap.items-end.gap-2>div:nth-last-child(2)`, (div) => {
+                div.childNodes[3].textContent = " 每份";
+            })
             break;
         }
+        // #endregion
+        // #region /profile
         case "/profile":{
             CheckTranslation(document, 'div[data-slot="card"]:nth-child(1)>div[data-slot="card-content"]>div:nth-child(n + 1)', (kv) => {
                 _Translate(kv.textContent[0]);
@@ -1140,7 +1169,35 @@ const FindAndReplaceText = () => {try {
             break;
         }
         // #endregion
+    };
+    // #region /upgrade
+    if(window.location.pathname.endsWith("/upgrade")){
+        CheckTranslation(document, "main>div>h2", (h2) => _Translate(h2.childNodes[0], "upgrade"));
+        CheckTranslation(document, "main>div>div.items-end.space-x-3>div:nth-child(2)", (div) => {
+            [
+                div.childNodes[0],
+                div.childNodes[4],
+            ].forEach(_TypedTranslate("upgrade"))
+        });
+        CheckTranslation(document, "main>div>div.items-center.space-x-3>div:nth-child(3)", (div) => {
+            _Translate(div.childNodes[0], "upgrade");
+        });
+        CheckTranslation(document, "main>div>div.mt-2>div>span:nth-child(1)", _Translate);
     }
+    // #region /enchant
+    if(window.location.pathname.endsWith("/enchant")){
+        CheckTranslation(document, "main>div>h2", (h2) => _Translate(h2.childNodes[0], "upgrade"));
+        CheckTranslation(document, "main div.flex.flex-col.gap-2.rounded-lg.p-3", (div) => {
+            [
+                div.children[1].children[0].childNodes[0],
+                div.children[1].children[1].childNodes[0],
+                div.children[3].childNodes[0],
+                div.children[3].childNodes[2],
+                div.children[3].childNodes[5],
+            ].forEach(_TypedTranslate("upgrade"))
+        })
+    }
+    // #endregion
     document.querySelectorAll('main a[href^="/market"]:not([translated])').forEach(a => {
         a.setAttribute("translated", "");
         _Translate(a);
