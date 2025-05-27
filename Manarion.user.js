@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.9.2
+// @version      0.10
 // @description  Manarion Chinese Translation and Quest notification
 // @author       VoltaXTY
 // @match        https://manarion.com/*
@@ -108,6 +108,7 @@ const Translation = new Map([
         ["Infernal Heart", "熔岩之心"],
     ].flatMap(([key, value]) => [
         [key, value],
+        [` ${key}`, ` ${value}`],
         [`[${key}]`, `[${value}]`],
         [`${key}:`, `${value}:`],
     ]),
@@ -126,6 +127,7 @@ const Translation = new Map([
         ["Vitality", "活力"],
     ].flatMap(([key, value]) => [
         [key, value],
+        [`${key} `, `${value} `],
         [`Formula: ${key}`, `术式：${value}`],
         [`Formula: ${key}:`, `术式：${value}:`],
         [`[Formula: ${key}]`, `[术式：${value}]`],
@@ -326,25 +328,25 @@ const Translation = new Map([
     ["Provides a multiplier to your mana pool and mana regeneration. If you run out of mana, you deal half damage.", "提供魔力值和魔力回复增幅。魔力耗尽后，你只能造成50%的伤害。"],
     ["Consume more mana to deal more damage.", "消耗额外魔力以造成更多伤害。"],
     ["Slows down enemy attacks.", "降低敌人的攻击速度。"],
-    ["Lets you enchant staves with a higher level of Inferno.", "使你可以附魔法杖更高等级的地狱烈焰。"],
-    ["Lets you enchant staves with a higher level of Tidal Wrath.", "使你可以附魔法杖更高等级的狂潮。"],
-    ["Lets you enchant staves with a higher level of Wildheart.", "使你可以附魔法杖更高等级的野性之心。"],
-    ["Lets you enchant cloaks with stronger fire resistance.", "使你可以附魔斗篷更高等级的火系抗性。"],
-    ["Lets you enchant cloaks with stronger water resistance.", "使你可以附魔斗篷更高等级的水系抗性。"],
-    ["Lets you enchant cloaks with stronger nature resistance.", "使你可以附魔斗篷更高等级的自然抗性。"],
-    ["Lets you enchant hoods with base experience.", "使你可以附魔兜帽更高等级的基础经验值。"],
-    ["Lets you enchant amulets with base resource gain.", "使你可以附魔项链更高等级的基础资源量。"],
-    ["Lets you enchant robes with base mana dust", "使你可以附魔法袍更高等级的基础魔法尘。"],
-    ["Lets you enchant gloves with drop boost", "使你可以附魔手套更高等级的掉落加成。"],
-    ["Lets you enchant boots with multistat", "使你可以附魔鞋子更高等级的多重属性掉落。"],
-    ["Lets you enchant rings with vitality, increasing all stats", "使你可以附魔戒指更高等级的活性，提升全属性。"],
+    ["Lets you enchant staves with a higher level of Inferno.", "使你可以为法杖附魔更高等级的地狱烈焰。"],
+    ["Lets you enchant staves with a higher level of Tidal Wrath.", "使你可以为法杖附魔更高等级的狂潮。"],
+    ["Lets you enchant staves with a higher level of Wildheart.", "使你可以为法杖附魔更高等级的野性之心。"],
+    ["Lets you enchant cloaks with stronger fire resistance.", "使你可以为斗篷附魔更高等级的火系抗性。"],
+    ["Lets you enchant cloaks with stronger water resistance.", "使你可以为斗篷附魔更高等级的水系抗性。"],
+    ["Lets you enchant cloaks with stronger nature resistance.", "使你可以为斗篷附魔更高等级的自然抗性。"],
+    ["Lets you enchant hoods with base experience.", "使你可以为兜帽附魔更高等级的基础经验值。"],
+    ["Lets you enchant amulets with base resource gain.", "使你可以为项链附魔更高等级的基础资源量。"],
+    ["Lets you enchant robes with base mana dust", "使你可以为法袍附魔更高等级的基础魔法尘。"],
+    ["Lets you enchant gloves with drop boost", "使你可以为手套附魔更高等级的掉落加成。"],
+    ["Lets you enchant boots with multistat", "使你可以为鞋子附魔更高等级的多重属性掉落。"],
+    ["Lets you enchant rings with vitality, increasing all stats", "使你可以为戒指附魔更高等级的活性，提升全属性。"],
     ["Increases resources harvested while mining.", "增加挖矿获取的资源。"],
     ["Increases resources harvested while fishing.", "增加捕鱼获取的资源"],
     ["Increases resources harvested while woodcutting.", "增加伐木获取的资源。"],
     ["Provides a multiplier to base experience.", "增幅基础经验值。"],
     ["Increases the base amount of resources you get while gathering.", "增加采集获取的基础资源量。"],
     ["Provides a multiplier to enemy base Mana Dust drop.", "增幅敌人掉落的基础魔法尘数量。"],
-    ["Increases your chance to get additional stat rolls and mastery.", "提升掉落额外属性点和法系精通点的概率。"],
+    ["Increases your chance to get additional stat rolls and mastery.", "提升掉落额外属性点和元素精通点的概率。"],
     ["Increases the maximum amount of actions you can do.", "增加最大行动次数。"],
     ["Increases your chance to find nearly any item drop.", "提升获得绝大多数掉落物的概率。"],
     // #endregion
@@ -356,9 +358,9 @@ const Translation = new Map([
     ["Edit Description", "编辑介绍"],
     ["Donate Items", "捐赠物品"],
     ["Borrow Items", "借出物品"],
-    ["Retrieve Items", "收回物品"],
+    ["Retrieve Items", "提出物品"],
     ["Revoke Items", "强制归还"],
-    ["Withdraw Funds", "提取资金"],
+    ["Withdraw Funds", "提出仓库"],
     ["Upgrades", "升级"],
     ["Edit Taxes", "修改税率"],
     ["Taxes: XP ", "税率：经验值 "],
@@ -412,8 +414,8 @@ const Translation = new Map([
     ["Adjusted gatherer xp past level 750", "调整了 750 级以后的采集经验"],
     [" now preserves the quality % of items", " 现在保留物品的品质百分比"],
     [" infusion system for equipment, increasing power by 5% per infusion for exponentially increasing cost", " 装备强化系统，每次强化提升装备 5% 的各项数值，消耗指数级增加"],
-    ["Mastery Codex boost removed and refunded as", "法系精通法典升级移除，相应消耗返还为"],
-    [". Mastery drops now benefit from multistat", "。法系精通掉落现在受多重属性掉落增益"],
+    ["Mastery Codex boost removed and refunded as", "元素精通法典升级移除，相应消耗返还为"],
+    [". Mastery drops now benefit from multistat", "。元素精通掉落现在受多重属性掉落增益"],
     ["Mana Conduit now gives 4% mana cost reduction per upgrade", "魔力回路现在每级提供 4% 的魔力消耗削减"],
     ["Mana Research boost now also boosts mana regeneration", "魔力研究升级现在还会增幅魔力回复"],
     ["Added another scaling factor to enemies past 5000", "为超过 5000 强度的敌人增加了额外的成长因素"],
@@ -422,7 +424,7 @@ const Translation = new Map([
     ["Cancelling an order prevents new order for same item for 10 minutes. Limit to 1 open order per item", "取消市场挂单将使得接下来 10 分钟内无法对同一物品创建新挂单。每种物品只能创建 1 个活跃订单"],
     ["Added max price filter and reset filter button in equipment market", "为装备市场新增最大售价过滤选项，以及重置过滤按钮"],
     ["Added pulsing animation to potion icon 10 minutes before potion expires", "当药水效果仅余少于 10 分钟时，为药水图标新增闪烁动画"],
-    ["Potions from belt only consumed when matching current action type", "现在只会从药水带中使用对应于当前行动的药水"],
+    ["Potions from belt only consumed when matching current action type", "现在只会从药水腰带中使用对应于当前行动的药水"],
     ["Added notification option for potion expiring", "新增药水耗尽通知选项"],
     ["Added extra confirmation to potion belt purchases and spellpower/ward when gathering", "为药水腰带容量升级和采集时法术强度/抗性升级新增二次确认"],
     ["Pushed down loot tracker sooner on smaller layouts", "提高下沉掉落跟踪面板的屏幕尺寸阈值"],
@@ -456,7 +458,7 @@ const Translation = new Map([
     ["Added ability to add text on profile page", "新增主页自定义文字功能"],
     ["Allowed line breaks in guild description", "公会介绍现在可以换行了"],
     ["Added clear button to loot tracker", "为掉落追踪栏新增清除按钮"],
-    [" rerolls if all boosts are same, 50% chance to pick active mastery on staffs", " 重新随机，如果所有加成均为相同类型，对于法杖，有 50% 的概率选择当前行动对应的法系精通加成"],
+    [" rerolls if all boosts are same, 50% chance to pick active mastery on staffs", " 重新随机，如果所有加成均为相同类型，对于法杖，有 50% 的概率选择当前行动对应的元素精通加成"],
     ["Added activity log for players and guilds", "新增玩家和公会的活动记录"],
     ["Added cap of level 22 on enchanting skills, increasing by 1 every Monday", "所有附魔等级新增 22 级上限，每周一上限增加 1"],
     ["Added leaderboards for enchanting", "新增附魔等级排行榜"],
@@ -547,7 +549,7 @@ const Translation = new Map([
     ["Spirit gained:", "获得精神:"],
     ["Focus gained:", "获得集中:"],
     ["Mana gained:", "获得魔力:"],
-    ["Mastery gained:", "获得法系精通:"],
+    ["Mastery gained:", "获得元素精通:"],
     ["Tracked time:", "记录时间:"],
     ["Total stats:", "总获得属性点:"],
     ["Unlink", "解除绑定"],
@@ -645,9 +647,9 @@ const Translation = new Map([
     ["Scales from a mystical fish. Can provide resistance to water.", "来自一条神秘之鱼的鱼鳞。可以提供水系抗性。"],
     ["A wood fragment from an ancient tree.", "一片来自某株古树的木材。"],
     ["A mystical stone that resonates.", "一颗产生共振的神秘石子。"],
-    ["An enchantment that amplifies fire magic.", "一种能够增强火系魔法的附魔。"], 
-    ["An enchantment that empowers water magic.", "一种能够增强水系魔法的附魔。"], 
-    ["An enchantment that enhances nature magic.", "一种能够增强自然魔法的附魔。"], 
+    ["An enchantment that amplifies fire magic.", "一种增强火系魔法的附魔。"], 
+    ["An enchantment that empowers water magic.", "一种增强水系魔法的附魔。"], 
+    ["An enchantment that enhances nature magic.", "一种增强自然魔法的附魔。"], 
     ["Improves your fire resistance enchantment ability.", "提升你的火系抗性附魔能力"], 
     ["Improves your water resistance enchantment ability", "提升你的水系抗性附魔能力"], 
     ["Improves your nature resistance enchantment ability", "提升你的自然抗性附魔能力"], 
@@ -670,6 +672,21 @@ const Translation = new Map([
     ["Edit Profile", "编辑资料"], 
     ["Enchant", "附魔"], 
     ["📜 Game Rules", "📜 游戏规则"], 
+    ["Worldshaper", "再塑世界之敌"],
+    ["Worldburner", "焚毁世界之敌"],
+    ["Worlddrowner", "沉没世界之敌"],
+    // #endregion
+    // #region profile text
+    ["Battle Quest # ", "战斗任务 # "],
+    ["Gather Actions: ", "采集次数："],
+    ["Gather Quest # ", "采集任务 # "],
+    ["Event Actions: ", "事件行动次数："],
+    ["Spellpower Upgrades", "法术强度升级"],
+    ["Ward Upgrades", "抗性升级"],
+    ["Harvest Golems", "收割傀儡"],
+    ["Fertilizer", "肥料"],
+    ["Plot", "地块"],
+    ["Potion belt size", "药水腰带容量"],
     // #endregion
 ]);
 // #region SettingTrans
@@ -744,7 +761,9 @@ const FarmTranslation = new Map([
 // #endregion FarmTrans
 // #region GuildTrans
 const GuildTranslation = new Map([
+    ["Guild Funds", "公会仓库"],
     ["Name", "玩家名称"],
+    ["resources", "资源"],
     ["Guild Name", "公会名称"],
     ["Level", "公会等级"],
     ["Active", "上次活动"],
@@ -752,6 +771,13 @@ const GuildTranslation = new Map([
     ["Upgrades", "公会升级"],
     ["Owner", "所有者"],
     ["Members", "成员数量"],
+    ["members", "成员"],
+    ["items", "物品数"],
+    ["per boost", "每次升级"],
+    ["additional resources", "额外资源"],
+    ["reduction", "消耗削减"],
+    ["Base Experience", "基础经验值"],
+    ["additional actions", "基础经验"],
 ]);
 // #region ChatTrans
 const ChatTranslation = new Map([
@@ -779,6 +805,8 @@ const MenuItemTranslation = new Map([
     ["Disenchant", "分解"],
     ["Donate to armory", "捐赠至装备库"],
     ["Unfavorite", "取消保护"],
+    ["Contributions", "查看贡献"],
+    ["Leave Guild", "离开公会"],
 ]);
 // #region MarketTL
 const MarketTranslation = new Map([
@@ -790,7 +818,7 @@ const MarketTranslation = new Map([
     ["Boost", "加成"],
     ["Quality", "品质"],
     ["Seller", "出售人"],
-    ["Total: ", "总计: "]
+    ["Total: ", "总计: "],
 ]);
 // #region UpgradeTL
 const UpgradeTranslation = new Map([
@@ -807,6 +835,44 @@ const UpgradeTranslation = new Map([
     ["Increase ", "提升 "],
     [" times (+", " 级 (+"],
     [") for ", "), 消耗 "],
+]);
+// #region ProfileTL
+const ProfileTranslation = new Map([
+    ["Guild: ", "公会："], 
+    ["Activity: ", "当前活动："], 
+    ["battle", "战斗"],
+    ["mining", "采矿"],
+    ["fishing", "捕鱼"],
+    ["woodcutting", "伐木"],
+    ["Battle Level: ", "战斗等级："], 
+    ["Zone: ", "战斗区域："], 
+    ["blazing_core", "炙热核心"],
+    ["worldshapers_domain", "创世领域"],
+    ["maelstroms_eye", "风暴之眼"],
+    ["Enemy: ", "交战敌人："], 
+    ["Mining Level: ", "采矿等级："], 
+    ["Fishing Level: ", "捕鱼等级："], 
+    ["Woodcutting Level: ", "伐木等级："],
+    ["Statistics", "统计信息"],
+    ["Base Stats", "基础属性值"],
+    ["Elemental Mastery", "元素精通"],
+    ["Enchanting Skills", "附魔等级"],
+    ["Gathering Boosts", "采集加成"],
+    ["Spells", "法术加成"],
+    ["Codex Boosts", "法典加成"],
+    ["Other Equipment Boosts", "其他装备加成"],
+    ["Combat Skills", "战斗加成"],
+    ["Farm", "农场"],
+    ["Equipment", "装备"],
+]);
+// #region PlacehlderTL
+const PlaceholderTranslation = new Map([
+    ["Lookup player", "查询玩家"],
+    ["Min", "最小值"],
+    ["Max", "最大值"],
+    ["Optional", "选填"],
+    ["Donate", "捐赠数量"],
+    ["Search text", "搜索文字"],
 ]);
 if(!DEBUG) [...Translation.values()].forEach(value => Translation.set(value, value));
 // #region EquipTrans
@@ -842,6 +908,7 @@ const __TypedTranslation = new Map([
     ["market", MarketTranslation],
     ["menuitem", MenuItemTranslation],
     ["upgrade", UpgradeTranslation],
+    ["profile", ProfileTranslation],
     ["default", Translation],
 ]);
 const _Translate = (ele, type = "default", keepOriginalText = false) => {
@@ -849,7 +916,7 @@ const _Translate = (ele, type = "default", keepOriginalText = false) => {
     const text = ele.textContent;
     const translation = __TypedTranslation.get(type) ?? Translation;
     ele.textContent = (translation.get(text) ?? (console.log("未翻译", type, text), (DEBUG && !keepOriginalText) ? "未翻译" : text));
-    if(ele.textContent === "未翻译"){
+    if(!keepOriginalText && (ele.textContent === "未翻译" || ele.textContent === text)){
         _FailedTranslate.add(JSON.stringify({
             type: type,
             text: text,
@@ -861,10 +928,10 @@ const _Translate = (ele, type = "default", keepOriginalText = false) => {
 const _TypedTranslate = (type) => {
     return (ele) => _Translate(ele, type);
 };
-unsafeWindow.ExportFailedTranslate = (nocomment = true) => {
+unsafeWindow.ExportFailedTranslate = (comment = true) => {
     console.log([..._FailedTranslate.keys()].map(json => {
         const data = JSON.parse(json);
-        return `    ["${data.text}", ""],${nocomment ? ` // ${data.type}` : ""}`;
+        return `    ["${data.text}", ""],${comment ? ` // ${data.type}` : ""}`;
     }).join("\n"));
 };
 const CheckTranslation = (scope, selector, callback, doNotRetrigger = true) => {
@@ -972,17 +1039,20 @@ const FindAndReplaceText = () => {try {
             break;
         }
         case "/guild/upgrades":{
-            document.querySelectorAll("div.border-primary.flex.w-full.flex-col.border.p-2.md\\:w-80:not([translated])").forEach(div => {
+            CheckTranslation(document, "main div.space-y-2>div:nth-child(2)>div:nth-child(1)", _TypedTranslate("guild"))
+            document.querySelectorAll("div.mt-4:nth-child(4) div.border-primary.flex.w-full.flex-col.border.p-2.md\\:w-80:not([translated])").forEach(div => {
                 div.setAttribute("translated", "");
                 [
                     div.children[0],
                     div.children[1],
                     div.children[2].children[0].childNodes[0],
-                    ...[...div.children[3].children].map(ele => ele.childNodes[1]),
+                    ...[...(div.children[3]?.children ?? [])].map(ele => ele.childNodes[1]).filter(node => node),
                 ].forEach(_Translate);
-                const text201 = div.children[2].children[0].childNodes[1].textContent;
-                const result201 = /([^ ]+) (.*)/.exec(text201);
-                text201.textContent = `${result201[1]} ${Translation.get(result201[2])}`;
+                const div21 = div.querySelector(":scope div.mt-auto.flex.justify-between").children[1];
+                const text21 = div21.textContent;
+                const result21 = /([^ ]+) (.*)/.exec(text21);
+                if(!result21) {console.log("result201 is null"); return;}
+                div21.textContent = `${result21[1]} ${GuildTranslation.get(result21[2]) ?? result21[2]}`;
             })
             break;
         }
@@ -1027,6 +1097,16 @@ const FindAndReplaceText = () => {try {
             });
             document.querySelectorAll("html.dark.notranslate body div#root div.flex.max-h-screen.min-h-screen.flex-col.overflow-x-hidden div.flex.max-w-screen.grow.flex-col.overflow-y-scroll.lg\\:flex-row.lg\\:flex-wrap main>div:not([class]):not([translated])").forEach(div => {
                 div.setAttribute("translated", "");
+                if(div.children[0].children[0].children[0].textContent === "You are currently siphoning power into your lowest quality equipped item..."){
+                    [
+                        div.children[0].children[0].children[0],
+                        div.children[0].children[0].children[1].childNodes[0],
+                        div.children[0].children[0].children[1].childNodes[2],
+                        div.children[1].childNodes[0],
+                        div.children[1].childNodes[4],
+                    ].forEach(_Translate);
+                    return;
+                }
                 [
                     div?.children[0]?.children[0]?.childNodes[0],
                     div?.children[0]?.children[0]?.childNodes[1],
@@ -1196,10 +1276,23 @@ const FindAndReplaceText = () => {try {
         // #endregion
         // #region /profile
         case "/profile":{
-            CheckTranslation(document, 'div[data-slot="card"]:nth-child(1)>div[data-slot="card-content"]>div:nth-child(n + 1)', (kv) => {
-                _Translate(kv.textContent[0]);
-                _Translate(kv.textContent[1], "default", true);
+            CheckTranslation(document, 'div[data-slot="card"]:nth-child(1)>div[data-slot="card-content"]>p:nth-child(n+2)', (kv) => {
+                console.log(kv);
+                _Translate(kv.childNodes[0], "profile");
+                kv.childNodes[1].textContent = kv.childNodes[1].textContent.replace(/Worlddrowner|Worldburner|Worldshaper/, (match) => Translation.get(match));
+                _Translate(kv.childNodes[1], "profile", true);
             });
+            CheckTranslation(document, 'div[data-slot="card"]:nth-child(n+3) div[data-slot="card-title"]', _TypedTranslate("profile"));
+            CheckTranslation(document, 'div[data-slot="card"]:nth-child(2)', div => {
+                _Translate(div.children[0], "profile");
+                CheckTranslation(div, 'div.w-15', _Translate);
+            });
+            CheckTranslation(document, 'div[data-slot="card"]:nth-child(n+3) div[data-slot="card-content"] p', p => {
+                _Translate(p.childNodes[0]);
+            });
+            CheckTranslation(document, 'div[data-slot="card"]:nth-child(n+3) div[data-slot="card-content"] p span.ml-2.text-sm', span => {
+                if(span.childNodes[0].textContent === "(Total ") span.childNodes[0].textContent = "(总计 ";
+            })
             break;
         }
         // #endregion
@@ -1339,6 +1432,9 @@ const FindAndReplaceText = () => {try {
         span.setAttribute("translated", "");
         _Translate(span);
     });
+    // #endregion
+    // #region placeholder
+    CheckTranslation(document, 'input[placeholder][data-slot="input"]', input => input.placeholder = PlaceholderTranslation.get(input.placeholder) ?? input.placeholder);
     // #endregion
     document.querySelectorAll('button[role="combobox"][aria-controls^="radix-"] span[data-slot="select-value"]:nth-child(1):not([translated])').forEach(span => {
         if(DEBUG) document.body.append(span.cloneNode(true));
