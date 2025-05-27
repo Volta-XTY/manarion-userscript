@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.9.1
+// @version      0.9.2
 // @description  Manarion Chinese Translation and Quest notification
 // @author       VoltaXTY
 // @match        https://manarion.com/*
@@ -384,8 +384,8 @@ const Translation = new Map([
     ["Increases maximum actions by 1% per level", "每级使成员最大行动次数 +1%"],
     // #endregion
     // #region update text
-    ["The first type of event has been added: Rift of Power. Randomly opens every 3-6 hours for 10 minutes.", "新增第一种事件：力量洪流。活动将间隔随机 3 到 6 小时开启，每次持续 10 分钟。"],
-    [" When you siphon it you have a chance each action (starting at 100% each rift dropping to 10% as you siphon more) to apply the effect of an", " 当你汲取力量洪流时，每次行动都有一定概率（初始值 100%，每次成功降低 10%，最低 10%）施加一个"],
+    ["The first type of event has been added: Rift of Power. Randomly opens every 3-6 hours for 10 minutes.", "新增第一种事件：力量裂隙。活动将间隔随机 3 到 6 小时开启，每次持续 10 分钟。"],
+    [" When you siphon it you have a chance each action (starting at 100% each rift dropping to 10% as you siphon more) to apply the effect of an", " 当你汲取力量裂隙时，每次行动都有一定概率（初始值 100%，每次成功降低 10%，最低 10%）施加一个"],
     [" ", " "],
     [" to your lowest quality equipped item.", " 的效果，作用于你装备的最低品质的物品上。"],
     ["Added new notification setting for this event.", "新增适用该事件的通知设置。"],
@@ -684,22 +684,23 @@ const SettingsTranslation = new Map([
     ["Trade", "交易频道"],
     ["Guild", "公会频道"],
     ["Help", "帮助频道"],
-    ["Identity Providers", "身份验证服务"],
+    ["Identity Providers", "身份验证"],
     ["Quest Complete", "任务完成"],
     ["Fatigue", "行动计数归零"],
     ["Whisper", "私信"],
     ["Potion expired", "药水耗尽"],
-    ["Rift of Power (Event)", "力量洪流（事件）"],
+    ["Rift of Power (Event)", "力量裂隙（事件）"],
     ["Added on", "添加于"],
     ["Refer your friends to the game and get an additional 5% of any", "将游戏推荐给朋友，然后额外获得他们掉落的"],
     [" they find.", " 的5%。"],
     ["You must both verify your account by linking an identity provider to earn rewards.", "双方均需绑定账号以获取奖励。"],
     ["Other devices", "其他设备"],
+    ["You have earned a total of", "你总共获得了"],
     ["任务完成", "任务完成"],
     ["行动计数归零", "行动计数归零"],
     ["私信", "私信"],
     ["药水耗尽", "药水耗尽"],
-    ["力量洪流（事件）", "力量洪流（事件）"],
+    ["力量裂隙（事件）", "力量裂隙（事件）"],
 ]);
 // #endregion
 // #region FarmTrans
@@ -847,7 +848,7 @@ const _Translate = (ele, type = "default", keepOriginalText = false) => {
     if(ele?.nodeType !== Node.TEXT_NODE && (!ele || !ele.textContent || ele.childNodes.length !== 1 || ele.childNodes[0].nodeType !== Node.TEXT_NODE)) return;
     const text = ele.textContent;
     const translation = __TypedTranslation.get(type) ?? Translation;
-    ele.textContent = (translation.get(text) ?? (console.log("未翻译", type, ele.outerHTML), (DEBUG && !keepOriginalText) ? "未翻译" : text));
+    ele.textContent = (translation.get(text) ?? (console.log("未翻译", type, text), (DEBUG && !keepOriginalText) ? "未翻译" : text));
     if(ele.textContent === "未翻译"){
         _FailedTranslate.add(JSON.stringify({
             type: type,
@@ -1085,12 +1086,20 @@ const FindAndReplaceText = () => {try {
         case "/settings":{
             document.querySelectorAll("main>div:not([translated])").forEach((div) => {
                 div.setAttribute("translated", "");
-                [
+                [   
                     div.children[1].childNodes[0],
                     div.children[1].childNodes[3],
                     div.children[3],
                 ].filter(div => div).forEach((div) => _Translate(div, "settings"));
             });
+            document.querySelectorAll("main>div:not([ref-translated])").forEach(div => {
+                div.childNodes.forEach(node => {
+                    if(node.nodeType === Node.TEXT_NODE){
+                        _Translate(node, "settings");
+                        div.setAttribute("ref-translated", "");
+                    }
+                });
+            })
             document.querySelectorAll("main h2.text-2xl:not([translated]), main label:not([translated]), main span.w-20.text-lg:not([translated]), main div.text-xl:not([translated])").forEach(div => {
                 div.setAttribute("translated", "");
                 _Translate(div, "settings");
@@ -1101,7 +1110,11 @@ const FindAndReplaceText = () => {try {
             });
             document.querySelectorAll(`main div.space-y-2 div.ml-2 div.ml-4:not([translated])`).forEach(div => {
                 div.setAttribute("translated", "");
-                div.replaceChildren(...div.textContent.split(", "));
+                div.replaceChildren(...div.textContent.split(", ").reduce((result, current, index, arr) => {
+                    result.push(current);
+                    if(index !== arr.length - 1) result.push("，");
+                    return result;
+                }, []));
                 [...div.childNodes].forEach(node => _Translate(node, "settings"));
             })
             break;
@@ -1369,19 +1382,22 @@ const TranslateEvent = () => {
             _Translate(titleClone);
             title.setAttribute("hidden", "");
             title.insertAdjacentElement("afterend", titleClone);
-            const OnQuestProgress = (mutlist, observer) => {
-                observer.disconnect();
-                const current = Number(progressDiv.childNodes[1].textContent);
-                const target = Number(progressDiv.childNodes[3].textContent);
-                _Translate(progressDiv.childNodes[0], "default", true); 
-                _Translate(progressDiv.childNodes[4], "default", true);
-                console.log(`${current} / ${target}`);
-                if(current === target) {
-                    new Notification("Quest Complete", { requireInteraction: true, });
-                }
-                observer.observe(progressDiv, {childList: true, subtree: true, characterData: true});
-            };
-            new MutationObserver(OnQuestProgress).observe(progressDiv, {childList: true, subtree: true, characterData: true});
+            if(!div.hasAttribute("watching")){
+                div.setAttribute("watching", "");
+                const OnQuestProgress = (mutlist, observer) => {
+                    observer.disconnect();
+                    const current = Number(progressDiv.childNodes[1].textContent);
+                    const target = Number(progressDiv.childNodes[3].textContent);
+                    _Translate(progressDiv.childNodes[0], "default", true); 
+                    _Translate(progressDiv.childNodes[4], "default", true);
+                    console.log(`${current} / ${target}`);
+                    if(current === target) {
+                        new Notification("Quest Complete", { requireInteraction: true, });
+                    }
+                    observer.observe(progressDiv, {childList: true, subtree: true, characterData: true});
+                };
+                new MutationObserver(OnQuestProgress).observe(progressDiv, {childList: true, subtree: true, characterData: true});
+            }
         }
     })
 };
