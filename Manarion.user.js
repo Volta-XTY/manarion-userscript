@@ -1,13 +1,15 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.10
+// @version      0.10.1
 // @description  Manarion Chinese Translation and Quest notification
 // @author       VoltaXTY
 // @match        https://manarion.com/*
 // @icon         http://manarion.com/favicon.ico
 // @grant        unsafeWindow
 // @run-at       document-start
+// @downloadURL https://update.greasyfork.org/scripts/537308/Manarion%20Chinese%20Translation.user.js
+// @updateURL https://update.greasyfork.org/scripts/537308/Manarion%20Chinese%20Translation.meta.js
 // ==/UserScript==
 const DoTranslate = true; // 把这里的true改成false就可以关闭翻译，反之亦然。
 const DEBUG = false;
@@ -211,6 +213,7 @@ const Translation = new Map([
     ["Next →", "下一页 →"],
     ["Brew", "制作"],
     ["Collect", "采摘"],
+    ["Save", "保存"],
     // #endregion
     // #region research 
     ["Staff (Damage)", "法杖（元素伤害）"],
@@ -386,6 +389,10 @@ const Translation = new Map([
     ["Increases maximum actions by 1% per level", "每级使成员最大行动次数 +1%"],
     // #endregion
     // #region update text
+    ["Improved display of upgrades on rift of power page.", "改善了力量裂隙页面的强化显示"],
+    ["Fix missing activity logs when searching", "修复搜索活动记录时缺失某些条目的问题"],
+    ["Fix quest loot tracker entries disappearing on refresh", "修复掉落记录刷新后丢失任务奖励记录的问题"],
+    ["Fix ignore not working in guild chat", "修复公会聊天屏蔽不生效的问题"],
     ["The first type of event has been added: Rift of Power. Randomly opens every 3-6 hours for 10 minutes.", "新增第一种事件：力量裂隙。活动将间隔随机 3 到 6 小时开启，每次持续 10 分钟。"],
     [" When you siphon it you have a chance each action (starting at 100% each rift dropping to 10% as you siphon more) to apply the effect of an", " 当你汲取力量裂隙时，每次行动都有一定概率（初始值 100%，每次成功降低 10%，最低 10%）施加一个"],
     [" ", " "],
@@ -530,7 +537,7 @@ const Translation = new Map([
     // #endregion
     // #region label 
     ["Adjust personal contribution", "调整个人上税"],
-    ["Example", "示例"],
+    ["Example", "示例按钮"],
     ["Sign in with Discord", "使用 Discord 登录"],
     ["Sign in with Twitch", "使用 Twitch 登录"],
     ["Join Us on Discord", "加入我们的 Discord"],
@@ -588,11 +595,11 @@ const Translation = new Map([
     ["3. No Automation", "3. 禁止自动化"],
     ["Any form of botting, scripting, or macroing is forbidden.", "禁止任何形式的自动机器人、脚本、宏。"],
     ["4. No Scamming", "4. 禁止欺诈"],
-    ["All trade agreements must be honored. Scamming wastes moderator time and will result in bans.", "所有的交易约定都应得到遵守。欺诈行为浪费管理员的时间，将会导致封禁。"],
+    ["All trade agreements must be honored. Scamming wastes moderator time and will result in bans.", "所有的交易约定都应得到彻底遵守。欺诈行为浪费管理员的时间，将会导致封禁。"],
     ["5. One Account Per Person", "5. 一人一号"],
     ["If multiple people play from the same location, they may not play in a way that provides excessive benefit to any account other than their own.", "如果多个人在同一地点游玩，他们不能以任意形式为彼此提供利益。"],
     ["6. No Account Sharing", "6. 禁止共享账号"],
-    ["Do not share your account. You are responsible for all activity on your account.", "不要分享你的账号。你为你账号的左右行动负责。"],
+    ["Do not share your account. You are responsible for all activity on your account.", "不要分享你的账号。你为你账号的所有行动负责。"],
     ["7. No Bug Abuse", "7. 禁止恶意利用漏洞"],
     ["If you find an exploit, report it privately to a staff member. Abusing bugs will result in a ban.", "如果你发现了一个漏洞，请私下向制作人员反馈。恶意利用漏洞将会导致封禁。"],
     // #endregion
@@ -675,6 +682,8 @@ const Translation = new Map([
     ["Worldshaper", "再塑世界之敌"],
     ["Worldburner", "焚毁世界之敌"],
     ["Worlddrowner", "沉没世界之敌"],
+    [" Online", " 在线"],
+    [" Active", " 活动中"],
     // #endregion
     // #region profile text
     ["Battle Quest # ", "战斗任务 # "],
@@ -687,10 +696,13 @@ const Translation = new Map([
     ["Fertilizer", "肥料"],
     ["Plot", "地块"],
     ["Potion belt size", "药水腰带容量"],
+    ["Siphoning Rift Of Power", "111"],
+    ["Siphon Rift Of Power", "222"],
     // #endregion
 ]);
 // #region SettingTrans
 const SettingsTranslation = new Map([
+    ["，", "，"],
     ["Referrer Link", "推荐链接"],
     ["Guild Taxes", "公会税收"],
     ["Push Notifications", "推送通知"],
@@ -984,9 +996,6 @@ const FindAndReplaceText = () => {try {
                 })
             }
             CheckTranslation(document, "th span.mr-1", _TypedTranslate("market"));
-            document.querySelectorAll(`div#root div.flex.max-h-screen.min-h-screen.flex-col.overflow-x-hidden div.flex.max-w-screen.grow.flex-col.overflow-y-scroll.lg\\:flex-row.lg\\:flex-wrap main.grow.p-2.lg\\:w-1.lg\\:p-4 div.min-h-100 div.flex.flex-col.gap-2 div.flex-1.outline-none.flex.items-center.gap-2 div:not([translated])`).forEach(div => {
-                div.setAttribute("translated", "");
-            });
             document.querySelectorAll(`div#root div.flex.max-h-screen.min-h-screen.flex-col.overflow-x-hidden div.flex.max-w-screen.grow.flex-col.overflow-y-scroll.lg\\:flex-row.lg\\:flex-wrap main.grow.p-2.lg\\:w-1.lg\\:p-4 div.min-h-100 div.mt-4.flex.flex-wrap:not([translated])`).forEach(div => {
                 div.setAttribute("translated", "");
                 div.querySelectorAll(":scope label").forEach(label => _Translate(label));
@@ -995,7 +1004,7 @@ const FindAndReplaceText = () => {try {
             });
             document.querySelectorAll(`div#root div.flex.max-h-screen.min-h-screen.flex-col.overflow-x-hidden div.flex.max-w-screen.grow.flex-col.overflow-y-scroll.lg\\:flex-row.lg\\:flex-wrap main.grow.p-2.lg\\:w-1.lg\\:p-4 div.min-h-100 div.mt-4.flex.flex-wrap div.w-1\\/2.min-w-80.p-2 table.w-full.table-auto.text-left tbody tr.even\\:bg-primary\\/30.mb-2.cursor-pointer.items-center td:not([translated]):nth-child(2)`).forEach(td =>{
                 td.setAttribute("translated", "");
-                _Translate(td.childNodes[1])
+                _Translate(td.childNodes[1]);
             });
             CheckTranslation(document, "div.mt-2 div.mb-2>div:nth-child(3)>div:nth-child(3)", (div) => _Translate(div.childNodes[0], "market"));
             break;
@@ -1071,6 +1080,8 @@ const FindAndReplaceText = () => {try {
         // #endregion
         // #region /
         case "/":{
+            // Siphon rift of pwer
+            CheckTranslation(document, "main div div div.mt-2>div.text-foreground.flex.justify-between", div => _Translate(div.children[0]));
             // monster name
             CheckTranslation(document, "main>div.space-y-2>div.grid.grid-cols-1>div.mt-4:nth-child(2)", _Translate)
             // main translation 1
@@ -1269,7 +1280,7 @@ const FindAndReplaceText = () => {try {
             });
             CheckTranslation(document, `${potionsId} div.space-x-2>span:nth-child(1)`, _TypedTranslate("farm"));
             CheckTranslation(document, `${potionsId} div.ml-1.space-y-4 div.flex.flex-wrap.items-end.gap-2>div:nth-last-child(2)`, (div) => {
-                div.childNodes[3].textContent = " 每份";
+                div.childNodes[3].textContent = " 每份消耗";
             })
             break;
         }
@@ -1325,6 +1336,11 @@ const FindAndReplaceText = () => {try {
         })
     }
     // #endregion
+    // #region active count
+    CheckTranslation(document, 'div#root div.flex.max-h-screen.min-h-screen.flex-col.overflow-x-hidden div.flex.max-w-screen.grow.flex-col.overflow-y-scroll.lg\\:flex-row.lg\\:flex-wrap div.border-primary.w-full.max-lg\\:border-b.lg\\:w-60.lg\\:border-r div.border-primary.flex.justify-between.border-b.px-2.py-1.text-sm', (div) => {
+        _Translate(div.children[0].childNodes[1]);
+        _Translate(div.children[1].childNodes[1]);
+    })
     document.querySelectorAll('main a[href^="/market"]:not([translated])').forEach(a => {
         a.setAttribute("translated", "");
         _Translate(a);
@@ -1463,11 +1479,6 @@ const FindAndReplaceText = () => {try {
 // #region eventTrans
 const TranslateEvent = () => {
     document.querySelectorAll("div.border-primary div.grid-cols-4 div.col-span-4 div.p-2.w-full:not([translated])").forEach((div) => {
-        if(div.children.length === 2 && div.children[0].textContent === "Siphoning Rift of Power"){
-            div.setAttribute("translated", "");
-            _Translate(div.children[0]);
-            _Translate(div.children[1].childNodes[1]);
-        }
         if(div.children.length === 2 && div.children[0].textContent === "Quest Progress"){
             div.setAttribute("translated", "");
             const title = div.children[0];
@@ -1495,34 +1506,20 @@ const TranslateEvent = () => {
                 new MutationObserver(OnQuestProgress).observe(progressDiv, {childList: true, subtree: true, characterData: true});
             }
         }
+        else if(div.children.length === 2 && !div.hasAttribute("watching")){
+            div.setAttribute("translated", "");
+            div.setAttribute("watching", "");
+            const OnEventProgress = (_, observer) => {
+                observer.disconnect();
+                _Translate(div.children[0]);
+                _Translate(div.children[1].childNodes[1]);
+                observer.observe(div, {childList: true, subtree: true, characterData: true});
+            }
+            new MutationObserver(OnEventProgress).observe(div, {childList: true, subtree: true, characterData: true});
+        }
     })
 };
 // #endregion
-const WatchQuest = () => {
-    const progressDiv = document.querySelector("div.border-primary.w-full.max-lg\\:border-b.lg\\:w-60.lg\\:border-r p.text-foreground.text-sm:not([watching])");
-    if(!progressDiv || progressDiv.childNodes[0].textContent !== "Defeat ") return;
-    progressDiv.setAttribute("watching", "");
-    const title = progressDiv.parentElement.children[0];
-    if(false && DoTranslate){
-        _Translate(title);
-        _Translate(progressDiv.childNodes[0]);
-        _Translate(progressDiv.childNodes[4]);
-    }
-    const OnQuestProgress = () => {
-        const current = Number(progressDiv.childNodes[1].textContent);
-        const target = Number(progressDiv.childNodes[3].textContent);
-        console.log(`${current} / ${target}`);
-        if(current === target) {
-            new Notification("Quest Complete", { requireInteraction: true, });
-        }
-    };
-    new MutationObserver(OnQuestProgress).observe(progressDiv, {childList: true, subtree: true, characterData: true});
-};
-const UserStat = {
-    Lv: 0, MEx: 0, Typ: "Water", Int: 0, Sta: 0, Spi: 0, Foc: 0, Mna: 0, Mas: 0, // % Spl: 0, Wrd: 0,
-    // boosts
-    SpR: 0, Dmg: 0, Mul: 0, CCh: 0, CDm: 0, Has: 0, HeB: 0, WaB: 0, FoB: 0, MaB: 0, Ove: 0, TiD: 0,
-};
 const RecordExpTable = (() => {
     let lastLv = 0;
     return (curLv, curMEx) => {
@@ -1551,18 +1548,7 @@ const UpdateUserStat = () => {
         const key = div.children[0].textContent;
         const val = div.children[1];
         switch(key){
-            case "Battle Level:": UserStat.Lv = Number(val.textContent); break;
-            case "Experience:": UserStat.MEx = Number(val.children[1].getAttribute("title").replaceAll(",", "")); RecordExpTable(UserStat.Lv, UserStat.MEx); break;
-            case "Intellect:": UserStat.Int = Number(val.textContent); break;
-            case "Stamina:": UserStat.Sta = Number(val.textContent); break;
-            case "Spirit:": UserStat.Spi = Number(val.textContent); break;
-            case "Focus:": UserStat.Foc = Number(val.textContent); break;
-            case "Mana:": UserStat.Mna = Number(val.textContent); break;
-            case "Water Mastery:": UserStat.Mas = Number(val.childNodes[0].textContent.replaceAll(/\.|\%/g, "")); UserStat.Typ = "Water"; break;
-            case "Fire Mastery:": UserStat.Mas = Number(val.childNodes[0].textContent.replaceAll(/\.|\%/g, "")); UserStat.Typ = "Fire"; break;
-            case "Nature Mastery:": UserStat.Mas = Number(val.childNodes[0].textContent.replaceAll(/\.|\%/g, "")); UserStat.Typ = "Nature"; break;
-            case "Total Spellpower:": UserStat.Spl = Number(val.children[0].getAttribute("title").replaceAll(",", "")); break;
-            case "Total Ward:": UserStat.Spl = Number(val.children[0].getAttribute("title").replaceAll(",", "")); break;
+            case "Experience:": RecordExpTable(key,Number(val.children[1].getAttribute("title").replaceAll(",", ""))); break;
         }
     })
 }
@@ -1570,7 +1556,6 @@ const OnMutate = (mutlist, observer) => {
     observer.disconnect();
     if(DoTranslate) FindAndReplaceText();
     UpdateUserStat();
-    WatchQuest();
     TranslateEvent();
     observer.observe(document, {subtree: true, childList: true});
 };
