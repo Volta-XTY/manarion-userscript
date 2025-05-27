@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.8
+// @version      0.9
 // @description  Manarion Chinese Translation and Quest notification
 // @author       VoltaXTY
 // @match        https://manarion.com/*
@@ -10,7 +10,7 @@
 // @run-at       document-start
 // ==/UserScript==
 const DoTranslate = true; // 把这里的true改成false就可以关闭翻译，反之亦然。
-const DEBUG = false;
+const DEBUG = true;
 const GetItem = (key) => JSON.parse(window.localStorage.getItem(key) ?? "null");
 const SetItem = (key, value) => window.localStorage.setItem(key, JSON.stringify(value));
 const css = 
@@ -624,7 +624,7 @@ const Translation = new Map([
     ["A fine dust infused with magical energy.", "一些灌注了魔力的精良粉尘。"],
     ["An ancient book filled with arcane knowledge.", "一本写满奥术智慧的古书。"],
     ["An ancient book filled with arcane knowledge. Untradeable.", "一本写满奥术智慧的古书。不可交易。"],
-    ["Sustenance for the journey ahead.", "为前方的旅程滋润喉咙。"],
+    ["Sustenance for the journey ahead.", "滋养前路。"],
     ["A basic crafting material from trees.", "一种基础的来自树木的合成材料。"],
     ["A sturdy material for construction.", "一种用于建筑的坚实材料。"],
     ["A tome ablaze with fiery incantations.", "一本因炙热的魔咒而熊熊燃烧的典籍。"],
@@ -644,7 +644,19 @@ const Translation = new Map([
     ["A rare, incredibly durable wood. Can provide resistance to nature.", "一种无比结实的稀有木材。可以提供自然抗性。"],
     ["Scales from a mystical fish. Can provide resistance to water.", "来自一条神秘之鱼的鱼鳞。可以提供水系抗性。"],
     ["A wood fragment from an ancient tree.", "一片来自某株古树的木材。"],
-    ["A mystical stone that resonates.", "一块共振的神秘石头。"],
+    ["A mystical stone that resonates.", "一颗产生共振的神秘石子。"],
+    ["An enchantment that amplifies fire magic.", "一种能够增强火系魔法的附魔。"], 
+    ["An enchantment that empowers water magic.", "一种能够增强水系魔法的附魔。"], 
+    ["An enchantment that enhances nature magic.", "一种能够增强自然魔法的附魔。"], 
+    ["Improves your fire resistance enchantment ability.", "提升你的火系抗性附魔能力"], 
+    ["Improves your water resistance enchantment ability", "提升你的水系抗性附魔能力"], 
+    ["Improves your nature resistance enchantment ability", "提升你的自然抗性附魔能力"], 
+    ["An enchantment that multiplies base experience.", "一种提高基础经验的附魔。"], 
+    ["An enchantment that multiplies base resources.", "一种提高基础资源的附魔。"], 
+    ["An enchantment that multiplies base mana dust drops.", "一种提高基础魔法尘的附魔。"], 
+    ["An enchantment that increases drop rates.", "一种提高掉落概率的附魔。"], 
+    ["An enchantment that increases your multistat.", "一种提高多重属性掉落的附魔。"], 
+    ["An enchantment that multiplies all your base stats.", "一种提高你的所有属性值的附魔。"], 
     // #endregion
     // #region quest/event
     ["Defeat ", "击败 "],
@@ -655,9 +667,9 @@ const Translation = new Map([
     [" ticks remaining", " 刻剩余"],
     // #endregion
     // #region misc
-    ["Edit Profile", "编辑资料"], // default
-    ["Enchant", "附魔"], // default
-    ["📜 Game Rules", "📜 游戏规则"], // default
+    ["Edit Profile", "编辑资料"], 
+    ["Enchant", "附魔"], 
+    ["📜 Game Rules", "📜 游戏规则"], 
     // #endregion
 ]);
 // #region SettingTrans
@@ -765,12 +777,19 @@ const MenuItemTranslation = new Map([
     ["Sell", "出售"],
     ["Disenchant", "分解"],
     ["Donate to armory", "捐赠至装备库"],
+    ["Unfavorite", "取消保护"],
 ]);
 // #region MarketTL
 const MarketTranslation = new Map([
     ["Your Sell Orders", "你的出售挂单"],
     ["Your Buy Orders", "你的出售挂单"],
     ["Equipment", "装备挂单"],
+    ["Name", "物品名"],
+    ["Price", "售价"],
+    ["Boost", "加成"],
+    ["Quality", "品质"],
+    ["Seller", "出售人"],
+    ["Total: ", "总计: "]
 ]);
 // #region UpgradeTL
 const UpgradeTranslation = new Map([
@@ -892,7 +911,8 @@ const FindAndReplaceText = () => {try {
                     td.setAttribute("translated", "");
                     const text = td.textContent;
                     const splitPos = text.indexOf(" ");
-                    text.textContent = `${text.substring(0, splitPos)} ${Translation.get(text.substring(splitPos + 1) ?? text.substring(splitPos + 1))}`;
+                    console.log("substring|"+text.substring(splitPos + 1)+"|");
+                    td.textContent = `${text.substring(0, splitPos)} ${Translation.get(text.substring(splitPos + 1) ?? text.substring(splitPos + 1))}`;
                 })
             }
             CheckTranslation(document, "th span.mr-1", _TypedTranslate("market"));
@@ -909,6 +929,7 @@ const FindAndReplaceText = () => {try {
                 td.setAttribute("translated", "");
                 _Translate(td.childNodes[1])
             });
+            CheckTranslation(document, "div.mt-2 div.mb-2>div:nth-child(3)>div:nth-child(3)", (div) => _Translate(div.childNodes[0], "market"));
             break;
         }
         // #endregion
