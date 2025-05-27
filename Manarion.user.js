@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.5
+// @version      0.6
 // @description  Manarion Chinese Translation and Quest notification
 // @author       VoltaXTY
 // @match        https://manarion.com/*
@@ -48,41 +48,27 @@ const HTML = (tagname, attrs, ...children) => {
 };
 const popupSelector = 'div[data-slot="tooltip-content"]:not([translated])';
 const Translation = new Map([
+    ["Actions:", "行动次数"],
     // #region stat panel
-    ["Battle Level:", "战斗等级:"],
-    ["Experience:", "经验值:"],
-    ["Actions:", "行动计数:"],
-    ["Mana Dust:", "魔法尘:"],
-    ["Elemental Shards:", "元素碎片:"],
-    ["Codex:", "法典:"],
-    ["Intellect:", "智力:"],
-    ["Stamina:", "耐力:"],
-    ["Spirit:", "精神:"],
-    ["Focus:", "集中:"],
-    ["Mana:", "魔力:"],
-    ["Nature Mastery:", "自然增幅:"],
-    ["Fire Mastery:", "火系增幅:"],
-    ["Water Mastery:", "水系增幅:"],
-    ["Total Spellpower:", "总法强:"],
-    ["Total Ward:", "总抗性:"],
-    ["Battle Level", "战斗等级"],
-    ["Experience", "经验值"],
-    ["Mana Dust", "魔法尘"],
-    ["Elemental Shards", "元素碎片"],
-    ["Codex", "法典"],
-    ["Intellect", "智力"],
-    ["Stamina", "耐力"],
-    ["Spirit", "精神"],
-    ["Focus", "集中"],
-    ["Mana", "魔力"],
-    ["Nature Mastery", "自然增幅"],
-    ["Fire Mastery", "火系增幅"],
-    ["Water Mastery", "水系增幅"],
-    ["Total Spellpower", "总法强"],
-    ["Total Ward", "总抗性"],
+    ...[
+        ["Battle Level", "战斗等级"],
+        ["Experience", "经验值"],
+        ["Intellect", "智力"],
+        ["Stamina", "耐力"],
+        ["Spirit", "精神"],
+        ["Focus", "集中"],
+        ["Mana", "魔力"],
+        ["Nature Mastery", "自然精通"],
+        ["Fire Mastery", "火系精通"],
+        ["Water Mastery", "水系精通"],
+        ["Total Spellpower", "总法强"],
+        ["Total Ward", "总抗性"],
+    ].flatMap(([key, value]) => [
+        [key, value],
+        [`${key}:`, `${value}:`],
+        [`+1 ${key}`, `+1 ${value}`],
+    ]),
     ["Quest Progress:", "任务进度:"],
-    ["Defeat:", "击败:"],
-    ["Enemies:", "个敌人:"],
     ["Increases your spell damage", "增强你的法术伤害"],
     ["Increases your health", "增加你的生命值"],
     ["Increases your mana pool", "增加你的魔力值"],
@@ -90,38 +76,41 @@ const Translation = new Map([
     ["Increases your mana regeneration", "增加你的魔法回复"],
     // #endregion
     // #region item names
-    ["[Mana Dust]", "[魔法尘]"],
-    ["Mana Dust", "魔法尘"],
-    ["[Elemental Shards]", "[元素碎片]"],
-    ["Elemental Shards", "元素碎片"],
-    ["[Codex]", "[法典]"],
-    ["Codex", "法典"],
-    ["[Bound Codex]", "[绑定法典]"],
-    ["[Fish]", "[鱼]"],
-    ["[Wood]", "[木]"],
-    ["[Iron]", "[铁]"],
-    ["[Tome of Fire]", "[火之书]"],
-    ["[Tome of Water]", "[水之书]"],
-    ["[Tome of Nature]", "[自然之书]"],
-    ["[Tome of Mana Shield]", "[魔法盾之书]"],
-    ["[Orb of Power]", "[强化球]"],
-    ["[Orb of Chaos]", "[混沌球]"],
-    ["[Orb of Divinity]", "[神圣球]"],
-    ["[Sunpetal]", "[太阳花瓣]"],
-    ["[Sageroot]", "[智慧之根]"],
-    ["[Bloomwell]", "[Bloomwell]"],
-    ["[Fire Essence]", "[火之精华]"],
-    ["[Water Essence]", "[水之精华]"],
-    ["[Nature Essence]", "[自然精华]"],
-    ["[Asbestos]", "[火绒]"],
-    ["[Ironbark]", "[铁桉]"],
-    ["[Fish Scales]", "[鱼鳞]"],
-    ["[Elderwood]", "[古树枝干]"],
-    ["[Lodestone]", "[磁石]"],
-    ["[White Pearl]", "[白色珍珠]"],
-    ["[Four-leaf Clover]", "[四叶草]"],
-    ["[Enchanted Droplet]", "[神秘结露]"],
-    ["[Infernal Heart]", "[熔岩之心]"],
+    ...[
+        ["Mana Dust", "魔法尘"],
+        ["Elemental Shards", "元素碎片"],
+        ["Codex", "法典"],
+        ["Bound Codex", "绑定法典"],
+        ["Fish", "鱼"],
+        ["Wood", "木"],
+        ["Iron", "铁"],
+        ["Tome of Fire", "火之书"],
+        ["Tome of Water", "水之书"],
+        ["Tome of Nature", "自然之书"],
+        ["Tome of Mana Shield", "魔法盾之书"],
+        ["Orb of Power", "强化球"],
+        ["Orb of Chaos", "混沌球"],
+        ["Orb of Divinity", "神圣球"],
+        ["Sunpetal", "太阳花瓣"],
+        ["Sageroot", "智慧之根"],
+        ["Bloomwell", "Bloomwell"],
+        ["Fire Essence", "火之精华"],
+        ["Water Essence", "水之精华"],
+        ["Nature Essence", "自然精华"],
+        ["Asbestos", "火绒"],
+        ["Ironbark", "铁桉"],
+        ["Fish Scales", "鱼鳞"],
+        ["Elderwood", "古树枝干"],
+        ["Lodestone", "磁石"],
+        ["White Pearl", "白色珍珠"],
+        ["Four-leaf Clover", "四叶草"],
+        ["Enchanted Droplet", "神秘结露"],
+        ["Infernal Heart", "熔岩之心"],
+    ].flatMap(([key, value]) => [
+        [key, value],
+        [`[${key}]`, `[${value}]`],
+        [`${key}:`, `${value}:`],
+    ]),
     ...[
         ["Fire Resistance", "火系抗性"],
         ["Water Resistance", "水系抗性"],
@@ -138,6 +127,7 @@ const Translation = new Map([
     ].flatMap(([key, value]) => [
         [key, value],
         [`Formula: ${key}`, `术式：${value}`],
+        [`Formula: ${key}:`, `术式：${value}:`],
         [`[Formula: ${key}]`, `[术式：${value}]`],
     ]),
     // #endregion
@@ -148,6 +138,15 @@ const Translation = new Map([
     ["Gathering", "采集升级"],
     ["Farm", "农场"],
     ["Potions", "药水"],
+
+    ["Global", "广播"],
+    ["Whispers", "私信"],
+    ["Whispers ", "私信 "],
+    ["All", "所有"],
+    ["General", "一般"], 
+    ["Trade", "交易"], 
+    ["Guild", "公会"], 
+    ["Help", "帮助"], 
     // #endregion
     // #region market
     ["Quantity", "数量"],
@@ -211,8 +210,6 @@ const Translation = new Map([
     ["Collect", "采摘"],
     // #endregion
     // #region chat chan
-    ["All", "所有"],
-    ["Whispers", "私信"],
     // #endregion
     // #region research 
     ["Staff (Damage)", "法杖（元素伤害）"],
@@ -296,6 +293,7 @@ const Translation = new Map([
     ["Battle Quest #", "战斗任务 #"],
     ["Gather Quest #", "采集任务 #"],
     ["Enchanting", "附魔"],
+    ["Send", "发送"], 
     // #endregion
     // #region battle text
     ["Are you sure you want to reset your codex boosts?", "确定要重置所有法典升级吗？"],
@@ -347,7 +345,7 @@ const Translation = new Map([
     ["Provides a multiplier to base experience.", "增幅基础经验值。"],
     ["Increases the base amount of resources you get while gathering.", "增加采集获取的基础资源量。"],
     ["Provides a multiplier to enemy base Mana Dust drop.", "增幅敌人掉落的基础魔法尘数量。"],
-    ["Increases your chance to get additional stat rolls and mastery.", "提升获得额外属性值和法系增幅值的概率。"],
+    ["Increases your chance to get additional stat rolls and mastery.", "提升掉落额外属性点和法系精通点的概率。"],
     ["Increases the maximum amount of actions you can do.", "增加最大行动次数。"],
     ["Increases your chance to find nearly any item drop.", "提升获得绝大多数掉落物的概率。"],
     // #endregion
@@ -415,8 +413,8 @@ const Translation = new Map([
     ["Adjusted gatherer xp past level 750", "调整了 750 级以后的采集经验"],
     [" now preserves the quality % of items", " 现在保留物品的品质百分比"],
     [" infusion system for equipment, increasing power by 5% per infusion for exponentially increasing cost", " 装备强化系统，每次强化提升装备 5% 的各项数值，消耗指数级增加"],
-    ["Mastery Codex boost removed and refunded as", "法系增幅法典升级移除，相应消耗返还为"],
-    [". Mastery drops now benefit from multistat", "。法系增幅掉落现在受多重属性掉落增益"],
+    ["Mastery Codex boost removed and refunded as", "法系精通法典升级移除，相应消耗返还为"],
+    [". Mastery drops now benefit from multistat", "。法系精通掉落现在受多重属性掉落增益"],
     ["Mana Conduit now gives 4% mana cost reduction per upgrade", "魔力回路现在每级提供 4% 的魔力消耗削减"],
     ["Mana Research boost now also boosts mana regeneration", "魔力研究升级现在还会增幅魔力回复"],
     ["Added another scaling factor to enemies past 5000", "为超过 5000 强度的敌人增加了额外的成长因素"],
@@ -459,7 +457,7 @@ const Translation = new Map([
     ["Added ability to add text on profile page", "新增主页自定义文字功能"],
     ["Allowed line breaks in guild description", "公会介绍现在可以换行了"],
     ["Added clear button to loot tracker", "为掉落追踪栏新增清除按钮"],
-    [" rerolls if all boosts are same, 50% chance to pick active mastery on staffs", " 重新随机，如果所有加成均为相同类型，对于法杖，有 50% 的概率依然为相同元素"],
+    [" rerolls if all boosts are same, 50% chance to pick active mastery on staffs", " 重新随机，如果所有加成均为相同类型，对于法杖，有 50% 的概率选择当前行动对应的法系精通加成"],
     ["Added activity log for players and guilds", "新增玩家和公会的活动记录"],
     ["Added cap of level 22 on enchanting skills, increasing by 1 every Monday", "所有附魔等级新增 22 级上限，每周一上限增加 1"],
     ["Added leaderboards for enchanting", "新增附魔等级排行榜"],
@@ -550,7 +548,7 @@ const Translation = new Map([
     ["Spirit gained:", "获得精神:"],
     ["Focus gained:", "获得集中:"],
     ["Mana gained:", "获得魔力:"],
-    ["Mastery gained:", "获得法系增幅:"],
+    ["Mastery gained:", "获得法系精通:"],
     ["Tracked time:", "记录时间:"],
     ["Total stats:", "总获得属性点:"],
     ["Unlink", "解除绑定"],
@@ -606,7 +604,7 @@ const Translation = new Map([
     ["Herbs", "药草"],
     ["Enchanting Reagents", "附魔材料"],
     ["Enchanting Formulas", "附魔术式"],
-    // nav link
+    // #region nav link
     ["Combat", "战斗"],
     ["Town", "城镇"],
     ["Research", "研究"],
@@ -617,7 +615,44 @@ const Translation = new Map([
     ["Rules", "规则"],
     ["News", "新闻"],
     ["Settings", "设置"],
+    // #endregion
+    // #region item desc txt
+    ["You have ", "仓库数量 "],
+    ["Fragments of raw elemental power.", "来自纯净元素之力的碎片。"],
+    ["A smoldering ember.", "尚未熄灭的余烬。"],
+    ["A fine dust infused with magical energy.", "一些灌注了魔力的精良粉尘。"],
+    ["An ancient book filled with arcane knowledge.", "一本写满奥术智慧的古书。"],
+    ["An ancient book filled with arcane knowledge. Untradeable.", "一本写满奥术智慧的古书。不可交易。"],
+    ["Sustenance for the journey ahead.", "为前方的旅程滋润喉咙。"],
+    ["A basic crafting material from trees.", "一种基础的来自树木的合成材料。"],
+    ["A sturdy material for construction.", "一种用于建筑的坚实材料。"],
+    ["A tome ablaze with fiery incantations.", "一本因炙热的魔咒而熊熊燃烧的典籍。"],
+    ["A tome rippling with fluid magic.", "一本因流动的魔法而泛起波纹的典籍。"],
+    ["A tome pulsing with vitality.", "一本因勃勃生机而脉动着的典籍。"],
+    ["A tome that strengthens your mana shield ability.", "一本增强你的魔法盾的典籍。"],
+    ["Rerolls the values of all item modifiers. Only higher values are kept.", "随机变化装备的所有属性值。只会保留比原先更高的值。"],
+    ["Rerolls all modifiers of an item. Including the skill on gathering items.", "随机变化装备的所有属性。也包括采集装备的采集种类。"],
+    ["Upgrades an Epic item to Legendary.", "将一件史诗装备升级至传说。"],
+    ["Used to make Potion of Renewal", "用于合成刷新药水"],
+    ["Used to make Potion of Wisdom", "用于合成智慧药水"],
+    ["Used to make Potion of Harvesting", "用于合成收获药水"],
+    ["A burning core of fire magic.", "燃烧着的火魔法核心。"],
+    ["A swirling essence of water magic.", "漩涡状的水魔法精华。"],
+    ["A living essence of nature's magic.", "拥有生命的自然魔法精华。"],
+    ["A fire-resistant mineral. Can provide resistance to fire.", "一种抗火的矿物。可以提供火系抗性。"],
+    ["A rare, incredibly durable wood. Can provide resistance to nature.", "一种无比结实的稀有木材。可以提供自然抗性。"],
+    ["Scales from a mystical fish. Can provide resistance to water.", "来自一条神秘之鱼的鱼鳞。可以提供水系抗性。"],
+    ["A wood fragment from an ancient tree.", "一片来自某株古树的木材。"],
+    ["A mystical stone that resonates.", "一块共振的神秘石头。"],
+    // #endregion
+    // #region quest/event
+    ["Defeat ", "击败 "], // default
+    [" enemies.", " 个敌人"], // default
+    ["Quest Progress", "任务进度"], // default
+    [" ticks remaining", ""], // default
+    // #endregion
 ]);
+// #region SettingTrans
 const SettingsTranslation = new Map([
     ["Referrer Link", "推荐链接"],
     ["Guild Taxes", "公会税收"],
@@ -646,6 +681,7 @@ const SettingsTranslation = new Map([
     ["药水耗尽", "药水耗尽"],
     ["力量洪流（事件）", "力量洪流（事件）"],
 ]);
+// #endregion
 // #region FarmTrans
 const FarmTranslation = new Map([
     ["", ""],
@@ -657,13 +693,13 @@ const FarmTranslation = new Map([
     [" hour ", " 小时 "],
     [" minutes", " 分钟"],
     [" minute", " 分钟"],
-    [" herbs/hour)", "药草/小时)"],
+    [" herbs/hour)", " 药草/小时)"],
     ["(Your farm continues to grow for up to 24 hours)", "(你的农场可以持续生长 24 小时)"],
     ["Upgrades", "升级"],
     ["Harvest Golems", "收割傀儡"],
     ["Fertilizer", "肥料"],
     ["Plots", "地块"],
-    ["Improves growth, increasing the yield of all plots.", "促进生长，增加所有地块产出。"],
+    ["Improves growth, increasing the yield of all plots.", "促进作物生长，增加所有地块产出。"],
     ["Constantly tends to your plots, increasing the yield of all plots.", "不间断地照料田地，增加所有地块产出。"],
     ["Expands your farming area, increasing the yield.", "扩大你的田地，增加产出。"],
     ["Current Boost: ", "当前加成："],
@@ -681,10 +717,30 @@ const FarmTranslation = new Map([
     ["Potion Belt", "药水腰带"],
     ["Potion belt", "药水腰带"],
     ["Brewing", "酿药"],
-    ["Increases the maximum amount of potions you can store.", "增加你最多可以保存的药水数量。"]
+    ["Increases the maximum amount of potions you can store.", "增加你最多可以保存的药水数量。"],
 ]);
 [...FarmTranslation.values()].forEach(value => FarmTranslation.set(value, value));
 // #endregion FarmTrans
+const GuildTranslation = new Map([
+    ["Name", "玩家名称"],
+    ["Guild Name", "公会名称"],
+    ["Level", "公会等级"],
+    ["Active", "上次活动"],
+    ["Rank", "职位"],
+    ["Upgrades", "公会升级"],
+    ["Owner", "所有者"],
+    ["Members", "成员数量"],
+]);
+const ChatTranslateion = new Map([
+    ["Global", "广播"],
+    ["Whispers", "私信"],
+    ["Whispers ", "私信 "],
+    ["All", "所有"],
+    ["General", "一般"], 
+    ["Trade", "交易"], 
+    ["Guild", "公会"], 
+    ["Help", "帮助"], 
+]);
 if(!DEBUG) [...Translation.values()].forEach(value => Translation.set(value, value));
 // #region EquipTrans
 const EquipTranslation = new Map([
@@ -713,18 +769,20 @@ const __TypedTranslation = new Map([
     ["equipment", EquipTranslation],
     ["settings", SettingsTranslation],
     ["farm", FarmTranslation],
+    ["guild", GuildTranslation],
+    ["chat", ChatTranslateion],
     ["default", Translation],
 ]);
-const _Translate = (ele, type = "default") => {
+const _Translate = (ele, type = "default", keepOriginalText = false) => {
     if(ele.nodeType !== Node.TEXT_NODE && (!ele.textContent || ele.childNodes.length !== 1 || ele.childNodes[0].nodeType !== Node.TEXT_NODE)) return;
     const text = ele.textContent;
     const translation = __TypedTranslation.get(type) ?? Translation;
-    ele.textContent = (translation.get(text) ?? (console.log("未翻译", type, ele.outerHTML), "未翻译"));
+    ele.textContent = (translation.get(text) ?? (console.log("未翻译", type, ele.outerHTML), (DEBUG && !keepOriginalText) ? "未翻译" : text));
     if(ele.textContent === "未翻译"){
-        _FailedTranslate.add({
+        _FailedTranslate.add(JSON.stringify({
             type: type,
             text: text
-        });
+        }));
         return false;
     }
     else return true;
@@ -733,7 +791,10 @@ const _TypedTranslate = (type) => {
     return (ele) => _Translate(ele, type);
 };
 unsafeWindow.ExportFailedTranslate = (nocomment = true) => {
-    console.log([..._FailedTranslate.keys()].map(data => `    ["${data.text}", ""],${nocomment ? ` // ${data.type}` : ""}`).join("\n"));
+    console.log([..._FailedTranslate.keys()].map(json => {
+        const data = JSON.parse(json);
+        return `    ["${data.text}", ""],${nocomment ? ` // ${data.type}` : ""}`;
+    }).join("\n"));
 };
 const CheckTranslation = (scope, selector, callback) => {
     scope.querySelectorAll(`${scope === document ? "" : ":scope "}${selector}:not([translated])`).forEach(ele => {
@@ -808,6 +869,11 @@ const FindAndReplaceText = () => {try {
         }
         // #endregion
         // #region /guild/*
+        case "/guild/list":
+        case "/guild":{
+            CheckTranslation(document, "th span.mr-1", _TypedTranslate("guild"))
+            break;
+        }
         case "/guild/ranks":{
             document.querySelectorAll('div.hover\\:bg-primary\\/20:not([translated])').forEach(div => {
                 div.setAttribute("translated", '');
@@ -1071,7 +1137,13 @@ const FindAndReplaceText = () => {try {
         if(DEBUG) document.body.append(div.cloneNode(true));
         if(div.childNodes[0].nodeType === Node.TEXT_NODE){
             _Translate(div.childNodes[0]);
-            return;
+        }
+        else if(div.children.length === 2 && div.children[0].children.length === 2 && div.children[0].children[1].children.length === 2){
+            const _div = div.children[0];
+            _Translate(_div.children[0]);
+            _Translate(_div.children[1].children[0].childNodes[0]);
+            _Translate(_div.children[1].children[1].children[0]);
+            _Translate(_div.children[1].children[1].children[1]);
         }
     });
     // #endregion
@@ -1083,7 +1155,7 @@ const FindAndReplaceText = () => {try {
             span.textContent = Translation.get(itemName);
             return;
         }
-        EquipTranslate(span);
+        else if(span.dataset.slot === "tooltip-trigger") EquipTranslate(span);
     });
     // #endregion
     // #region equip detail
@@ -1100,6 +1172,10 @@ const FindAndReplaceText = () => {try {
     });
     // #endregion
     // #region tab button
+    document.querySelectorAll('div.font-chatbox button[role="tab"]:not([translated])').forEach(button => {
+        button.setAttribute("translated", "");
+        _Translate(button.childNodes[0], "chat", true);
+    })
     document.querySelectorAll('button[role="tab"]:not([translated]), button[data-slot="button"]:not([translated])').forEach(button => {
         button.setAttribute("translated", "");
         _Translate(button);
@@ -1152,9 +1228,27 @@ const FindAndReplaceText = () => {try {
         new MutationObserver(() => {const _clone = span.cloneNode(true); _Translate(_clone); _clone.removeAttribute("hidden"); span.nextElementSibling.replaceWith(_clone)}).observe(span, {childList: true, subtree: true, characterData: true});
     });
 } catch(e) {console.error(e);}};
-const WatchEvent = () => {
-
+// #region eventTrans
+const TranslateEvent = () => {
+    document.querySelectorAll("div.border-primary div.grid-cols-4 div.col-span-4 div.p-2.w-full:not([translated])").forEach((div) => {
+        if(div.children.length === 2 && div.children[0].textContent === "Siphoning Rift of Power"){
+            div.setAttribute("translated", "");
+            _Translate(div.children[0]);
+            _Translate(div.children[1].childNodes[1]);
+        }
+        if(div.children.length === 2 && div.children[0].textContent === "Quest Progress"){
+            div.setAttribute("translated", "");
+            const title = div.children[0];
+            const titleClone = title.cloneNode(true);
+            _Translate(div.children[1].childNodes[0]); 
+            _Translate(div.children[1].childNodes[4]);
+            _Translate(titleClone);
+            title.setAttribute("hidden", "");
+            title.insertAdjacentElement("afterend", titleClone);
+        }
+    })
 };
+// #endregion
 const WatchQuest = () => {
     const progressDiv = document.querySelector("div.border-primary.w-full.max-lg\\:border-b.lg\\:w-60.lg\\:border-r p.text-foreground.text-sm:not([watching])");
     if(!progressDiv || progressDiv.childNodes[0].textContent !== "Defeat ") return;
@@ -1228,6 +1322,7 @@ const OnMutate = (mutlist, observer) => {
     if(DoTranslate) FindAndReplaceText();
     UpdateUserStat();
     WatchQuest();
+    TranslateEvent();
     observer.observe(document, {subtree: true, childList: true});
 };
 new MutationObserver(OnMutate).observe(document, {subtree: true, childList: true});
