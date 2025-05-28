@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.10.2
+// @version      0.10.4
 // @description  Manarion Chinese Translation and Quest notification
 // @author       VoltaXTY
 // @match        https://manarion.com/*
@@ -700,8 +700,14 @@ const Translation = new Map([
     ["Siphoning Rift Of Power", "正在从裂隙中汲取力量"],
     ["Siphon Rift Of Power", "从裂隙中汲取力量"],
     ["You have siphoned power from the rift ", "你从裂隙中汲取了 "],
-    [" times. Siphon chance: ", " 次力量。下次成功汲取概率："]
+    [" times. Siphon chance: ", " 次力量。下次成功汲取概率："],
+    ["% Upgrade Chance)", "% 强化概率)"],
     // #endregion
+    // #region dropdown text
+    ["View Profile", "查看资料页"],
+    ["Wire", "给予物品"],
+    ["Whisper", "私聊"],
+    ["Ignore", "屏蔽"],
 ]);
 // #region SettingTrans
 const SettingsTranslation = new Map([
@@ -826,7 +832,7 @@ const MenuItemTranslation = new Map([
 // #region MarketTL
 const MarketTranslation = new Map([
     ["Your Sell Orders", "你的出售挂单"],
-    ["Your Buy Orders", "你的出售挂单"],
+    ["Your Buy Orders", "你的收购挂单"],
     ["Equipment", "装备挂单"],
     ["Name", "物品名"],
     ["Price", "售价"],
@@ -950,6 +956,9 @@ unsafeWindow.ExportFailedTranslate = (comment = true) => {
     }).join("\n"));
 };
 const CheckTranslation = (scope, selector, callback, doNotRetrigger = true) => {
+    if(!scope || !scope instanceof Element){
+        return;
+    }
     scope.querySelectorAll(`${scope === document ? "" : ":scope "}${selector}:not([translated])`).forEach(ele => {
         if(doNotRetrigger) ele.setAttribute("translated", "");
         callback(ele);
@@ -1087,8 +1096,13 @@ const FindAndReplaceText = () => {try {
             CheckTranslation(document, "main div div div.mt-2>div.text-foreground.flex.justify-between", div => {
                 _Translate(div.children[0]);
                 _Translate(div.children[1].childNodes[0]);
-                _Translate(div.children[1].childNodes[2]);
+                _Translate(div.children[1].childNodes[4]);
             });
+            CheckTranslation(document, "div.mt-2>div.text-foreground.flex.justify-between>span:nth-child(1):nth-last-child(2)", _Translate);
+            CheckTranslation(document, "main>div:nth-child(1):nth-last-child(1)>div:not([class]):nth-child(2):nth-last-child(2)", div => {
+                _Translate(div.childNodes[0]);
+                _Translate(div.childNodes[4]);
+            })
             // monster name
             CheckTranslation(document, "main>div.space-y-2>div.grid.grid-cols-1>div.mt-4:nth-child(2)", _Translate)
             // main translation 1
@@ -1353,6 +1367,12 @@ const FindAndReplaceText = () => {try {
         _Translate(a.parentElement.children[0]);
         _Translate(a.parentElement.children[1]);
     });
+    // #region elaneth属性掉落记录
+    CheckTranslation(document.getElementById("elnaeth-stats-log"), "span.rarity-uncommon", (span) => {
+        const result = /^ \+([0-9]+) ([A-Za-z ]+) $/.exec(span.textContent);
+        if(result) span.textContent = ` +${result[1]} ${Translation.get(result[2]) ?? result[2]}`;
+    });
+    // #endregion
     // #region menuitem
     CheckTranslation(document, 'div[data-slot="dropdown-menu-item"]', _TypedTranslate(window.location.pathname.startsWith("/market")? "default" : "menuitem"));
     // #region nav
