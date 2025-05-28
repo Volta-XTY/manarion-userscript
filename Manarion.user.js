@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.10.1
+// @version      0.10.2
 // @description  Manarion Chinese Translation and Quest notification
 // @author       VoltaXTY
 // @match        https://manarion.com/*
@@ -13,6 +13,7 @@
 // ==/UserScript==
 const DoTranslate = true; // 把这里的true改成false就可以关闭翻译，反之亦然。
 const DEBUG = false;
+const MANA_DUST_NAME = `魔法尘`;
 const GetItem = (key) => JSON.parse(window.localStorage.getItem(key) ?? "null");
 const SetItem = (key, value) => window.localStorage.setItem(key, JSON.stringify(value));
 const css = 
@@ -79,7 +80,7 @@ const Translation = new Map([
     // #endregion
     // #region item names
     ...[
-        ["Mana Dust", "魔法尘"],
+        ["Mana Dust", `${MANA_DUST_NAME}`],
         ["Elemental Shards", "元素碎片"],
         ["Codex", "法典"],
         ["Bound Codex", "绑定法典"],
@@ -168,7 +169,7 @@ const Translation = new Map([
     [" each", " 每个"],
     ["View your orders", "查看我的挂单"],
     ["Marketplace", "市场"],
-    ["All prices are in Mana Dust", "所有价格的单位都是魔法尘"],
+    ["All prices are in Mana Dust", `所有价格的单位都是${MANA_DUST_NAME}`],
     ["Back to market", "回到市场"],
     ["Item", "物品"],
     // #endregion
@@ -220,7 +221,7 @@ const Translation = new Map([
     ["Cloak (Resistance)", "斗篷（元素抗性）"],
     ["Head (Base XP)", "头部（基础经验值）"],
     ["Neck (Base Resources)", "项链（基础资源量）"],
-    ["Chest (Base Mana Dust)", "衣服（基础魔法尘）"],
+    ["Chest (Base Mana Dust)", `衣服（基础${MANA_DUST_NAME}）`],
     ["Hands (Drop Boost)", "手部（掉落加成）"],
     ["Feet (Multistat)", "脚部（多重属性掉落）"],
     ["Ring (All stat boost)", "戒指（全属性增幅）"],
@@ -246,7 +247,7 @@ const Translation = new Map([
     ["Woodcutting", "伐木"],
     ["Base Experience", "基础经验值"],
     ["Base Resource", "基础资源量"],
-    ["Base Mana Dust", "基础魔法尘"],
+    ["Base Mana Dust", `基础${MANA_DUST_NAME}`],
     ["Drop Boost", "掉落加成"],
     ["Multistat", "多重属性掉落"],
     ["Actions", "行动次数"],
@@ -339,7 +340,7 @@ const Translation = new Map([
     ["Lets you enchant cloaks with stronger nature resistance.", "使你可以为斗篷附魔更高等级的自然抗性。"],
     ["Lets you enchant hoods with base experience.", "使你可以为兜帽附魔更高等级的基础经验值。"],
     ["Lets you enchant amulets with base resource gain.", "使你可以为项链附魔更高等级的基础资源量。"],
-    ["Lets you enchant robes with base mana dust", "使你可以为法袍附魔更高等级的基础魔法尘。"],
+    ["Lets you enchant robes with base mana dust", `使你可以为法袍附魔更高等级的基础${MANA_DUST_NAME}。`],
     ["Lets you enchant gloves with drop boost", "使你可以为手套附魔更高等级的掉落加成。"],
     ["Lets you enchant boots with multistat", "使你可以为鞋子附魔更高等级的多重属性掉落。"],
     ["Lets you enchant rings with vitality, increasing all stats", "使你可以为戒指附魔更高等级的活性，提升全属性。"],
@@ -348,7 +349,7 @@ const Translation = new Map([
     ["Increases resources harvested while woodcutting.", "增加伐木获取的资源。"],
     ["Provides a multiplier to base experience.", "增幅基础经验值。"],
     ["Increases the base amount of resources you get while gathering.", "增加采集获取的基础资源量。"],
-    ["Provides a multiplier to enemy base Mana Dust drop.", "增幅敌人掉落的基础魔法尘数量。"],
+    ["Provides a multiplier to enemy base Mana Dust drop.", `增幅敌人掉落的基础${MANA_DUST_NAME}数量。`],
     ["Increases your chance to get additional stat rolls and mastery.", "提升掉落额外属性点和元素精通点的概率。"],
     ["Increases the maximum amount of actions you can do.", "增加最大行动次数。"],
     ["Increases your chance to find nearly any item drop.", "提升获得绝大多数掉落物的概率。"],
@@ -367,7 +368,7 @@ const Translation = new Map([
     ["Upgrades", "升级"],
     ["Edit Taxes", "修改税率"],
     ["Taxes: XP ", "税率：经验值 "],
-    ["%, Mana Dust", "%，魔法尘"],
+    ["%, Mana Dust", `%，${MANA_DUST_NAME}`],
     ["%, Elemental Shards", "%，元素碎片"],
     ["%, Resources", "%，资源"],
     ["Guild Level", "公会等级"],
@@ -545,8 +546,8 @@ const Translation = new Map([
     ["Time to Level:", "升级倒计时："],
     ["XP / Hr:", "XP / 小时:"],
     ["XP / Day:", "XP / 天:"],
-    ["Mana Dust / Hr:", "魔法尘 / 小时:"],
-    ["Mana Dust / Day:", "魔法尘 / 天:"],
+    ["Mana Dust / Hr:", `${MANA_DUST_NAME} / 小时:`],
+    ["Mana Dust / Day:", `${MANA_DUST_NAME} / 天:`],
     ["Resource / Hr:", "资源 / 小时:"],
     ["Resource / Day:", "资源 / 天:"],
     ["Shards / Hr:", "碎片 / 小时:"],
@@ -662,7 +663,7 @@ const Translation = new Map([
     ["Improves your nature resistance enchantment ability", "提升你的自然抗性附魔能力"], 
     ["An enchantment that multiplies base experience.", "一种提高基础经验的附魔。"], 
     ["An enchantment that multiplies base resources.", "一种提高基础资源的附魔。"], 
-    ["An enchantment that multiplies base mana dust drops.", "一种提高基础魔法尘的附魔。"], 
+    ["An enchantment that multiplies base mana dust drops.", `一种提高基础${MANA_DUST_NAME}的附魔。`], 
     ["An enchantment that increases drop rates.", "一种提高掉落概率的附魔。"], 
     ["An enchantment that increases your multistat.", "一种提高多重属性掉落的附魔。"], 
     ["An enchantment that multiplies all your base stats.", "一种提高你的所有属性值的附魔。"], 
@@ -696,8 +697,10 @@ const Translation = new Map([
     ["Fertilizer", "肥料"],
     ["Plot", "地块"],
     ["Potion belt size", "药水腰带容量"],
-    ["Siphoning Rift Of Power", "111"],
-    ["Siphon Rift Of Power", "222"],
+    ["Siphoning Rift Of Power", "正在从裂隙中汲取力量"],
+    ["Siphon Rift Of Power", "从裂隙中汲取力量"],
+    ["You have siphoned power from the rift ", "你从裂隙中汲取了 "],
+    [" times. Siphon chance: ", " 次力量。下次成功汲取概率："]
     // #endregion
 ]);
 // #region SettingTrans
@@ -1081,7 +1084,11 @@ const FindAndReplaceText = () => {try {
         // #region /
         case "/":{
             // Siphon rift of pwer
-            CheckTranslation(document, "main div div div.mt-2>div.text-foreground.flex.justify-between", div => _Translate(div.children[0]));
+            CheckTranslation(document, "main div div div.mt-2>div.text-foreground.flex.justify-between", div => {
+                _Translate(div.children[0]);
+                _Translate(div.children[1].childNodes[0]);
+                _Translate(div.children[1].childNodes[2]);
+            });
             // monster name
             CheckTranslation(document, "main>div.space-y-2>div.grid.grid-cols-1>div.mt-4:nth-child(2)", _Translate)
             // main translation 1
@@ -1285,29 +1292,28 @@ const FindAndReplaceText = () => {try {
             break;
         }
         // #endregion
-        // #region /profile
-        case "/profile":{
-            CheckTranslation(document, 'div[data-slot="card"]:nth-child(1)>div[data-slot="card-content"]>p:nth-child(n+2)', (kv) => {
-                console.log(kv);
-                _Translate(kv.childNodes[0], "profile");
-                kv.childNodes[1].textContent = kv.childNodes[1].textContent.replace(/Worlddrowner|Worldburner|Worldshaper/, (match) => Translation.get(match));
-                _Translate(kv.childNodes[1], "profile", true);
-            });
-            CheckTranslation(document, 'div[data-slot="card"]:nth-child(n+3) div[data-slot="card-title"]', _TypedTranslate("profile"));
-            CheckTranslation(document, 'div[data-slot="card"]:nth-child(2)', div => {
-                _Translate(div.children[0], "profile");
-                CheckTranslation(div, 'div.w-15', _Translate);
-            });
-            CheckTranslation(document, 'div[data-slot="card"]:nth-child(n+3) div[data-slot="card-content"] p', p => {
-                _Translate(p.childNodes[0]);
-            });
-            CheckTranslation(document, 'div[data-slot="card"]:nth-child(n+3) div[data-slot="card-content"] p span.ml-2.text-sm', span => {
-                if(span.childNodes[0].textContent === "(Total ") span.childNodes[0].textContent = "(总计 ";
-            })
-            break;
-        }
-        // #endregion
     };
+    // #region /profile
+    if(window.location.pathname.startsWith("/profile")){
+        CheckTranslation(document, 'div[data-slot="card"]:nth-child(1)>div[data-slot="card-content"]>p:nth-child(n+2)', (kv) => {
+            console.log(kv);
+            _Translate(kv.childNodes[0], "profile");
+            kv.childNodes[1].textContent = kv.childNodes[1].textContent.replace(/Worlddrowner|Worldburner|Worldshaper/, (match) => Translation.get(match));
+            _Translate(kv.childNodes[1], "profile", true);
+        });
+        CheckTranslation(document, 'div[data-slot="card"]:nth-child(n+3) div[data-slot="card-title"]', _TypedTranslate("profile"));
+        CheckTranslation(document, 'div[data-slot="card"]:nth-child(2)', div => {
+            _Translate(div.children[0], "profile");
+            CheckTranslation(div, 'div.w-15', _Translate);
+        });
+        CheckTranslation(document, 'div[data-slot="card"]:nth-child(n+3) div[data-slot="card-content"] p', p => {
+            _Translate(p.childNodes[0]);
+        });
+        CheckTranslation(document, 'div[data-slot="card"]:nth-child(n+3) div[data-slot="card-content"] p span.ml-2.text-sm', span => {
+            if(span.childNodes[0].textContent === "(Total ") span.childNodes[0].textContent = "(总计 ";
+        });
+    }
+    // #endregion
     // #region /upgrade
     if(window.location.pathname.endsWith("/upgrade")){
         CheckTranslation(document, "main>div>h2", (h2) => _Translate(h2.childNodes[0], "upgrade"));
@@ -1397,7 +1403,12 @@ const FindAndReplaceText = () => {try {
             return;
         }
         else if(span.dataset.slot === "tooltip-trigger" || span.dataset.slot === "popover-trigger"){
-            EquipTranslate(span);
+            EquipTranslate(span.childNodes[1]);
+            new MutationObserver((_, observer) => {
+                observer.disconnect();
+                EquipTranslate(span.childNodes[1]);
+                observer.observe(span, {childList: true, subtree: true, characterData: true});
+            }).observe(span, {childList: true, subtree: true, characterData: true});
         }
         else console.log("cannot translate|"+itemName+"|");
     });
@@ -1507,10 +1518,10 @@ const TranslateEvent = () => {
             }
         }
         else if(div.children.length === 2 && !div.hasAttribute("watching")){
-            div.setAttribute("translated", "");
             div.setAttribute("watching", "");
             const OnEventProgress = (_, observer) => {
                 observer.disconnect();
+                console.log(div);
                 _Translate(div.children[0]);
                 _Translate(div.children[1].childNodes[1]);
                 observer.observe(div, {childList: true, subtree: true, characterData: true});
