@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.11.0
+// @version      0.11.1
 // @description  Manarion Chinese Translation and Quest notification
 // @author       VoltaX
 // @match        https://manarion.com/*
@@ -1573,13 +1573,15 @@ const FindAndReplaceText = () => {try {
                     nodes[0].textContent = `从 ${result[1]} 处购买了 `;
                     nodes[2].textContent = `, 花费 ${result[2]} `;
                 }
-                else if(result = /You sold ([^ ]+) \[[^\]]+\] for ([^ ]+) \(([^ ]+) each\)./.exec(text)){
-                    nodes[0].textContent = `你卖出了 ${result[1]} `;
-                    nodes[2].textContent = `, 获得了 ${result[2]} ${MANA_DUST_NAME}(单价 ${result[3]}).`;
+                else if(result = /MARKET: You sold ([^ ]+) \[[^\]]+\] for ([^ ]+) \(([^ ]+) each\)./.exec(text)){
+                    nodes[0].textContent = "市场";
+                    nodes[2].textContent = `你卖出了 ${result[1]} `;
+                    nodes[4].textContent = `, 获得 ${result[2]} ${MANA_DUST_NAME}（单价 ${result[3]}）`;
                 }
-                else if(result = /You bought ([^ ]+) \[[^\]]+\] for ([^ ]+) \(([^ ]+) each\)./.exec(text)){
-                    nodes[0].textContent = `你购买了 ${result[1]} `;
-                    nodes[2].textContent = `, 花费 ${result[2]} ${MANA_DUST_NAME}(单价 ${result[3]}).`;
+                else if(result = /MARKET: You bought ([^ ]+) \[[^\]]+\] for ([^ ]+) \(([^ ]+) each\)./.exec(text)){
+                    nodes[0].textContent = "市场";
+                    nodes[2].textContent = `你购买了 ${result[1]} `;
+                    nodes[4].textContent = `, 花费 ${result[2]} ${MANA_DUST_NAME}（单价 ${result[3]}）`;
                 }
                 break;
             }
