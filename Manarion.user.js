@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.11.1
+// @version      0.11.2
 // @description  Manarion Chinese Translation and Quest notification
 // @author       VoltaX
 // @match        https://manarion.com/*
@@ -685,6 +685,9 @@ const Translation = new Map([
     ["Worlddrowner", "沉没世界之敌"],
     [" Online", " 在线"],
     [" Active", " 活动中"],
+    ["Connection lost", "连接中断"],
+    ["Trying to reconnect...", "正在重连..."],
+    ["Loot Tracker", "掉落物日志"],
     // #endregion
     // #region profile text
     ["Battle Quest # ", "战斗任务 # "],
@@ -1437,6 +1440,12 @@ const FindAndReplaceText = () => {try {
             _Translate(_div.children[1].children[0].childNodes[0]);
             _Translate(_div.children[1].children[1].children[0]);
             _Translate(_div.children[1].children[1].children[1]);
+            if(_div.children[1].children[0].children[1]) _div.children[1].children[0].children[1].childNodes[2].textContent = " 绑定";
+        }
+        else if(div.children.length === 2 && div.children[0].childNodes.length === 2 && div.children[1].childNodes.length === 2){
+            // Codex popup
+            div.children[0].childNodes[0].textContent = "可交易：";
+            div.children[1].childNodes[0].textContent = "绑定：";
         }
     });
     // #endregion
@@ -1520,7 +1529,7 @@ const FindAndReplaceText = () => {try {
         const channel = message.childNodes[2];
         if(!channel) {
             // should be whisper
-            span.childNodes[2].textContent = {"From":"来自","To":"发给"}[span.childNodes[2].textContent];
+            span.childNodes[2].textContent = {"From ":"来自 ","To ":"发给 "}[span.childNodes[2].textContent] ?? span.childNodes[2].textContent;
             return;
         }
         const channelType = channel.textContent;
@@ -1586,6 +1595,13 @@ const FindAndReplaceText = () => {try {
                 break;
             }
         }
+    });
+    // #region loot tracker
+    CheckTranslation(document, `div#root div.flex.max-h-screen.min-h-screen.flex-col.overflow-x-hidden div.flex.max-w-screen.grow.flex-col.overflow-y-scroll.lg\\:flex-row.lg\\:flex-wrap div.border-primary.flex.w-full.shrink-0.flex-col.p-2.text-xs.max-lg\\:border-t.lg\\:w-70.lg\\:border-l div.relative.mb-1.text-center.text-lg`, div => _Translate(div.childNodes[0]));
+    // #region connection lost
+    CheckTranslation(document, `div#root div.bg-background\\/75.fixed.inset-0.z-50.flex.items-center.justify-center div.bg-card\\/50.border-primary.rounded-lg.border.p-6.text-center.shadow-lg`, (div) => {
+        _Translate(div.children[0]);
+        _Translate(div.children[2]);
     })
     document.querySelectorAll('button[role="combobox"][aria-controls^="radix-"] span[data-slot="select-value"]:nth-child(1):not([translated])').forEach(span => {
         if(DEBUG) document.body.append(span.cloneNode(true));
@@ -1688,9 +1704,11 @@ const UpdateUserStat = () => {
 }
 const OnMutate = (mutlist, observer) => {
     observer.disconnect();
-    if(DoTranslate) FindAndReplaceText();
+    if(DoTranslate){
+        FindAndReplaceText();
+        TranslateEvent();
+    }
     UpdateUserStat();
-    TranslateEvent();
     observer.observe(document, {subtree: true, childList: true});
 };
 new MutationObserver(OnMutate).observe(document, {subtree: true, childList: true});
