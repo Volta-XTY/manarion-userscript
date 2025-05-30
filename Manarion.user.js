@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.11.3
+// @version      0.11.5
 // @description  Manarion Chinese Translation and Quest notification, on any issue occurred, please /whisper VoltaX in game
 // @description:zh  Manarion 文本汉化，以及任务通知（非自动点击），如果汉化出现任何问题，可以游戏私信VoltaX，在greasyfork页面留下评论，或者通过其他方式联系我
 // @author       VoltaX
@@ -167,7 +167,7 @@ const Translation = new Map([
     ["Max Price", "最高售价"],
     ["Buy Orders", "购买挂单"],
     ["Sell Orders", "出售挂单"],
-    [" each", " 每个"],
+    [" each", " 单价"],
     ["View your orders", "查看我的挂单"],
     ["Marketplace", "市场"],
     ["All prices are in Mana Dust", `所有价格的单位都是${MANA_DUST_NAME}`],
@@ -216,6 +216,7 @@ const Translation = new Map([
     ["Brew", "制作"],
     ["Collect", "采摘"],
     ["Save", "保存"],
+    ["Close", "关闭"],
     // #endregion
     // #region research
     ["Staff (Damage)", "法杖（元素伤害）"],
@@ -478,7 +479,7 @@ const Translation = new Map([
     ["Reset enchanting skills, refunded formulas, cancelled market orders for formulas", "重置所有附魔等级，返回相应术式，取消所有术式的市场挂牌"],
     ["Added option to reset codex boosts, cost based on non-action boosts", "新增重置法典升级的选项，重置消耗基于行动次数以外的升级计算"],
     ["Can enchant items from profiles", "可以在个人主页附魔装备"],
-    ["Added ignore functionality and /help command", "新增屏蔽功能和 /help 指指令"],
+    ["Added ignore functionality and /help command", "新增屏蔽功能和 /help 指令"],
     ["Guilds can tax ", "公会可以对 "],
     [", withdraw", " 收税，凭借新增的公会权限回收"],
     ["/", "/"],
@@ -688,6 +689,7 @@ const Translation = new Map([
     [" Active", " 活动中"],
     ["Connection lost", "连接中断"],
     ["Trying to reconnect...", "正在重连..."],
+    ["Your account has been disabled.", "你的账号已被封禁"],
     ["Loot Tracker", "掉落物日志"],
     // #endregion
     // #region profile text
@@ -860,6 +862,7 @@ const UpgradeTranslation = new Map([
     [" increasing all modifiers by", " 注能，增加所有属性值"], // upgrade
     ["Chance to upgrade at least one boost:", "至少升级一条属性的概率:"],
     ["Reroll all modifiers. Including the skill on gathering items.", "随机改变所有属性。包括采集装备的采集种类。"],
+    ["Upgrade epic item to legendary", "将物品升级至传说装备。"],
     ["Currently ", "当前 "],
     ["Max ", "最高可附魔 "],
     ["Increase ", "提升 "],
@@ -897,6 +900,7 @@ const ProfileTranslation = new Map([
 ]);
 // #region PlacehlderTL
 const PlaceholderTranslation = new Map([
+    ["Player name", "玩家名称"],
     ["Lookup player", "查询玩家"],
     ["Min", "最小值"],
     ["Max", "最大值"],
@@ -931,6 +935,24 @@ const HelpTranslation = new Map([
     ["/afk <message> Set auto reply message. Empty message to clear. Alias /autoreply", "/afk <自动回复消息> 设置离线自动回复消息。设置为空以取消此功能。相同效果指令：/autoreply"],
     ["/wire <name> <amount> <mana|dust|shards|codex|...> Transfer items to player. Alias /transfer", "/wire <玩家名> <数量> <mana|dust|shards|codex|...> 输送指定数量的指定物品至指定玩家。相同效果指令：/transfer"],
     ["/w <name> <msg> Send a private message. Alias /whisper, /tell, /msg", "/w <玩家名> <消息> 发送私信。相同效果指令：/whisper, /tell, /msg"],
+    ["You already have an open order for this item.", "你已经有一个此物品的交易挂单了。"],
+    ["You have recently cancelled an order for this item and must wait 10 minutes before creating new orders less than 1% above the best price.", "你在不久前取消了一个此物品的挂单，因此如果你新创建的挂单价格小于当前最高买价的 101%，将有 10 分钟的挂单冷却时间。"],
+    ["You have recently cancelled an order for this item and must wait 10 minutes before creating new orders less than 1% under the best price.", "你在不久前取消了一个此物品的挂单，因此如果你新创建的挂单价格大于当前最低卖价的 99%，将有 10 分钟的挂单冷却时间。"],
+    ["Player not found.", "未找到玩家。"],
+    ["Already equipped", "已经装备"],
+]);
+// #region DialogTL
+const DialogTranslation = new Map([
+    ["Transfer item to", "将物品赠送给其他玩家"],
+    ["Borrow item to", "将物品借给其他玩家"],
+    ["Enchant item", "附魔物品"],
+    ["Currently ", "当前值 "],
+    ["Max ", "最大值 "],
+    ["Increase ", "提升 "],
+    [" times (+", " 级 ( +"],
+    [") for ", ")，消耗 "],
+    ["Upgrade potions", "提升药水等级"],
+    ["Upgrading these potions by 1 tier will cost ", "将这些药水提升 1 级将消耗 "],
 ]);
 const equipRegex = /(?<lbracket>\[?)(?<quality>Worn|Refined|Runed|Ascended|Eternal) (?<type>[A-Za-z']+) (?<part>[A-Za-z]+)(?<elementType> of Water| of Fire| of Nature)?(?<upgradeLevel> \+[0-9]+)? \((?<level>[0-9]+)\)(?<rbracket>\]?)/;
 const EquipTranslate = (ele) => {
@@ -957,6 +979,7 @@ const __TypedTranslation = new Map([
     ["upgrade", UpgradeTranslation],
     ["profile", ProfileTranslation],
     ["help", HelpTranslation],
+    ["dialog", DialogTranslation],
     ["default", Translation],
 ]);
 const _Translate = (ele, type = "default", keepOriginalText = false) => {
@@ -1000,36 +1023,36 @@ const LogTranslator = (channelType, nodes) => {
     const text = nodes.map(node => node.textContent).join("");
     switch(channelType){
         case "Guild":{
-            if(result = /([A-Za-z]+) deposited \[[^\]]+\] into the armory./.exec(text)){
+            if(result = /([A-Za-z]+) deposited \[[^\]]+\] into the armory\./.exec(text)){
                 nodes[0].textContent = `${result[1]} 将 `;
-                nodes[2].textContent = ` 捐赠至装备库.`;
+                nodes[2].textContent = ` 捐赠至装备库。`;
             }
-            else if(result = /([A-Za-z]+) returned \[[^\]]+\] to the armory./.exec(text)){
+            else if(result = /([A-Za-z]+) returned \[[^\]]+\] to the armory\./.exec(text)){
                 nodes[0].textContent = `${result[1]} 将 `;
-                nodes[2].textContent = ` 返还至装备库.`;
+                nodes[2].textContent = ` 返还至装备库。`;
             }
-            else if(result = /([A-Za-z]+) borrowed \[[^\]]+\] from the armory./.exec(text)){
+            else if(result = /([A-Za-z]+) borrowed \[[^\]]+\] from the armory\./.exec(text)){
                 nodes[0].textContent = `${result[1]} 将 `;
-                nodes[2].textContent = ` 借出装备库.`;
+                nodes[2].textContent = ` 借出装备库。`;
             }
             else if(result = /([A-Za-z]+) received ([0-9]+) extra \[[^\]]+\] for the guild while completing their quest!/.exec(text)){
                 nodes[0].textContent = `${result[1]} 完成任务后，为公会额外获得了 ${result[2]} 本 `;
-                nodes[2].textContent = ` !`;
+                nodes[2].textContent = `！`;
             }
             else if(result = /([A-Za-z]+) has upgraded the ([A-Za-z ]+)/.exec(text)){
                 nodes[0].textContent = `${result[1]} 升级了「${Translation.get(result[2])}」`;
             }
             else if(result = /([A-Za-z]+) has joined the guild!/.exec(text)){
-                nodes[0].textContent = `${result[1]} 加入了公会!`;
+                nodes[0].textContent = `${result[1]} 加入了公会！`;
             }
             else if(result = /([A-Za-z]+) has kicked ([A-Za-z]+) from the guild!/.exec(text)){
-                nodes[0].textContent = `${result[1]} 将 ${result[2]} 踢出了公会!`;
+                nodes[0].textContent = `${result[1]} 将 ${result[2]} 踢出了公会！`;
             }
             else if(result = /([A-Za-z]+) has invited ([A-Za-z]+) to join the guild!/.exec(text)){
-                nodes[0].textContent = `${result[1]} 邀请了 ${result[2]} 加入公会!`;
+                nodes[0].textContent = `${result[1]} 邀请了 ${result[2]} 加入公会！`;
             }
-            else if(result = /([A-Za-z]+) has marked the ([A-Za-z ]+) as the next upgrade./.exec(text)){
-                nodes[0].textContent = `${result[1]} 将「${Translation.get(result[2])}」标记为下一个公会升级.`;
+            else if(result = /([A-Za-z]+) has marked the ([A-Za-z ]+) as the next upgrade\./.exec(text)){
+                nodes[0].textContent = `${result[1]} 将「${Translation.get(result[2])}」标记为下一个公会升级。`;
             }
             break;
         }
@@ -1045,19 +1068,23 @@ const LogTranslator = (channelType, nodes) => {
                 nodes[0].textContent = "将 ";
                 nodes[2].textContent = ` 卖给了 ${result[1]}，获得 ${result[2]} `;
             }
-            else if(result = /Bought \[[^\]]+\] from ([A-Za-z]+) for ([^ ]+) \[[^\]]+\]./.exec(text)){
+            else if(result = /Bought \[[^\]]+\] from ([A-Za-z]+) for ([^ ]+) \[[^\]]+\]\./.exec(text)){
                 nodes[0].textContent = `从 ${result[1]} 处购买了 `;
                 nodes[2].textContent = `, 花费 ${result[2]} `;
             }
-            else if(result = /MARKET: You sold ([^ ]+) \[[^\]]+\] for ([^ ]+) \(([^ ]+) each\)./.exec(text)){
+            else if(result = /MARKET: You sold ([^ ]+) \[[^\]]+\] for ([^ ]+) \(([^ ]+) each\)\./.exec(text)){
                 nodes[0].textContent = "市场";
                 nodes[2].textContent = `你卖出了 ${result[1]} `;
                 nodes[4].textContent = `, 获得 ${result[2]} ${MANA_DUST_NAME}（单价 ${result[3]}）`;
             }
-            else if(result = /MARKET: You bought ([^ ]+) \[[^\]]+\] for ([^ ]+) \(([^ ]+) each\)./.exec(text)){
+            else if(result = /MARKET: You bought ([^ ]+) \[[^\]]+\] for ([^ ]+) \(([^ ]+) each\)\./.exec(text)){
                 nodes[0].textContent = "市场";
                 nodes[2].textContent = `你购买了 ${result[1]} `;
                 nodes[4].textContent = `, 花费 ${result[2]} ${MANA_DUST_NAME}（单价 ${result[3]}）`;
+            }
+            else if(result = /Your \[[^\]]+\] has increased in power\./.exec(text)){
+                nodes[0].textContent = "你的 ";
+                nodes[2].textContent = " 从裂隙中获得了力量。"
             }
             break;
         }
@@ -1135,9 +1162,11 @@ const FindAndReplaceText = () => {try {
             CheckTranslation(document, "h1", _TypedTranslate("guild"));
             CheckTranslation(document, 'button[data-slot="select-trigger"]:not([translated])', (button) => {
                 _Translate(button.childNodes[0]);
+                /*
                 new MutationObserver(() => {
                     _Translate(button.childNodes[0]);
                 }).observe(button, {attributeFilter: ["data-state"], attributes: true});
+                */
             });
             break;
         }
@@ -1194,6 +1223,16 @@ const FindAndReplaceText = () => {try {
             break;
         }
         // #endregion
+        // #region /rankings
+        case "/rankings": {
+            // page xx of xx
+            CheckTranslation(document, `div#root div.flex.max-h-screen.min-h-screen.flex-col.overflow-x-hidden div.flex.max-w-screen.grow.flex-col.overflow-y-scroll.lg\\:flex-row.lg\\:flex-wrap main.grow.p-2.lg\\:w-1.lg\\:p-4 div.mx-auto.max-w-2xl.p-4 div.mt-2.flex.flex-wrap.justify-center.gap-4 div.text-muted-foreground.flex.items-center.gap-2.text-sm`, div => {
+                div.childNodes[0].textContent = "第";
+                div.childNodes[2].textContent = "/ ";
+                div.append(HTML("span", {}, " 页"));
+            })
+            break;
+        }
         // #region /
         case "/":{
             // Siphon rift of pwer
@@ -1520,7 +1559,7 @@ const FindAndReplaceText = () => {try {
             _Translate(_div.children[1].children[1].children[1]);
             if(_div.children[1].children[0].children[1]) _div.children[1].children[0].children[1].childNodes[2].textContent = " 绑定";
         }
-        else if(div.children.length === 2 && div.children[0].childNodes.length === 2 && div.children[1].childNodes.length === 2 && div.children[0].children[0].length === 0 && div.children[1].children[0].length === 0){
+        else if(div.children.length >= 2 && div.children[0].childNodes.length === 2 && div.children[1].childNodes.length === 2 && div.children[0].children.length === 0 && div.children[1].children.length === 0){
             // Codex popup
             div.children[0].childNodes[0].textContent = "可交易：";
             div.children[1].childNodes[0].textContent = "绑定：";
@@ -1645,6 +1684,33 @@ const FindAndReplaceText = () => {try {
         span.setAttribute("hidden", "");
         new MutationObserver(() => {const _clone = span.cloneNode(true); _Translate(_clone); _clone.removeAttribute("hidden"); span.nextElementSibling.replaceWith(_clone)}).observe(span, {childList: true, subtree: true, characterData: true});
     });
+    // #region dialog
+    CheckTranslation(document, 'div[data-slot="dialog-content"]', (div) => {
+        const titleEle = div.querySelector(":scope h2");
+        if(!titleEle){
+            console.log("cound not find dialog title");
+            return;
+        }
+        switch(titleEle.textContent){
+            case "Enchant item":{
+                CheckTranslation(div, "div.flex.flex-col.gap-2.rounded-lg.p-3", div => {
+                    [
+                        div.children[1].children[0].childNodes[0],
+                        div.children[1].children[1].childNodes[0],
+                        div.children[3].childNodes[0],
+                        div.children[3].childNodes[2],
+                        div.children[3].childNodes[5],
+                    ].forEach(_TypedTranslate("dialog"))
+                });
+                break;
+            }
+            case "Upgrade potions":{
+                _Translate(div.children[0].children[1].childNodes[0], "dialog");
+                break;
+            }
+        }
+        _Translate(titleEle, "dialog");
+    })
 } catch(e) {console.error(e);}};
 // #region eventTrans
 const TranslateEvent = () => {
