@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.12.0
+// @version      0.12.1
 // @description  Manarion Chinese Translation and Quest notification, on any issue occurred, please /whisper VoltaX in game
 // @description:zh  Manarion 文本汉化，以及任务通知（非自动点击），如果汉化出现任何问题，可以游戏私信VoltaX，在greasyfork页面留下评论，或者通过其他方式联系我
 // @author       VoltaX
@@ -261,6 +261,8 @@ const Translation = new Map([
     ["Drop Boost", "掉落加成"],
     ["Multistat", "多重属性掉落"],
     ["Actions", "行动次数"],
+    ["Quest Boost", "任务奖励"],
+    ["Potion Boost", "药水效果"],
     // #endregion
     // #region equip detail
     ["Link", "链接至聊天"],
