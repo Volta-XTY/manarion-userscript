@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.11.5
+// @version      0.12.0
 // @description  Manarion Chinese Translation and Quest notification, on any issue occurred, please /whisper VoltaX in game
 // @description:zh  Manarion 文本汉化，以及任务通知（非自动点击），如果汉化出现任何问题，可以游戏私信VoltaX，在greasyfork页面留下评论，或者通过其他方式联系我
 // @author       VoltaX
@@ -15,6 +15,7 @@
 const DoTranslate = true; // 把这里的true改成false就可以关闭翻译，反之亦然。
 const DEBUG = false;
 const MANA_DUST_NAME = `魔法尘`;
+let observer;
 const GetItem = (key) => JSON.parse(window.localStorage.getItem(key) ?? "null");
 const SetItem = (key, value) => window.localStorage.setItem(key, JSON.stringify(value));
 const css =
@@ -110,6 +111,7 @@ const Translation = new Map([
         ["Four-leaf Clover", "四叶草"],
         ["Enchanted Droplet", "神秘结露"],
         ["Infernal Heart", "熔岩之心"],
+        ["Event Points", "事件点数"],
     ].flatMap(([key, value]) => [
         [key, value],
         [` ${key}`, ` ${value}`],
@@ -217,6 +219,12 @@ const Translation = new Map([
     ["Collect", "采摘"],
     ["Save", "保存"],
     ["Close", "关闭"],
+    ["Mine", "挖矿"],
+    ["Woodcut", "伐木"],
+    ["View Players", "查看所有玩家"],
+    ["Refresh", "刷新"],
+    ["Activate", "激活"],
+    ["Event Shop", "事件商店"],
     // #endregion
     // #region research
     ["Staff (Damage)", "法杖（元素伤害）"],
@@ -275,6 +283,7 @@ const Translation = new Map([
     ["Hands", "手部"],
     ["Feet", "脚部"],
     ["Ring", "戒指"],
+    ["Sigil", "魔符"],
     ["Stat Drop", "属性值掉落率"],
     ["Base Resource Amount", "基础资源量"],
     ["Focus Boost", "集中增幅"],
@@ -392,12 +401,15 @@ const Translation = new Map([
     ["Increases maximum actions by 1% per level", "每级使成员最大行动次数 +1%"],
     // #endregion
     // #region update text
+    ["Added Elemental Rift Event. Will occur every 2.5 hours, lasting 10 minutes with a 5 minute queue time. Awards Event Points based on bosses defeated/damage done/resources harvested.", "新增元素裂隙事件。每 2.5 小时出现一次，持续 10 分钟，并且带有 5 分钟排队事件。基于击败的 boss 数/造成的伤害/采集的资源奖励事件点数。"],
+    ["Added Sigils and Event Shop, you can find them in the inventory. Sigils upgrade automatically based on total event points earned and can be exchanged freely.", "新增魔符和事件商店，你可以在仓库页面找到它们。魔符基于总事件点数自动升级，并且可以自由在不同种类间切换。"],
+    ["Added leaderboards for event points and herbs/hr.", "新增事件点数和每小时药草数排行榜。"],
     ["Improved display of upgrades on rift of power page.", "改善了力量裂隙页面的强化显示"],
     ["Fix missing activity logs when searching", "修复搜索活动记录时缺失某些条目的问题"],
     ["Fix quest loot tracker entries disappearing on refresh", "修复掉落记录刷新后丢失任务奖励记录的问题"],
     ["Fix ignore not working in guild chat", "修复公会聊天屏蔽不生效的问题"],
     ["The first type of event has been added: Rift of Power. Randomly opens every 3-6 hours for 10 minutes.", "新增第一种事件：力量裂隙。活动将间隔随机 3 到 6 小时开启，每次持续 10 分钟。"],
-    [" When you siphon it you have a chance each action (starting at 100% each rift dropping to 10% as you siphon more) to apply the effect of an", " 当你汲取力量裂隙时，每次行动都有一定概率（初始值 100%，每次成功降低 10%，最低 10%）施加一个"],
+    [" When you siphon it you have a chance each action (starting at 100% each rift dropping to 10% as you siphon more) to apply the effect of an ", " 当你汲取力量裂隙时，每次行动都有一定概率（初始值 100%，每次成功降低 10%，最低 10%）施加一个"],
     [" ", " "],
     [" to your lowest quality equipped item.", " 的效果，作用于你装备的最低品质的物品上。"],
     ["Added new notification setting for this event.", "新增适用该事件的通知设置。"],
@@ -669,6 +681,7 @@ const Translation = new Map([
     ["An enchantment that increases drop rates.", "一种提高掉落概率的附魔。"],
     ["An enchantment that increases your multistat.", "一种提高多重属性掉落的附魔。"],
     ["An enchantment that multiplies all your base stats.", "一种提高你的所有属性值的附魔。"],
+    ["Used to upgrade Sigils", "用于升级魔符"],
     // #endregion
     // #region quest/event
     ["Defeat ", "击败 "],
@@ -677,6 +690,8 @@ const Translation = new Map([
     [" harvests.", " 次采集"],
     ["Quest Progress", "任务进度"],
     [" ticks remaining", " 刻剩余"],
+    ["Elemental Rift", "元素裂隙"],
+    ["Queue for Elemental Rift", "准备元素裂隙"],
     // #endregion
     // #region misc
     ["Edit Profile", "编辑资料"],
@@ -691,6 +706,8 @@ const Translation = new Map([
     ["Trying to reconnect...", "正在重连..."],
     ["Your account has been disabled.", "你的账号已被封禁"],
     ["Loot Tracker", "掉落物日志"],
+    ["Farm Herbs/Hr", "农场每小时收获"],
+    ["Event Points", "事件点数"],
     // #endregion
     // #region profile text
     ["Battle Quest # ", "战斗任务 # "],
@@ -807,7 +824,7 @@ const GuildTranslation = new Map([
     ["additional resources", "额外资源"],
     ["reduction", "消耗削减"],
     ["Base Experience", "基础经验值"],
-    ["additional actions", "基础经验"],
+    ["additional actions", "额外行动"],
     ["Capacity ", "装备库空间 "],
     ["Activity Log", "活动日志"],
 ]);
@@ -868,6 +885,10 @@ const UpgradeTranslation = new Map([
     ["Increase ", "提升 "],
     [" times (+", " 级 (+"],
     [") for ", "), 消耗 "],
+    ["Chance to get extra credit for progressing your quest.", "完成任务时，增加获得额外法典的概率。"],
+    ["Increases the potency of potions.", "增强药水的效果。"],
+    ["Increases your chance to get additional stat rolls and mastery.", "提高掉落额外属性点和元素精通的概率。"],
+    ["Increases all base stats (intellect, stamina, focus, spirit, mana).", "提高全属性（智力，耐力，集中，精神，魔力）。"],
 ]);
 // #region ProfileTL
 const ProfileTranslation = new Map([
@@ -918,6 +939,12 @@ const EquipTranslation = new Map([
     ["Initiate", "初始"], ["Novice", "新手"], ["Apprentice", "学徒"], ["Acolyte", "助手"], ["Adept", "熟手"], ["Scholar", "专家"], ["Magus", "术士"], ["Invoker", "祈求者"], ["Archmage", "大巫师"], ["Eldritch", "异界"], ["Primordial", "原初"], ["Celestial", "星辉"], ["Lumberjack's", "伐木工"], ["Tidecaller's", "唤潮人"], ["Prospector's", "探矿者"],
     // part
     ["Staff", "法杖"], ["Hood", "兜帽"], ["Pendant", "项链"], ["Cloak", "斗篷"], ["Robes", "法袍"], ["Gloves", "手套"], ["Sandals", "鞋子"], ["Ring", "戒指"], [" of Water", "水"], [" of Fire", "火"], [" of Nature", "自然"], ["Helmet", "头盔"], ["Pickaxe", "镐子"], ["Axe", "斧头"], ["Rod", "鱼竿"], ["Jacket", "夹克"], ["Cape", "披风"], ["Boots", "靴子"], ["Hat", "帽子"], ["Tunic", "外衣"],
+    // Sigil
+    ["Growth", "成长"],
+    ["Purpose", "目标"],
+    ["Distillation", "蒸馏"],
+    ["Vitality", "活性"],
+    ["Sigil", "魔符"],
 ]);
 // #endregion
 // #region HelpTL
@@ -940,6 +967,8 @@ const HelpTranslation = new Map([
     ["You have recently cancelled an order for this item and must wait 10 minutes before creating new orders less than 1% under the best price.", "你在不久前取消了一个此物品的挂单，因此如果你新创建的挂单价格大于当前最低卖价的 99%，将有 10 分钟的挂单冷却时间。"],
     ["Player not found.", "未找到玩家。"],
     ["Already equipped", "已经装备"],
+    ["Potion belt is full.", "药水腰带容量已满。"],
+    ["No items match filter", "没有符合条件的物品。"],
 ]);
 // #region DialogTL
 const DialogTranslation = new Map([
@@ -953,13 +982,14 @@ const DialogTranslation = new Map([
     [") for ", ")，消耗 "],
     ["Upgrade potions", "提升药水等级"],
     ["Upgrading these potions by 1 tier will cost ", "将这些药水提升 1 级将消耗 "],
+    ["Are you sure", "你确定吗"],
 ]);
-const equipRegex = /(?<lbracket>\[?)(?<quality>Worn|Refined|Runed|Ascended|Eternal) (?<type>[A-Za-z']+) (?<part>[A-Za-z]+)(?<elementType> of Water| of Fire| of Nature)?(?<upgradeLevel> \+[0-9]+)? \((?<level>[0-9]+)\)(?<rbracket>\]?)/;
+const equipRegex = /(?<lbracket>\[?)(?:Sigil of (?<sigilType>[A-Za-z]+))|(?:(?<quality>Worn|Refined|Runed|Ascended|Eternal) (?<type>[A-Za-z']+) (?<part>[A-Za-z]+)(?<elementType> of Water| of Fire| of Nature)?(?<upgradeLevel> \+[0-9]+)? \((?<level>[0-9]+)\)(?<rbracket>\]?))/;
 const EquipTranslate = (ele) => {
     const equip = equipRegex.exec(ele.textContent);
     if(equip){
         const group = equip.groups;
-        ele.textContent = `${group.lbracket ?? ""}${EquipTranslation.get(group.quality)}${EquipTranslation.get(group.type)}${group.elementType ? EquipTranslation.get(group.elementType) : ""}${EquipTranslation.get(group.part) ?? group.part}${group.upgradeLevel ?? ""} (${group.level})${group.rbracket ?? ""}`;
+        ele.textContent = group.sigilType? `${EquipTranslation.get(group.sigilType)}魔符` : `${group.lbracket ?? ""}${EquipTranslation.get(group.quality)}${EquipTranslation.get(group.type)}${group.elementType ? EquipTranslation.get(group.elementType) : ""}${EquipTranslation.get(group.part) ?? group.part}${group.upgradeLevel ?? ""} (${group.level})${group.rbracket ?? ""}`;
     }
     else{
         console.log("could not translate item: ", ele.textContent);
@@ -1275,7 +1305,7 @@ const FindAndReplaceText = () => {try {
             });
             document.querySelectorAll("html.dark.notranslate body div#root div.flex.max-h-screen.min-h-screen.flex-col.overflow-x-hidden div.flex.max-w-screen.grow.flex-col.overflow-y-scroll.lg\\:flex-row.lg\\:flex-wrap main>div:not([class]):not([translated])").forEach(div => {
                 div.setAttribute("translated", "");
-                if(div.children[0].children[0].children[0].textContent === "You are currently siphoning power into your lowest quality equipped item..."){
+                if(div?.children[0]?.children[0]?.children[0]?.textContent === "You are currently siphoning power into your lowest quality equipped item..."){
                     [
                         div.children[0].children[0].children[0],
                         div.children[0].children[0].children[1].childNodes[0],
@@ -1452,6 +1482,14 @@ const FindAndReplaceText = () => {try {
             break;
         }
         // #endregion
+        // #region /eventshop
+        case "/eventshop":{
+            CheckTranslation(document, "div.flex.items-center.gap-2>div.break-words", _TypedTranslate("upgrade"))
+            CheckTranslation(document, "main>div.space-y-2:nth-child(1)>div:nth-child(1)", div => {
+                div.childNodes[0].textContent = "你有 ";
+                div.childNodes[4].textContent = "。到达下一次魔符升级需要总";
+            })
+        }
     };
     // #region /profile
     if(window.location.pathname.startsWith("/profile")){
@@ -1638,6 +1676,15 @@ const FindAndReplaceText = () => {try {
     // #region chat/log
     CheckTranslation(document, 'div.border-primary.shrink-0.border-t div.scrollbar-thin.scrollbar-track-transparent.flex-1.overflow-y-auto.pl-1.text-sm div.leading-4\\.5>span:nth-child(1):nth-last-child(1)', span => {
         const timestampEle = span.children[0];
+        let result;
+        if(result = /([A-Za-z]+) borrowed you a /.exec(span.childNodes[2]?.textContent ?? "")){
+            span.childNodes[2].textContent = `${result[1]} 借给了你 `;
+            return;
+        }
+        if(result = /([A-Za-z]+) sent you a /.exec(span.childNodes[2]?.textContent ?? "")){
+            span.childNodes[2].textContent = `${result[1]} 赠送给你 `;
+            return;
+        }
         const message = span.children[1];
         if(!message) {
             console.log("no message", span.innerHTML);
@@ -1691,7 +1738,13 @@ const FindAndReplaceText = () => {try {
             console.log("cound not find dialog title");
             return;
         }
-        switch(titleEle.textContent){
+        const title = titleEle.textContent;
+        let result;
+        if(result = /Are you sure you want to disenchant ([0-9]+) items\?/.exec(title)){
+            titleEle.textContent = `确定要分解 ${result[1]} 件装备吗？` ;
+            div.children[0].children[1].children[0].textContent = "你将获得";
+        }
+        else switch(title){
             case "Enchant item":{
                 CheckTranslation(div, "div.flex.flex-col.gap-2.rounded-lg.p-3", div => {
                     [
@@ -1707,6 +1760,9 @@ const FindAndReplaceText = () => {try {
             case "Upgrade potions":{
                 _Translate(div.children[0].children[1].childNodes[0], "dialog");
                 break;
+            }
+            case "Are you sure":{
+                div.children[0].childNodes[1].textContent = "要取消事件排队吗？"
             }
         }
         _Translate(titleEle, "dialog");
@@ -1742,7 +1798,17 @@ const TranslateEvent = () => {
                 new MutationObserver(OnQuestProgress).observe(progressDiv, {childList: true, subtree: true, characterData: true});
             }
         }
-        else if(div.children.length === 2 && !div.hasAttribute("watching")){
+        else if(div.children.length === 2 && !div.hasAttribute("watching") && div.children[0].textContent === "Siphon Rift of Power" || div.children[0].textContent === "Siphoning Rift of Power"){
+            div.setAttribute("watching", "");
+            const OnEventProgress = (_, observer) => {
+                observer.disconnect();
+                _Translate(div.children[0]);
+                _Translate(div.children[1].childNodes[1]);
+                observer.observe(div, {childList: true, subtree: true, characterData: true});
+            }
+            new MutationObserver(OnEventProgress).observe(div, {childList: true, subtree: true, characterData: true});
+        }
+        else if(div.children.length === 2 && !div.hasAttribute("watching") && div.children[0].textContent === "Elemental Rift"){
             div.setAttribute("watching", "");
             const OnEventProgress = (_, observer) => {
                 observer.disconnect();
@@ -1765,35 +1831,12 @@ const RecordExpTable = (() => {
         SetItem("ExpTable", expTable);
     }
 })();
-unsafeWindow.PrintExpTable = (start = 0, end = Number.MAX_SAFE_INTEGER, diff = false) => {
-    const expTable = Object.entries(GetItem("ExpTable") ?? {}).filter(a => a[0] >= start && a[0] < end).sort((a, b) => a[0] - b[0]);
-    if(!diff){
-        expTable.forEach(a => console.log(a[0], a[1]));
-        return;
-    }
-    for(let i = 1; i < expTable.length; i++){
-        for(let j = 1; j <= i; j++){
-            expTable[i].push(expTable[i][j] - expTable[i - 1][j]);
-        }
-    }
-    expTable.forEach(a => console.log(a.join(" ")));
-};
-const UpdateUserStat = () => {
-    [...document.querySelectorAll("div#root div.flex.max-h-screen.min-h-screen.flex-col.overflow-x-hidden div.flex.max-w-screen.grow.flex-col.overflow-y-scroll.lg\\:flex-row.lg\\:flex-wrap div.border-primary.w-full.max-lg\\:border-b.lg\\:w-60.lg\\:border-r div.grid.grid-cols-4.gap-x-4.p-2.text-sm.lg\\:grid-cols-2 div.col-span-2.flex.justify-between")].forEach(div => {
-        const key = div.children[0].textContent;
-        const val = div.children[1];
-        switch(key){
-            case "Experience:": RecordExpTable(key,Number(val.children[1].getAttribute("title").replaceAll(",", ""))); break;
-        }
-    });
-}
 const OnMutate = (mutlist, observer) => {
     observer.disconnect();
     if(DoTranslate){
         FindAndReplaceText();
         TranslateEvent();
     }
-    UpdateUserStat();
     observer.observe(document, {subtree: true, childList: true});
 };
-new MutationObserver(OnMutate).observe(document, {subtree: true, childList: true});
+observer = new MutationObserver(OnMutate).observe(document, {subtree: true, childList: true});
