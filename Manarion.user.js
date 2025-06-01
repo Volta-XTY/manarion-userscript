@@ -931,6 +931,7 @@ const PlaceholderTranslation = new Map([
     ["Donate", "捐赠数量"],
     ["Search text", "搜索文字"],
     ["Price", "价格"],
+    ["Set name", "配装名称"],
 ]);
 if(!DEBUG) [...Translation.values()].forEach(value => Translation.set(value, value));
 // #region EquipTrans
@@ -985,6 +986,7 @@ const DialogTranslation = new Map([
     ["Upgrade potions", "提升药水等级"],
     ["Upgrading these potions by 1 tier will cost ", "将这些药水提升 1 级将消耗 "],
     ["Are you sure", "你确定吗"],
+    ["Create equipment set", "新建配装"],
 ]);
 const equipRegex = /(?<lbracket>\[?)(?:Sigil of (?<sigilType>[A-Za-z]+))|(?:(?<quality>Worn|Refined|Runed|Ascended|Eternal) (?<type>[A-Za-z']+) (?<part>[A-Za-z]+)(?<elementType> of Water| of Fire| of Nature)?(?<upgradeLevel> \+[0-9]+)? \((?<level>[0-9]+)\)(?<rbracket>\]?))/;
 const EquipTranslate = (ele) => {
