@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.12.2
+// @version      0.12.3
 // @description  Manarion Chinese Translation and Quest notification, on any issue occurred, please /whisper VoltaX in game
 // @description:zh  Manarion 文本汉化，以及任务通知（非自动点击），如果汉化出现任何问题，可以游戏私信VoltaX，在greasyfork页面留下评论，或者通过其他方式联系我
 // @author       VoltaX
@@ -406,7 +406,7 @@ const Translation = new Map([
     ["Added Elemental Rift Event. Will occur every 2.5 hours, lasting 10 minutes with a 5 minute queue time. Awards Event Points based on bosses defeated/damage done/resources harvested.", "新增元素裂隙事件。每 2.5 小时出现一次，持续 10 分钟，并且带有 5 分钟准备时间。基于击败的 boss 数/造成的伤害/采集的资源奖励事件点数。"],
     ["Added Sigils and Event Shop, you can find them in the inventory. Sigils upgrade automatically based on total event points earned and can be exchanged freely.", "新增魔符和事件商店，你可以在仓库页面找到它们。魔符基于总事件点数自动升级，并且可以自由在不同种类间切换。"],
     ["Added leaderboards for event points and herbs/hr.", "新增事件点数和每小时药草数排行榜。"],
-    ["Improved display of upgrades on rift of power page.", "改善了力量裂隙页面的强化显示"],
+    ["Improved display of upgrades on rift of power page.", "改善了力量裂隙页面的强化显示。"],
     ["Fix missing activity logs when searching", "修复搜索活动记录时缺失某些条目的问题"],
     ["Fix quest loot tracker entries disappearing on refresh", "修复掉落记录刷新后丢失任务奖励记录的问题"],
     ["Fix ignore not working in guild chat", "修复公会聊天屏蔽不生效的问题"],
@@ -418,7 +418,7 @@ const Translation = new Map([
     [" now preserves the quality % of an item, bumping up all modifier values.", " 现在保留物品的品质百分比，将会相应增幅所有的属性值。"],
     ["Quests after 1000 completions now have a chance to give extra", "超过 1000 次行动的任务现在有几率给予额外的"],
     [", with 2 being guaranteed at 2000 etc. Also applies to the extra guild proc. Retroactively awarded some missed", "，到达 2000 行动任务时必定奖励 2 个法典，依此类推。此效果对公会额外任务法典同样有效。为任务进度超过 1000 的玩家相应补发了"],
-    [" to the players past 1000 quests already.", ""],
+    [" to the players past 1000 quests already.", "。"],
     ["Doubled chance of guild receiving ", "公会从成员任务中获得额外 "],
     [" on quest completions and retroactively awarded", " 的概率加倍，并且为公会相应补发了"],
     [" to guilds", ""],
@@ -428,7 +428,7 @@ const Translation = new Map([
     ["Parse and show links in chat", "聊天消息会处理并显示链接"],
     ["Discarding potions now works one at a time", "现在销毁药水每次只会销毁一瓶"],
     ["Wire command supports comma separated items", "Wire指令现在支持逗号分隔的多个物品"],
-    ["Randomize order of maxed enchanting leaderboards every restart", "每次重启时，附魔等级排行榜的同等排名间顺序随机变化。"],
+    ["Randomize order of maxed enchanting leaderboards every restart", "每次重启时，附魔等级排行榜的同等排名间顺序随机变化"],
     ["Add in game News section", "游戏内加入新闻区"],
     ["Fixed an issue that was causing unintended variance with high time dilation/haste in combination with crit chance", "修复了高时间膨胀/技能急速和暴击几率共存时，造成意外的波动的问题。"],
     ["Market cooldown no longer applies when not over/undercutting the best price or doing it by at least 1%", "市场挂牌冷却在以下情况不再触发：不对当前最佳价格压价，或者对当前最佳价格至少压价 1%"],
@@ -965,6 +965,7 @@ const HelpTranslation = new Map([
     ["/afk <message> Set auto reply message. Empty message to clear. Alias /autoreply", "/afk <自动回复消息> 设置离线自动回复消息。设置为空以取消此功能。相同效果指令：/autoreply"],
     ["/wire <name> <amount> <mana|dust|shards|codex|...> Transfer items to player. Alias /transfer", "/wire <玩家名> <数量> <mana|dust|shards|codex|...> 输送指定数量的指定物品至指定玩家。相同效果指令：/transfer"],
     ["/w <name> <msg> Send a private message. Alias /whisper, /tell, /msg", "/w <玩家名> <消息> 发送私信。相同效果指令：/whisper, /tell, /msg"],
+    ["/elementalrift Display next elemental rift time", "/elementalrift 显示下一次元素裂隙事件的开始时间"],
     ["You already have an open order for this item.", "你已经有一个此物品的交易挂单了。"],
     ["You have recently cancelled an order for this item and must wait 10 minutes before creating new orders less than 1% above the best price.", "你在不久前取消了一个此物品的挂单，因此如果你新创建的挂单价格小于当前最高买价的 101%，将有 10 分钟的挂单冷却时间。"],
     ["You have recently cancelled an order for this item and must wait 10 minutes before creating new orders less than 1% under the best price.", "你在不久前取消了一个此物品的挂单，因此如果你新创建的挂单价格大于当前最低卖价的 99%，将有 10 分钟的挂单冷却时间。"],
@@ -1119,6 +1120,10 @@ const LogTranslator = (channelType, nodes) => {
             else if(result = /Your \[[^\]]+\] has increased in power\./.exec(text)){
                 nodes[0].textContent = "你的 ";
                 nodes[2].textContent = " 从裂隙中获得了力量。"
+            }
+            else if(result = /Next Elemental Rift starts in ([0-9]+)?([A-Za-z ]+)?([0-9]+)?([A-Za-z ]+)?/.exec(text)){
+                const times = result.slice(1).map(text => FarmTranslation.get(text) ?? text);
+                nodes[0].textContent = `距离下一次元素裂隙还有 ${times.join("")}`;
             }
             break;
         }
