@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.13.0
+// @version      0.13.1
 // @description  Manarion Chinese Translation and Quest notification, on any issue occurred, please /whisper VoltaX in game
 // @description:zh  Manarion 文本汉化，以及任务通知（非自动点击），如果汉化出现任何问题，可以游戏私信VoltaX，在greasyfork页面留下评论，或者通过其他方式联系我
 // @author       VoltaX
@@ -113,6 +113,7 @@ const Translation = new Map([
         ["Enchanted Droplet", "神秘结露"],
         ["Infernal Heart", "熔岩之心"],
         ["Event Points", "事件点数 "],
+        ["Event Points ", "事件点数 "],
     ].flatMap(([key, value]) => [
         [key, value],
         [` ${key}`, ` ${value}`],
@@ -717,7 +718,6 @@ const Translation = new Map([
     ["Your account has been disabled.", "你的账号已被封禁"],
     ["Loot Tracker", "掉落物日志"],
     ["Farm Herbs/Hr", "农场每小时收获"],
-    ["Event Points", "事件点数"],
     ["No results", "无结果"],
     // #endregion
     // #region profile text
@@ -736,7 +736,7 @@ const Translation = new Map([
     ["You have siphoned power from the rift ", "你从裂隙中汲取了 "],
     [" times. Siphon chance: ", " 次力量。下次成功汲取概率："],
     ["% Upgrade Chance)", "% 强化概率)"],
-    ["Event Points: ", "事件点数"],
+    ["Event Points: ", "事件点数："],
     // #endregion
     // #region dropdown text
     ["View Profile", "查看资料页"],
@@ -1235,7 +1235,7 @@ const LogTranslator = (channelType, nodes) => {
                 const times = result.slice(1).map(text => FarmTranslation.get(text) ?? text);
                 nodes[0].textContent = `距离下一次元素裂隙还有 ${times.join("")}`;
             }
-            else if(result = /You have earned ([^ ]+) event points\./){
+            else if(result = /You have earned ([^ ]+) event points\./.exec(text)){
                 nodes[0].textContent = `你获得了 ${result[1]} 事件点数。`
             }
             break;
@@ -1671,7 +1671,6 @@ const FindAndReplaceText = () => {try {
     // #region /profile
     if(window.location.pathname.startsWith("/profile")){
         CheckTranslation(document, 'div[data-slot="card"]:nth-child(1)>div[data-slot="card-content"]>p:nth-child(n+2)', (kv) => {
-            console.log(kv);
             _Translate(kv.childNodes[0], "profile");
             kv.childNodes[1].textContent = kv.childNodes[1].textContent.replace(/Worlddrowner|Worldburner|Worldshaper/, (match) => Translation.get(match));
             _Translate(kv.childNodes[1], "profile", true);
