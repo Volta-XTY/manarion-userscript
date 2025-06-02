@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.12.5
+// @version      0.12.6
 // @description  Manarion Chinese Translation and Quest notification, on any issue occurred, please /whisper VoltaX in game
 // @description:zh  Manarion 文本汉化，以及任务通知（非自动点击），如果汉化出现任何问题，可以游戏私信VoltaX，在greasyfork页面留下评论，或者通过其他方式联系我
 // @author       VoltaX
@@ -694,6 +694,8 @@ const Translation = new Map([
     [" ticks remaining", " 刻剩余"],
     ["Elemental Rift", "元素裂隙"],
     ["Queue for Elemental Rift", "准备元素裂隙"],
+    ["Event Boss", "事件 Boss"],
+    ["Event Buffs", "事件加成"],
     // #endregion
     // #region misc
     ["Edit Profile", "编辑资料"],
@@ -952,7 +954,7 @@ const EquipTranslation = new Map([
 ]);
 // #endregion
 // #region HelpTL
-const HelpTranslation = new Map([
+const SystemMsgTranslation = new Map([
     ["A Rift of Power has opened!", "力量裂隙事件开启！"],
     ["/help Display this message", "/help 显示此帮助信息"],
     ["/transferguild <name> Transfer guild ownership", "/transferguild <玩家名> 转移公会所有权"],
@@ -974,6 +976,7 @@ const HelpTranslation = new Map([
     ["Already equipped", "已经装备"],
     ["Potion belt is full.", "药水腰带容量已满。"],
     ["No items match filter", "没有符合条件的物品。"],
+    ["Next Elemental Rift is now!", "元素裂隙事件进行中！"],
 ]);
 // #region DialogTL
 const DialogTranslation = new Map([
@@ -1015,7 +1018,7 @@ const __TypedTranslation = new Map([
     ["menuitem", MenuItemTranslation],
     ["upgrade", UpgradeTranslation],
     ["profile", ProfileTranslation],
-    ["help", HelpTranslation],
+    ["help", SystemMsgTranslation],
     ["dialog", DialogTranslation],
     ["default", Translation],
 ]);
@@ -1107,7 +1110,7 @@ const LogTranslator = (channelType, nodes) => {
             break;
         }
         case "All":{
-            if(HelpTranslation.has(nodes[0].textContent)) _Translate(nodes[0], "help");
+            if(SystemMsgTranslation.has(nodes[0].textContent)) _Translate(nodes[0], "help");
             else if(result = /Sold \[[^\]]+\] to ([A-Za-z]+) for ([^ ]+) \[[^\]]+\]./.exec(text)){
                 nodes[0].textContent = "将 ";
                 nodes[2].textContent = ` 卖给了 ${result[1]}，获得 ${result[2]} `;
@@ -1283,6 +1286,22 @@ const FindAndReplaceText = () => {try {
         }
         // #region /
         case "/":{
+            // Event boss
+            if(document.querySelector("main div div p.text-center.font-semibold")?.textContent.startsWith("Event Boss")){
+                CheckTranslation(document, "main div div p.text-center.font-semibold", div => {
+                    _Translate(div.childNodes[0]);
+                });
+                CheckTranslation(document, "main>div:nth-child(1)", div => {[
+                    div.children[1].children[2].children[1].childNodes[0],
+                    div.children[3],
+                    div.children[4].children[0].childNodes[3],
+                    div.children[4].children[0].childNodes[10],
+                    div.children[4].children[1].childNodes[3],
+                    div.children[4].children[1].childNodes[10],
+                    div.children[4].children[2].childNodes[3],
+                    div.children[4].children[2].childNodes[10],
+                ].forEach(_Translate)})
+            }
             // Siphon rift of pwer
             CheckTranslation(document, "main div div div.mt-2>div.text-foreground.flex.justify-between", div => {
                 _Translate(div.children[0]);
@@ -1783,8 +1802,9 @@ const FindAndReplaceText = () => {try {
                 div.children[0].childNodes[1].textContent = "要取消事件排队吗？"
             }
             case "Confirm upgrade":{
-                div.children[0].children[1].childNodes[0].textContent = "确定要使用一个 ";
-                div.children[0].children[1].childNodes[3].textContent = " 吗？";
+                div.children[0].children[1].childNodes[0].textContent = "确定要使用 ";
+                const _ = [...div.children[0].children[1].childNodes].at(-1)
+                _.textContent = " 升级吗？";
             }
         }
         _Translate(titleEle, "dialog");
