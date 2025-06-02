@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.12.4
+// @version      0.12.5
 // @description  Manarion Chinese Translation and Quest notification, on any issue occurred, please /whisper VoltaX in game
 // @description:zh  Manarion 文本汉化，以及任务通知（非自动点击），如果汉化出现任何问题，可以游戏私信VoltaX，在greasyfork页面留下评论，或者通过其他方式联系我
 // @author       VoltaX
@@ -888,7 +888,7 @@ const UpgradeTranslation = new Map([
     ["Increase ", "提升 "],
     [" times (+", " 级 (+"],
     [") for ", "), 消耗 "],
-    ["Chance to get extra credit for progressing your quest.", "完成任务时，增加额外完成一次任务的概率。"],
+    ["Chance to get extra credit for progressing your quest.", "完成行动时，增加额外增加一点任务进度的概率。"],
     ["Increases the potency of potions.", "增强药水的效果。"],
     ["Increases your chance to get additional stat rolls and mastery.", "提高掉落额外属性点和元素精通的概率。"],
     ["Increases all base stats (intellect, stamina, focus, spirit, mana).", "提高全属性（智力、耐力、集中、精神、魔力）。"],
