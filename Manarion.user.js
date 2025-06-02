@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.12.3
+// @version      0.12.4
 // @description  Manarion Chinese Translation and Quest notification, on any issue occurred, please /whisper VoltaX in game
 // @description:zh  Manarion 文本汉化，以及任务通知（非自动点击），如果汉化出现任何问题，可以游戏私信VoltaX，在greasyfork页面留下评论，或者通过其他方式联系我
 // @author       VoltaX
@@ -645,7 +645,7 @@ const Translation = new Map([
     // #endregion
     // #region item desc txt
     ["You have ", "仓库数量 "],
-    ["Fragments of raw elemental power.", "来自纯净元素之力的碎片。"],
+    ["Fragments of raw elemental power.", "含有纯净元素之力的碎片。"],
     ["A smoldering ember.", "尚未熄灭的余烬。"],
     ["A fine dust infused with magical energy.", "一些灌注了魔力的精良粉尘。"],
     ["An ancient book filled with arcane knowledge.", "一本写满奥术智慧的古书。"],
@@ -767,6 +767,7 @@ const SettingsTranslation = new Map([
     ["私信", "私信"],
     ["药水耗尽", "药水耗尽"],
     ["力量裂隙（事件）", "力量裂隙（事件）"],
+    ["Elemental Rift (Event)", "元素裂隙（事件）"],
 ]);
 // #endregion
 // #region FarmTrans
@@ -887,10 +888,10 @@ const UpgradeTranslation = new Map([
     ["Increase ", "提升 "],
     [" times (+", " 级 (+"],
     [") for ", "), 消耗 "],
-    ["Chance to get extra credit for progressing your quest.", "完成任务时，增加获得额外法典的概率。"],
+    ["Chance to get extra credit for progressing your quest.", "完成任务时，增加额外完成一次任务的概率。"],
     ["Increases the potency of potions.", "增强药水的效果。"],
     ["Increases your chance to get additional stat rolls and mastery.", "提高掉落额外属性点和元素精通的概率。"],
-    ["Increases all base stats (intellect, stamina, focus, spirit, mana).", "提高全属性（智力，耐力，集中，精神，魔力）。"],
+    ["Increases all base stats (intellect, stamina, focus, spirit, mana).", "提高全属性（智力、耐力、集中、精神、魔力）。"],
 ]);
 // #region ProfileTL
 const ProfileTranslation = new Map([
@@ -988,6 +989,7 @@ const DialogTranslation = new Map([
     ["Upgrading these potions by 1 tier will cost ", "将这些药水提升 1 级将消耗 "],
     ["Are you sure", "你确定吗"],
     ["Create equipment set", "新建配装"],
+    ["Confirm upgrade", "确认升级"],
 ]);
 const equipRegex = /(?<lbracket>\[?)(?:Sigil of (?<sigilType>[A-Za-z]+))|(?:(?<quality>Worn|Refined|Runed|Ascended|Eternal) (?<type>[A-Za-z']+) (?<part>[A-Za-z]+)(?<elementType> of Water| of Fire| of Nature)?(?<upgradeLevel> \+[0-9]+)? \((?<level>[0-9]+)\)(?<rbracket>\]?))/;
 const EquipTranslate = (ele) => {
@@ -1088,6 +1090,13 @@ const LogTranslator = (channelType, nodes) => {
             }
             else if(result = /([A-Za-z]+) has marked the ([A-Za-z ]+) as the next upgrade\./.exec(text)){
                 nodes[0].textContent = `${result[1]} 将「${Translation.get(result[2])}」标记为下一个公会升级。`;
+            }
+            else if(result = /The guild has advanced to level ([0-9]+) with the help of ([A-Za-z]+). ([0-9]+) \[[^\]]+\] have been added to the guild funds./.exec(text)){
+                nodes[0].textContent = `${result[2]} 为公会升级至 ${result[1]} 级提供了关键经验。公会获得了 ${result[3]} 本 `;
+                nodes[2].textContent = `。`
+            }
+            else if(result = /([A-Za-z]+) has left the guild/.exec(text)){
+                nodes[0].textContent = `${result[1]} 离开了公会。`
             }
             break;
         }
@@ -1496,7 +1505,7 @@ const FindAndReplaceText = () => {try {
             CheckTranslation(document, "div.flex.items-center.gap-2>div.break-words", _TypedTranslate("upgrade"))
             CheckTranslation(document, "main>div.space-y-2:nth-child(1)>div:nth-child(1)", div => {
                 div.childNodes[0].textContent = "你有 ";
-                div.childNodes[4].textContent = "。到达下一次魔符升级需要总";
+                div.childNodes[4].textContent = "。到达下一魔符升级需要总";
             })
         }
     };
@@ -1772,6 +1781,10 @@ const FindAndReplaceText = () => {try {
             }
             case "Are you sure":{
                 div.children[0].childNodes[1].textContent = "要取消事件排队吗？"
+            }
+            case "Confirm upgrade":{
+                div.children[0].children[1].childNodes[0].textContent = "确定要使用一个 ";
+                div.children[0].children[1].childNodes[3].textContent = " 吗？";
             }
         }
         _Translate(titleEle, "dialog");
