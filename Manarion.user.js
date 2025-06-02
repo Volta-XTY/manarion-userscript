@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.12.6
+// @version      0.13.0
 // @description  Manarion Chinese Translation and Quest notification, on any issue occurred, please /whisper VoltaX in game
 // @description:zh  Manarion 文本汉化，以及任务通知（非自动点击），如果汉化出现任何问题，可以游戏私信VoltaX，在greasyfork页面留下评论，或者通过其他方式联系我
 // @author       VoltaX
@@ -14,6 +14,7 @@
 // ==/UserScript==
 const DoTranslate = true; // 把这里的true改成false就可以关闭翻译，反之亦然。
 const DEBUG = false;
+const ADD_FAQ = false;
 const MANA_DUST_NAME = `魔法尘`;
 let observer;
 const GetItem = (key) => JSON.parse(window.localStorage.getItem(key) ?? "null");
@@ -111,7 +112,7 @@ const Translation = new Map([
         ["Four-leaf Clover", "四叶草"],
         ["Enchanted Droplet", "神秘结露"],
         ["Infernal Heart", "熔岩之心"],
-        ["Event Points", "事件点数"],
+        ["Event Points", "事件点数 "],
     ].flatMap(([key, value]) => [
         [key, value],
         [` ${key}`, ` ${value}`],
@@ -225,6 +226,8 @@ const Translation = new Map([
     ["Refresh", "刷新"],
     ["Activate", "激活"],
     ["Event Shop", "事件商店"],
+    ["View Event", "查看事件"],
+    ["View Players", "查看玩家"],
     // #endregion
     // #region research
     ["Staff (Damage)", "法杖（元素伤害）"],
@@ -261,7 +264,7 @@ const Translation = new Map([
     ["Drop Boost", "掉落加成"],
     ["Multistat", "多重属性掉落"],
     ["Actions", "行动次数"],
-    ["Quest Boost", "任务奖励"],
+    ["Quest Boost", "任务速度"],
     ["Potion Boost", "药水效果"],
     // #endregion
     // #region equip detail
@@ -302,16 +305,6 @@ const Translation = new Map([
     ["Amount", "数量"],
     ["Tier", "等级"],
     // #endregion
-    // #region dropdown
-    ["Mining Level", "采矿等级"],
-    ["Fishing Level", "捕鱼等级"],
-    ["Woodcutting Level", "伐木等级"],
-    ["Strongest Enemy", "击败敌人最高强度"],
-    ["Total Actions", "总行动数"],
-    ["Battle Quest #", "战斗任务 #"],
-    ["Gather Quest #", "采集任务 #"],
-    ["Enchanting", "附魔"],
-    ["Send", "发送"],
     // #endregion
     // #region battle text
     ["Are you sure you want to reset your codex boosts?", "确定要重置所有法典升级吗？"],
@@ -323,7 +316,11 @@ const Translation = new Map([
     ["You attacked ", "你攻击了 "],
     [" times. Casting ", " 次。释放了 "],
     [" spells, critting ", " 次法术，造成暴击伤害 "],
+    ["spells, critting ", " 次法术，造成暴击伤害 "],
+    [" times. Dealing", " 次。造成了"],
+    [" damage.", " 伤害。"],
     [" times.", " 次。"],
+    ["Mana: ", "魔力："],
     ["Enemy attacked you ", "敌人对你攻击了 "],
     ["You found the following loot:", "你获得的战利品有："],
     // #endregion
@@ -595,6 +592,8 @@ const Translation = new Map([
     ["Winrate:", "胜率："],
     ["Enemy", "敌人"],
     ["Average Damage Per Attack:", "每次攻击平均伤害："],
+    [" Lacked ", " 缺少 "],
+    [" mana", " 魔力"],
     ["You went ", "你进行了一次"],
     ["mining", "采矿"],
     ["fishing", "捕鱼"],
@@ -692,10 +691,17 @@ const Translation = new Map([
     [" harvests.", " 次采集"],
     ["Quest Progress", "任务进度"],
     [" ticks remaining", " 刻剩余"],
-    ["Elemental Rift", "元素裂隙"],
+    [" Elemental Rift", " 元素裂隙"],
     ["Queue for Elemental Rift", "准备元素裂隙"],
-    ["Event Boss", "事件 Boss"],
+    ["Event Boss ", "事件 Boss "],
     ["Event Buffs", "事件加成"],
+    ["Starting in ", "距离开始还有 "],
+    [" ticks", " 刻"],
+    ["Complete for ", "完成可获得 "],
+    ["You contributed ", "你贡献了 "],
+    ["iron", "铁"],
+    ["wood", "木"],
+    ["fish", "鱼"],
     // #endregion
     // #region misc
     ["Edit Profile", "编辑资料"],
@@ -712,23 +718,25 @@ const Translation = new Map([
     ["Loot Tracker", "掉落物日志"],
     ["Farm Herbs/Hr", "农场每小时收获"],
     ["Event Points", "事件点数"],
+    ["No results", "无结果"],
     // #endregion
     // #region profile text
     ["Battle Quest # ", "战斗任务 # "],
     ["Gather Actions: ", "采集次数："],
     ["Gather Quest # ", "采集任务 # "],
-    ["Event Actions: ", "事件行动次数："],
+    ["Event Actions: ", "事件中行动数："],
     ["Spellpower Upgrades", "法术强度升级"],
     ["Ward Upgrades", "抗性升级"],
     ["Harvest Golems", "收割傀儡"],
     ["Fertilizer", "肥料"],
     ["Plot", "地块"],
     ["Potion belt size", "药水腰带容量"],
-    ["Siphoning Rift of Power", "汲取裂隙之力"],
-    ["Siphon Rift Of Power", "从裂隙中汲取力量"],
+    ["Siphoning Rift of Power", "正在汲取裂隙之力"],
+    ["Siphon Rift of Power", "汲取裂隙之力"],
     ["You have siphoned power from the rift ", "你从裂隙中汲取了 "],
     [" times. Siphon chance: ", " 次力量。下次成功汲取概率："],
     ["% Upgrade Chance)", "% 强化概率)"],
+    ["Event Points: ", "事件点数"],
     // #endregion
     // #region dropdown text
     ["View Profile", "查看资料页"],
@@ -738,6 +746,16 @@ const Translation = new Map([
     ["Funds", "仓库"],
     ["Members", "成员"],
     ["Rank Changes", "职位变动"],
+    ["Mining Level", "采矿等级"],
+    ["Fishing Level", "捕鱼等级"],
+    ["Woodcutting Level", "伐木等级"],
+    ["Strongest Enemy", "击败敌人最高强度"],
+    ["Total Actions", "总行动数"],
+    ["Battle Quest #", "战斗任务 #"],
+    ["Gather Quest #", "采集任务 #"],
+    ["Enchanting", "附魔"],
+    ["Send", "发送"],
+    ["Account", "账号"],
 ]);
 // #region SettingTrans
 const SettingsTranslation = new Map([
@@ -890,7 +908,7 @@ const UpgradeTranslation = new Map([
     ["Increase ", "提升 "],
     [" times (+", " 级 (+"],
     [") for ", "), 消耗 "],
-    ["Chance to get extra credit for progressing your quest.", "完成行动时，增加额外增加一点任务进度的概率。"],
+    ["Chance to get extra credit for progressing your quest.", "完成行动时，概率获得额外的任务进度。"],
     ["Increases the potency of potions.", "增强药水的效果。"],
     ["Increases your chance to get additional stat rolls and mastery.", "提高掉落额外属性点和元素精通的概率。"],
     ["Increases all base stats (intellect, stamina, focus, spirit, mana).", "提高全属性（智力、耐力、集中、精神、魔力）。"],
@@ -935,6 +953,7 @@ const PlaceholderTranslation = new Map([
     ["Search text", "搜索文字"],
     ["Price", "价格"],
     ["Set name", "配装名称"],
+    ["Search player...", "搜索玩家..."],
 ]);
 if(!DEBUG) [...Translation.values()].forEach(value => Translation.set(value, value));
 // #region EquipTrans
@@ -980,7 +999,7 @@ const SystemMsgTranslation = new Map([
 ]);
 // #region DialogTL
 const DialogTranslation = new Map([
-    ["Transfer item to", "将物品赠送给其他玩家"],
+    ["Transfer item to", "将物品送给其他玩家"],
     ["Borrow item to", "将物品借给其他玩家"],
     ["Enchant item", "附魔物品"],
     ["Currently ", "当前值 "],
@@ -993,6 +1012,13 @@ const DialogTranslation = new Map([
     ["Are you sure", "你确定吗"],
     ["Create equipment set", "新建配装"],
     ["Confirm upgrade", "确认升级"],
+    ["Discard potions", "丢弃药水"],
+]);
+const ElementalRiftTranslation = new Map([
+    ["Name", "玩家名"],
+    ["Actions", "行动数"],
+    ["Damage", "造成伤害"],
+    ["Resources", "采集资源"],
 ]);
 const equipRegex = /(?<lbracket>\[?)(?:Sigil of (?<sigilType>[A-Za-z]+))|(?:(?<quality>Worn|Refined|Runed|Ascended|Eternal) (?<type>[A-Za-z']+) (?<part>[A-Za-z]+)(?<elementType> of Water| of Fire| of Nature)?(?<upgradeLevel> \+[0-9]+)? \((?<level>[0-9]+)\)(?<rbracket>\]?))/;
 const EquipTranslate = (ele) => {
@@ -1020,6 +1046,7 @@ const __TypedTranslation = new Map([
     ["profile", ProfileTranslation],
     ["help", SystemMsgTranslation],
     ["dialog", DialogTranslation],
+    ["elementalRift", ElementalRiftTranslation],
     ["default", Translation],
 ]);
 const _Translate = (ele, type = "default", keepOriginalText = false) => {
@@ -1062,60 +1089,131 @@ const LogTranslator = (channelType, nodes) => {
     let result;
     const text = nodes.map(node => node.textContent).join("");
     switch(channelType){
+        case "ActivityLog":{
+            if(result = /Your ([^ ]+) level is now ([0-9]+)\./.exec(text)){
+                nodes[0].textContent = `你的${Translation.get(result[1]) ?? result[1]}等级到达 ${result[2]}`;
+            }
+            else if(result = /You whispered ([^:]+): (.*)/.exec(text)){
+                nodes[0].textContent = `你对 ${result[1]} 说：${result[2]}`;
+            }
+            else if(result = /([^ ]+) whispered you: (.*)/.exec(text)){
+                nodes[0].textContent = `${result[1]} 对你说：${result[2]}`;
+            }
+            else if(result = /([^ ]+) sent you ([^ ]+ )?\[([^\]]+)\]/.exec(text)){
+                nodes[0].textContent = `${result[1]} 送给你 ${result[2]??""}`;
+                nodes[2].textContent = "。";
+            }
+            else if(result = /([^ ]+) borrowed you \[([^\]]+)\]/.exec(text)){
+                nodes[0].textContent = `${result[1]} 借给你 `;
+                nodes[2].textContent = "。";
+            }
+            else if(result = /([^ ]+) returned \[([^\]]+)\] to you/.exec(text)){
+                nodes[0].textContent = `${result[1]} 还给你 `;
+                nodes[2].textContent = "。";
+            }
+            else if(result = /You sent ([^ ]+ )?\[([^\]]+)\] to ([^\.]+)\./.exec(text)){
+                nodes[0].textContent = `你送给 ${result[3]} ${result[1]??""}`;
+                nodes[2].textContent = "。";
+            }
+            else if(result = /You borrowed \[([^\]]+)\] to ([^\.]+)\./.exec(text)){
+                nodes[0].textContent = `你借给 ${result[2]} `;
+                nodes[2].textContent = "。";
+            }
+            else if(result = /You returned \[([^\]]+)\] to ([^\.]+)\./.exec(text)){
+                nodes[0].textContent = `你还给 ${result[2]} `;
+                nodes[2].textContent = "。";
+            }
+            else if(result = /Edited (sell|buy) order for ([^ ]+) -> ([^ ]+) \[([^\]])+\] for ([^ ]+) each/.exec(text)){
+                nodes[0].textContent = `编辑挂单：${{"sell":"出售","buy":"购买"}[result[1]]} ${result[2]} 🡢 ${result[3]} `;
+                nodes[2].textContent = `，单价 ${result[5]}。`;
+            }
+            else if(result = /Edited sell order for \[([^\]])+\] ([^ ]+) -> (.*)/.exec(text)){
+                nodes[0].textContent = `编辑挂单：`;
+                nodes[2].textContent = ` ${result[2]} 🡢 ${result[3]}`;
+            }
+            else if(result = /Created (sell|buy) order for ([^ ]+ )?\[([^\]])+\] for ([^ ]+)( each)?/.exec(text)){
+                nodes[0].textContent = `创建挂单：${{"sell":"出售","buy":"购买"}[result[1]]} ${result[2] ?? ""}`;
+                nodes[2].textContent = result[5] ? `，单价 ${result[4]}。` : `，价格 ${result[4]}`;
+            }
+            else if(result = /Cancelled (sell|buy) order for ([^ ]+) \[([^\]])+\] for ([^ ]+) each/.exec(text)){
+                nodes[0].textContent = `取消挂单：${{"sell":"出售","buy":"购买"}[result[1]]} ${result[2]} `;
+                nodes[2].textContent = `，单价 ${result[4]}。`;
+            }
+            else if(result = /Cancelled sell order for \[([^\]])+\]/.exec(text)){
+                nodes[0].textContent = `取消出售 `;
+            }
+            else if(result = /Bought \[([^\]]+)\] from ([^ ]+) for ([^ ]+)/.exec(text)){
+                nodes[0].textContent = `从 ${result[2]} 处购买 `;
+                nodes[2].textContent = `，花费 ${result[3]} `;
+            }
+            else if(result = /Sold \[([^\]]+)\] to ([^ ]+) for ([^ ]+)/.exec(text)){
+                nodes[0].textContent = `从 ${result[2]} 处购买 `;
+                nodes[2].textContent = `，花费 ${result[3]} `;
+            }
+            else if(result = /You bought ([^ ]+) \[([^\]]+)\] for ([^ ]+) \(([^ ]+) each\)/.exec(text)){
+                nodes[0].textContent = `以 ${result[4]} 单价购买 ${result[1]} `;
+                nodes[2].textContent = `，花费 ${result[3]} ${MANA_DUST_NAME}。`;
+            }
+            else if(result = /You sold ([^ ]+) \[([^\]]+)\] for ([^ ]+) \(([^ ]+) each\)/.exec(text)){
+                nodes[0].textContent = `以 ${result[4]} 单价售出 ${result[1]} `;
+                nodes[2].textContent = `，获得 ${result[3]} ${MANA_DUST_NAME}。`;
+            }
+            break;
+        }
         case "Guild":{
-            if(result = /([A-Za-z]+) deposited \[[^\]]+\] into the armory\./.exec(text)){
+            if(result = /([^ ]+) deposited \[[^\]]+\] into the armory\./.exec(text)){
                 nodes[0].textContent = `${result[1]} 将 `;
                 nodes[2].textContent = ` 捐赠至装备库。`;
             }
-            else if(result = /([A-Za-z]+) returned \[[^\]]+\] to the armory\./.exec(text)){
+            else if(result = /([^ ]+) returned \[[^\]]+\] to the armory\./.exec(text)){
                 nodes[0].textContent = `${result[1]} 将 `;
                 nodes[2].textContent = ` 返还至装备库。`;
             }
-            else if(result = /([A-Za-z]+) borrowed \[[^\]]+\] from the armory\./.exec(text)){
+            else if(result = /([^ ]+) borrowed \[[^\]]+\] from the armory\./.exec(text)){
                 nodes[0].textContent = `${result[1]} 将 `;
                 nodes[2].textContent = ` 借出装备库。`;
             }
-            else if(result = /([A-Za-z]+) received ([0-9]+) extra \[[^\]]+\] for the guild while completing their quest!/.exec(text)){
+            else if(result = /([^ ]+) received ([0-9]+) extra \[[^\]]+\] for the guild while completing their quest!/.exec(text)){
                 nodes[0].textContent = `${result[1]} 完成任务后，为公会额外获得了 ${result[2]} 本 `;
                 nodes[2].textContent = `！`;
             }
-            else if(result = /([A-Za-z]+) has upgraded the ([A-Za-z ]+)/.exec(text)){
+            else if(result = /([^ ]+) has upgraded the ([A-Za-z ]+)/.exec(text)){
                 nodes[0].textContent = `${result[1]} 升级了「${Translation.get(result[2])}」`;
             }
-            else if(result = /([A-Za-z]+) has joined the guild!/.exec(text)){
+            else if(result = /([^ ]+) has joined the guild!/.exec(text)){
                 nodes[0].textContent = `${result[1]} 加入了公会！`;
             }
-            else if(result = /([A-Za-z]+) has kicked ([A-Za-z]+) from the guild!/.exec(text)){
+            else if(result = /([^ ]+) has kicked ([^ ]+) from the guild!/.exec(text)){
                 nodes[0].textContent = `${result[1]} 将 ${result[2]} 踢出了公会！`;
             }
-            else if(result = /([A-Za-z]+) has invited ([A-Za-z]+) to join the guild!/.exec(text)){
-                nodes[0].textContent = `${result[1]} 邀请了 ${result[2]} 加入公会！`;
+            else if(result = /([^ ]+) has invited ([^ ]+) to join the guild\./.exec(text)){
+                nodes[0].textContent = `${result[1]} 邀请了 ${result[2]} 加入公会。`;
             }
-            else if(result = /([A-Za-z]+) has marked the ([A-Za-z ]+) as the next upgrade\./.exec(text)){
+            else if(result = /([^ ]+) has marked the ([^  ]+) as the next upgrade\./.exec(text)){
                 nodes[0].textContent = `${result[1]} 将「${Translation.get(result[2])}」标记为下一个公会升级。`;
             }
-            else if(result = /The guild has advanced to level ([0-9]+) with the help of ([A-Za-z]+). ([0-9]+) \[[^\]]+\] have been added to the guild funds./.exec(text)){
+            else if(result = /The guild has advanced to level ([0-9]+) with the help of ([^\.]+). ([0-9]+) \[[^\]]+\] have been added to the guild funds./.exec(text)){
                 nodes[0].textContent = `${result[2]} 为公会升级至 ${result[1]} 级提供了关键经验。公会获得了 ${result[3]} 本 `;
                 nodes[2].textContent = `。`
             }
-            else if(result = /([A-Za-z]+) has left the guild/.exec(text)){
+            else if(result = /([^ ]+) has left the guild/.exec(text)){
                 nodes[0].textContent = `${result[1]} 离开了公会。`
             }
             break;
         }
         case "Global":{
-            if(result = /([A-Za-z]+) found a \[[^\]]+\]/.exec(text)){
+            if(result = /([^ ]+) found a \[[^\]]+\]/.exec(text)){
                 nodes[0].textContent = `${result[1]} 发现了 `;
             }
             break;
         }
         case "All":{
             if(SystemMsgTranslation.has(nodes[0].textContent)) _Translate(nodes[0], "help");
-            else if(result = /Sold \[[^\]]+\] to ([A-Za-z]+) for ([^ ]+) \[[^\]]+\]./.exec(text)){
+            else if(result = /Sold \[[^\]]+\] to ([^ ]+) for ([^ ]+) \[[^\]]+\]./.exec(text)){
                 nodes[0].textContent = "将 ";
                 nodes[2].textContent = ` 卖给了 ${result[1]}，获得 ${result[2]} `;
             }
-            else if(result = /Bought \[[^\]]+\] from ([A-Za-z]+) for ([^ ]+) \[[^\]]+\]\./.exec(text)){
+            else if(result = /Bought \[[^\]]+\] from ([^ ]+) for ([^ ]+) \[[^\]]+\]\./.exec(text)){
                 nodes[0].textContent = `从 ${result[1]} 处购买了 `;
                 nodes[2].textContent = `, 花费 ${result[2]} `;
             }
@@ -1137,12 +1235,28 @@ const LogTranslator = (channelType, nodes) => {
                 const times = result.slice(1).map(text => FarmTranslation.get(text) ?? text);
                 nodes[0].textContent = `距离下一次元素裂隙还有 ${times.join("")}`;
             }
+            else if(result = /You have earned ([^ ]+) event points\./){
+                nodes[0].textContent = `你获得了 ${result[1]} 事件点数。`
+            }
             break;
         }
     }
 };
 const FindAndReplaceText = () => {try {
     switch(window.location.pathname){
+        // #region /activity-log
+        case "/activity-log":{
+            CheckTranslation(document, 'main button[data-slot="select-trigger"]', button => {
+                _Translate(button.childNodes[0]);
+                new MutationObserver(() => _Translate(button.childNodes[0], "default", ))
+            })
+            CheckTranslation(document, "main div.space-y-2>div:nth-child(1):nth-last-child(1)", _Translate);
+            CheckTranslation(document, "main h1.text-2xl", _TypedTranslate("guild"));
+            CheckTranslation(document, "main div.space-y-2>div.space-x-1.text-sm.leading-4", div => {
+                LogTranslator("ActivityLog", [...div.children[1].childNodes]);
+            })
+            break;
+        }
         // #region /town
         case "/town":{
             document.querySelectorAll("main > div:not([translated]):nth-child(1)").forEach(div => {
@@ -1210,8 +1324,8 @@ const FindAndReplaceText = () => {try {
         // #endregion
         // #region /guild/*
         case "/guild/log":{
-            CheckTranslation(document, "h1", _TypedTranslate("guild"));
-            CheckTranslation(document, 'button[data-slot="select-trigger"]:not([translated])', (button) => {
+            CheckTranslation(document, "main h1", _TypedTranslate("guild"));
+            CheckTranslation(document, 'main button[data-slot="select-trigger"]:not([translated])', (button) => {
                 _Translate(button.childNodes[0]);
                 /*
                 new MutationObserver(() => {
@@ -1224,6 +1338,17 @@ const FindAndReplaceText = () => {try {
         case "/guild/list":
         case "/guild":{
             CheckTranslation(document, "th span.mr-1", _TypedTranslate("guild"));
+            CheckTranslation(document, 'div[data-slot="table-container"]>table>tbody>tr>td:nth-child(2)', td => {
+                if(!td.textContent) return;
+                console.log(td.textContent);
+                let result;
+                if(result = /about ([^ ]+) hours? ago/.exec(td.textContent)){
+                    td.textContent = `约 ${result[1]} 小时前`;
+                }
+                else if(result = /([^ ]+) minutes? ago/.exec(td.textContent)){
+                    td.textContent = `${result[1]} 分钟前`;
+                }
+            })
             break;
         }
         case "/guild/ranks":{
@@ -1288,19 +1413,34 @@ const FindAndReplaceText = () => {try {
         case "/":{
             // Event boss
             if(document.querySelector("main div div p.text-center.font-semibold")?.textContent.startsWith("Event Boss")){
+                CheckTranslation(document, 'div[data-slot="table-container"]>table>thead>tr>th>button>span.mr-1', _TypedTranslate("elementalRift")); // ranking header
                 CheckTranslation(document, "main div div p.text-center.font-semibold", div => {
-                    _Translate(div.childNodes[0]);
+                    _Translate(div.childNodes[0]); // Event boss
                 });
-                CheckTranslation(document, "main>div:nth-child(1)", div => {[
-                    div.children[1].children[2].children[1].childNodes[0],
-                    div.children[3],
-                    div.children[4].children[0].childNodes[3],
-                    div.children[4].children[0].childNodes[10],
-                    div.children[4].children[1].childNodes[3],
-                    div.children[4].children[1].childNodes[10],
-                    div.children[4].children[2].childNodes[3],
-                    div.children[4].children[2].childNodes[10],
-                ].forEach(_Translate)})
+                CheckTranslation(document, "main>div:nth-child(1)>div:nth-child(4):nth-last-child(2):not([class])", _Translate); // Event buff
+                CheckTranslation(document, "main>div:nth-child(1)>div:nth-child(5):nth-last-child(1).space-y-2>div", div => { // Event buff items
+                    _Translate(div.childNodes[3]);
+                    _Translate(div.childNodes[10]);
+                });
+                CheckTranslation(document, "main>div:nth-child(1)>div:nth-child(2):nth-last-child(4)>div:nth-child(3)>div:nth-child(2)", div => _Translate(div.childNodes[0]));
+                CheckTranslation(document, "div.space-y-1>p:nth-child(1):nth-last-child(1)", p => {
+                    _Translate(p.childNodes[0]);
+                    _Translate(p.childNodes[3]);
+                })
+                CheckTranslation(document, "div.space-y-1:nth-child(3):nth-last-child(3)", div => {
+                    if(div.textContent.startsWith("You attacked")){
+                        [
+                            div.children[0].childNodes[0],
+                            div.children[0].childNodes[2],
+                            div.children[0].childNodes[5],
+                            div.children[0].childNodes[7],
+                            div.children[0].childNodes[10],
+                            div.children[1].childNodes[0],
+                            div.children[1]?.children[2]?.childNodes[0],
+                            div.children[1]?.children[2]?.childNodes[2],
+                        ].filter(node => node).forEach(_Translate);
+                    }
+                });
             }
             // Siphon rift of pwer
             CheckTranslation(document, "main div div div.mt-2>div.text-foreground.flex.justify-between", div => {
@@ -1712,25 +1852,28 @@ const FindAndReplaceText = () => {try {
     // #endregion
     // #region chat/log
     CheckTranslation(document, 'div.border-primary.shrink-0.border-t div.scrollbar-thin.scrollbar-track-transparent.flex-1.overflow-y-auto.pl-1.text-sm div.leading-4\\.5>span:nth-child(1):nth-last-child(1)', span => {
-        const timestampEle = span.children[0];
+        const spanClone = span.cloneNode(true);
+        span.setAttribute("hidden", "");
+        span.insertAdjacentElement("afterend", spanClone);
+        const timestampEle = spanClone.children[0];
         let result;
-        if(result = /([A-Za-z]+) borrowed you a /.exec(span.childNodes[2]?.textContent ?? "")){
-            span.childNodes[2].textContent = `${result[1]} 借给了你 `;
+        if(result = /([A-Za-z]+) borrowed you a /.exec(spanClone.childNodes[2]?.textContent ?? "")){
+            spanClone.childNodes[2].textContent = `${result[1]} 借给了你 `;
             return;
         }
-        if(result = /([A-Za-z]+) sent you a /.exec(span.childNodes[2]?.textContent ?? "")){
-            span.childNodes[2].textContent = `${result[1]} 赠送给你 `;
+        if(result = /([A-Za-z]+) sent you a /.exec(spanClone.childNodes[2]?.textContent ?? "")){
+            spanClone.childNodes[2].textContent = `${result[1]} 送给了你 `;
             return;
         }
-        const message = span.children[1];
+        const message = spanClone.children[1];
         if(!message) {
-            console.log("no message", span.innerHTML);
+            console.log("no message", spanClone.innerHTML);
             return;
         }
         const channel = message.childNodes[2];
         if(!channel) {
             // should be whisper
-            span.childNodes[2].textContent = {"From ":"来自 ","To ":"发给 "}[span.childNodes[2].textContent] ?? span.childNodes[2].textContent;
+            spanClone.childNodes[2].textContent = {"From ":"来自 ","To ":"发给 "}[spanClone.childNodes[2].textContent] ?? spanClone.childNodes[2].textContent;
             return;
         }
         const channelType = channel.textContent;
@@ -1800,85 +1943,111 @@ const FindAndReplaceText = () => {try {
             }
             case "Are you sure":{
                 div.children[0].childNodes[1].textContent = "要取消事件排队吗？"
+                break;
             }
             case "Confirm upgrade":{
                 div.children[0].children[1].childNodes[0].textContent = "确定要使用 ";
                 const _ = [...div.children[0].children[1].childNodes].at(-1)
                 _.textContent = " 升级吗？";
+                break;
+            }
+            case "Discard potions":{
+                div.children[0].childNodes[1].textContent = "你确定要丢弃这瓶药水吗？";
+                break;
             }
         }
         _Translate(titleEle, "dialog");
     })
+    CheckTranslation(document, "#reset-stat-tracker", button => button.textContent = "重置");
+    CheckTranslation(document, 'div[title="Kindly provided by Elnaeth. Tips appreciated!"]>button.m-0.p-1.bg-red-500.text-sm.text-white.rounded.cursor-pointer', button => button.textContent = "重置");
 } catch(e) {console.error(e);}};
 // #region eventTrans
-const TranslateEvent = () => {
-    document.querySelectorAll("div.border-primary div.grid-cols-4 div.col-span-4 div.p-2.w-full:not([translated])").forEach((div) => {
-        if(div.children.length === 2 && div.children[0].textContent === "Quest Progress"){
-            div.setAttribute("translated", "");
-            const title = div.children[0];
-            const titleClone = title.cloneNode(true);
-            const progressDiv = div.children[1];
-            _Translate(progressDiv.childNodes[0]);
-            _Translate(progressDiv.childNodes[4]);
-            _Translate(titleClone);
-            title.setAttribute("hidden", "");
-            title.insertAdjacentElement("afterend", titleClone);
-            if(!div.hasAttribute("watching")){
-                div.setAttribute("watching", "");
-                const OnQuestProgress = (mutlist, observer) => {
-                    observer.disconnect();
-                    const current = Number(progressDiv.childNodes[1].textContent);
-                    const target = Number(progressDiv.childNodes[3].textContent);
-                    _Translate(progressDiv.childNodes[0], "default", true);
-                    _Translate(progressDiv.childNodes[4], "default", true);
-                    console.log(`${current} / ${target}`);
-                    if(current === target) {
-                        new Notification("Quest Complete", { requireInteraction: true, });
-                    }
-                    observer.observe(progressDiv, {childList: true, subtree: true, characterData: true});
-                };
-                new MutationObserver(OnQuestProgress).observe(progressDiv, {childList: true, subtree: true, characterData: true});
+const TranslateEventConfig = [
+    {
+        id: "quest",
+        title: ["Quest Progress"],
+        childrenLength: 2,
+        OnProgress: (div) => {
+            _Translate(div.children[2].childNodes[0], "default", true);
+            _Translate(div.children[2].childNodes[4], "default", true);
+            if(div.children[3]) _Translate(div.children[3].childNodes[0]);
+            if(Number(div.children[2].childNodes[1].textContent) === Number(div.children[2].childNodes[3].textContent)) {
+                new Notification("Quest Complete", { requireInteraction: true, });
             }
-        }
-        else if(div.children.length === 2 && !div.hasAttribute("watching") && div.children[0].textContent === "Siphon Rift of Power" || div.children[0].textContent === "Siphoning Rift of Power"){
-            div.setAttribute("watching", "");
-            const OnEventProgress = (_, observer) => {
-                observer.disconnect();
-                _Translate(div.children[0]);
-                _Translate(div.children[1].childNodes[1]);
-                observer.observe(div, {childList: true, subtree: true, characterData: true});
-            }
-            new MutationObserver(OnEventProgress).observe(div, {childList: true, subtree: true, characterData: true});
-        }
-        else if(div.children.length === 2 && !div.hasAttribute("watching") && div.children[0].textContent === "Elemental Rift"){
-            div.setAttribute("watching", "");
-            const OnEventProgress = (_, observer) => {
-                observer.disconnect();
-                _Translate(div.children[0]);
-                _Translate(div.children[1].childNodes[1]);
-                observer.observe(div, {childList: true, subtree: true, characterData: true});
-            }
-            new MutationObserver(OnEventProgress).observe(div, {childList: true, subtree: true, characterData: true});
-        }
-    });
-};
-// #endregion
-const RecordExpTable = (() => {
-    let lastLv = 0;
-    return (curLv, curMEx) => {
-        if(curLv === lastLv) return;
-        lastLv = curLv;
-        const expTable = GetItem("ExpTable") ?? {};
-        expTable[curLv] = curMEx;
-        SetItem("ExpTable", expTable);
+        },
+    },
+    {
+        id: "rift of power",
+        title: ["Siphon Rift of Power", "Siphoning Rift of Power"],
+        childrenLength: 2,
+        OnProgress: (div) => {
+            _Translate(div.children[2].childNodes[1], "default", true);
+        },
+    },
+    {
+        id: "elemental rift",
+        title: ["Queue for Elemental Rift", " Elemental Rift"],
+        childrenLength: 2,
+        OnProgress: (div) => {
+            [
+                div.children[2].childNodes[2],
+                div.children[2].childNodes[1],
+                div.children[2].childNodes[0],
+            ].filter(node => node).forEach(node => _Translate(node, "default", true));
+        },
     }
-})();
+];
+const MappedTranlsateEventConfig = new Map(TranslateEventConfig.flatMap((config) => config.title.map(title => [title, config])));
+const TranslateEvent = () => {
+    document.querySelectorAll("div.border-primary div.grid-cols-4 div.col-span-4 div.p-2.w-full:not([watching])").forEach(div => {
+        const config = MappedTranlsateEventConfig.get(div.children[0]?.textContent);
+        if(!config || div.children.length !== config.childrenLength) return;
+        const title = div.children[0];
+        const titleClone = title.cloneNode(true);
+        title.setAttribute("hidden", "");
+        title.insertAdjacentElement("afterend", titleClone);
+        const OnQuestProgress = (mutlist, observer) => {
+            observer.disconnect();
+            div.children[1].replaceWith(div.children[0].cloneNode(true));
+            div.children[1].removeAttribute("hidden");
+            _Translate(div.children[1]);
+            config.OnProgress(div);
+            observer.observe(div, {childList: true, subtree: true, characterData: true});
+        };
+        const observer = new MutationObserver(OnQuestProgress)
+        OnQuestProgress(undefined, observer);
+    })
+};
+// #region FAQ
+const FAQClick = (ev) => {
+    ev.preventDefault();
+    const main = document.querySelector("main");
+    history.pushState("hello", "", "/faq")
+}
+const AddFAQ = () => {
+    if(document.getElementById("manarion-ch-trans-faq")) return;
+    const nav = document.querySelector("html.dark.notranslate body div#root div.flex.max-h-screen.min-h-screen.flex-col.overflow-x-hidden nav.bg-card.small-caps.border-primary.z-1.w-full.max-w-screen.border-b.shadow-md div.flex.items-center.px-4.py-2 div.ml-auto.flex.w-full.max-w-full.items-center.gap-2 div.flex.w-0.flex-shrink.flex-grow.justify-end.gap-1.overflow-x-hidden");
+    if(!nav) return;
+    nav.insertAdjacentElement("beforeend",
+        HTML("a", {
+            id: "manarion-ch-trans-faq",
+            class: "text-muted-foreground hover:bg-primary/50 ring-primary mx-1 my-1 flex flex-shrink-0 items-center gap-2 rounded-lg px-1 py-1 transition hover:ring",
+            href: "/faq",
+            translated: "",
+            _click: FAQClick
+        }, 
+            HTML("span", {class: "hidden lg:inline"}, "常见问题")
+        )
+    )
+}
+// #region OnMutate
 const OnMutate = (mutlist, observer) => {
     observer.disconnect();
     if(DoTranslate){
         FindAndReplaceText();
         TranslateEvent();
     }
+    if(ADD_FAQ) AddFAQ();
     observer.observe(document, {subtree: true, childList: true});
 };
 observer = new MutationObserver(OnMutate).observe(document, {subtree: true, childList: true});
