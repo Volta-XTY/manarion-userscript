@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.13.1
+// @version      0.13.2
 // @description  Manarion Chinese Translation and Quest notification, on any issue occurred, please /whisper VoltaX in game
 // @description:zh  Manarion 文本汉化，以及任务通知（非自动点击），如果汉化出现任何问题，可以游戏私信VoltaX，在greasyfork页面留下评论，或者通过其他方式联系我
 // @author       VoltaX
@@ -578,7 +578,22 @@ const Translation = new Map([
     ["Logout", "登出"],
     ["Infuse", "注能等级"],
     ["Use", "使用"],
-    // #endregion
+    // #region Elnaeth
+    ["Show stats tracker (lower left)", "显示属性追踪器（左下角）"], // default
+    ["Show individual stat gains log (upper right)", "显示属性掉落日志（右上角）"], // default
+    ["Show enhanced loot tracker (upper right)", "显示增强型掉落追踪器（右上角）"], // default
+    ["Enable item QoL as a whole", ""], // default
+    ["Enable item QoL on profile pages", ""], // default
+    ["Parse rare items", "显示稀有装备信息"], // default
+    ["Parse epic items", "显示史诗装备信息"], // default
+    ["Parse legendary items", "显示传说装备信息"], // default
+    ["Show codex boosts (such as exp, stat, mana dust, etc)", "显示法典加成（基础经验值，基础魔法尘等法典研究升级）"], // default
+    ["Show shard boosts (such as crit chance, crit damage, etc)", "显示碎片加成（暴击率，暴击伤害等元素碎片研究升级）"], // default
+    ["Show (missing) enchants", "显示（缺少的）附魔"], // default
+    ["Show which sets items belong to", "显示装备所属配装"], // default
+    ["Show item quality", "显示装备品质"], // default
+    ["Enable extensive debug output (developer mode)", "开启详细 debug 输出（开发者模式）"], // default
+    ["Shards range:", "碎片掉落范围："], // default
     // #region battle text
     ["Your guild received:", "你的公会获得了："],
     ["Battle XP", "战斗经验"],
@@ -716,7 +731,6 @@ const Translation = new Map([
     ["Connection lost", "连接中断"],
     ["Trying to reconnect...", "正在重连..."],
     ["Your account has been disabled.", "你的账号已被封禁"],
-    ["Loot Tracker", "掉落物日志"],
     ["Farm Herbs/Hr", "农场每小时收获"],
     ["No results", "无结果"],
     // #endregion
@@ -1959,6 +1973,7 @@ const FindAndReplaceText = () => {try {
     })
     CheckTranslation(document, "#reset-stat-tracker", button => button.textContent = "重置");
     CheckTranslation(document, 'div[title="Kindly provided by Elnaeth. Tips appreciated!"]>button.m-0.p-1.bg-red-500.text-sm.text-white.rounded.cursor-pointer', button => button.textContent = "重置");
+    CheckTranslation(document, "#elnaeth-settings-button", _Translate);
 } catch(e) {console.error(e);}};
 // #region eventTrans
 const TranslateEventConfig = [
@@ -1979,6 +1994,9 @@ const TranslateEventConfig = [
         id: "rift of power",
         title: ["Siphon Rift of Power", "Siphoning Rift of Power"],
         childrenLength: 2,
+        OnStart: () => {
+            new Notification("Rift of power is to begin!", {requireInteraction: true});
+        },
         OnProgress: (div) => {
             _Translate(div.children[2].childNodes[1], "default", true);
         },
@@ -1987,6 +2005,9 @@ const TranslateEventConfig = [
         id: "elemental rift",
         title: ["Queue for Elemental Rift", " Elemental Rift"],
         childrenLength: 2,
+        OnStart: () => {
+            new Notification("Elemental Rift is to begin!", {requireInteraction: true});
+        },
         OnProgress: (div) => {
             [
                 div.children[2].childNodes[2],
@@ -2001,6 +2022,7 @@ const TranslateEvent = () => {
     document.querySelectorAll("div.border-primary div.grid-cols-4 div.col-span-4 div.p-2.w-full:not([watching])").forEach(div => {
         const config = MappedTranlsateEventConfig.get(div.children[0]?.textContent);
         if(!config || div.children.length !== config.childrenLength) return;
+        if(config.OnStart) config.OnStart();
         const title = div.children[0];
         const titleClone = title.cloneNode(true);
         title.setAttribute("hidden", "");
@@ -2050,3 +2072,7 @@ const OnMutate = (mutlist, observer) => {
     observer.observe(document, {subtree: true, childList: true});
 };
 observer = new MutationObserver(OnMutate).observe(document, {subtree: true, childList: true});
+window.addEventListener("load", (ev) => {
+    console.log('chinese translation loaded');
+    if(ev.isTrusted) setTimeout(() => window.dispatchEvent(new Event("load")), 1000);
+});
