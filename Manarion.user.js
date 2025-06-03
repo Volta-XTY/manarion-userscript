@@ -7,6 +7,7 @@
 // @author       VoltaX
 // @match        https://manarion.com/*
 // @icon         https://s2.loli.net/2025/05/28/YmWGhwXJVHonOsI.png
+// @grant        unsafeWindow
 // @run-at       document-start
 // @downloadURL https://update.greasyfork.org/scripts/537308/Manarion%20Chinese%20Translation.user.js
 // @updateURL https://update.greasyfork.org/scripts/537308/Manarion%20Chinese%20Translation.meta.js
