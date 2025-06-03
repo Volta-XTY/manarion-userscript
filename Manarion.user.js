@@ -1,17 +1,17 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.13.2
+// @version      0.14.0_test0
 // @description  Manarion Chinese Translation and Quest notification, on any issue occurred, please /whisper VoltaX in game
 // @description:zh  Manarion 文本汉化，以及任务通知（非自动点击），如果汉化出现任何问题，可以游戏私信VoltaX，在greasyfork页面留下评论，或者通过其他方式联系我
 // @author       VoltaX
 // @match        https://manarion.com/*
 // @icon         https://s2.loli.net/2025/05/28/YmWGhwXJVHonOsI.png
-// @grant        unsafeWindow
 // @run-at       document-start
 // @downloadURL https://update.greasyfork.org/scripts/537308/Manarion%20Chinese%20Translation.user.js
 // @updateURL https://update.greasyfork.org/scripts/537308/Manarion%20Chinese%20Translation.meta.js
 // ==/UserScript==
+let elanethWaken = false;
 const DoTranslate = true; // 把这里的true改成false就可以关闭翻译，反之亦然。
 const DEBUG = false;
 const ADD_FAQ = false;
@@ -25,6 +25,37 @@ const css =
     font-variant: none;
     font-family: Times New Roman;
     font-weight: 500;
+}
+main div.space-y-4:nth-child(1) div[data-slot="card"]:nth-child(2) div.space-y-1 div.min-h-8{
+    display: grid;
+    grid-template-columns: max-content 1fr max-content;
+    &>.item-qol-container {
+        grid-column: 2 / 3;
+        grid-row: 2 / 3;
+    }
+    &>span[data-slot="popover-trigger"] {
+        width: max-content;
+        grid-row: 1 / 2;
+        grid-column: 2 / 3;
+    }
+}
+main div.hover\\:bg-primary\\/20.text-md.flex.min-h-8.gap-2>div:not(.w-15):not(.shrink-0):not(.item-qol-container):not([data-slot]){
+    display: grid;
+    grid-template-columns: 1fr;
+    &>span[data-slot="popover-trigger"] {
+        width: max-content;
+        grid-row: 1 / 2;
+        grid-column: 1 / 2;
+    }
+}
+main>div:nth-child(1)>div.space-y-4>div.text-sm>div.hover\\:bg-primary\\/20.mb-0\\.5.flex.items-center>div:nth-child(1){
+    display: grid;
+    grid-template-columns: 1fr;
+    &>span[data-slot="popover-trigger"] {
+        width: max-content;
+        grid-row: 1 / 2;
+        grid-column: 1 / 2;
+    }
 }
 `;
 const InsertStyleSheet = (style) => {
@@ -135,6 +166,7 @@ const Translation = new Map([
         ["Vitality", "活力"],
     ].flatMap(([key, value]) => [
         [key, value],
+        [key.toLowerCase(), value],
         [`${key} `, `${value} `],
         [`Formula: ${key}`, `术式：${value}`],
         [`Formula: ${key}:`, `术式：${value}:`],
@@ -246,27 +278,35 @@ const Translation = new Map([
     ["Water Spell Rank", "水魔法等级"],
     ["Nature Spell Rank", "自然魔法等级"],
     ["Mana Shield Rank", "魔法盾等级"],
-    ["Damage", "伤害"],
-    ["Multicast", "多重施法"],
-    ["Crit Chance", "暴击几率"],
-    ["Crit Damage", "暴击伤害"],
-    ["Haste", "技能急速"],
-    ["Health", "生命值"],
-    ["Focus", "集中"],
-    ["Mana", "魔力"],
-    ["Overload", "过载"],
-    ["Time Dilation", "时间膨胀"],
-    ["Mining", "采矿"],
-    ["Fishing", "捕鱼"],
-    ["Woodcutting", "伐木"],
-    ["Base Experience", "基础经验值"],
-    ["Base Resource", "基础资源量"],
-    ["Base Mana Dust", `基础${MANA_DUST_NAME}`],
-    ["Drop Boost", "掉落加成"],
-    ["Multistat", "多重属性掉落"],
-    ["Actions", "行动次数"],
-    ["Quest Boost", "任务速度"],
-    ["Potion Boost", "药水效果"],
+    ...[
+        ["Damage", "伤害"],
+        ["Multicast", "多重施法"],
+        ["Crit Chance", "暴击几率"],
+        ["Critical hit chance", "暴击几率"],
+        ["Crit Damage", "暴击伤害"],
+        ["Critical hit damage", "暴击伤害"],
+        ["Haste", "技能急速"],
+        ["Health", "生命值"],
+        ["Focus", "集中"],
+        ["Mana", "魔力"],
+        ["Overload", "过载"],
+        ["Time Dilation", "时间膨胀"],
+        ["Time dilation", "时间膨胀"],
+        ["Mining", "采矿"],
+        ["Fishing", "捕鱼"],
+        ["Woodcutting", "伐木"],
+        ["Base Experience", "基础经验值"],
+        ["Base Resource", "基础资源量"],
+        ["Base Mana Dust", `基础${MANA_DUST_NAME}`],
+        ["Drop Boost", "掉落加成"],
+        ["Multistat", "多重属性掉落"],
+        ["Actions", "行动次数"],
+        ["Quest Boost", "任务速度"],
+        ["Potion Boost", "药水效果"],
+    ].flatMap(([key, value]) => [
+        [key, value],
+        [key.toLowerCase(), value],
+    ]),
     // #endregion
     // #region equip detail
     ["Link", "链接至聊天"],
@@ -290,7 +330,7 @@ const Translation = new Map([
     ["Feet", "脚部"],
     ["Ring", "戒指"],
     ["Sigil", "魔符"],
-    ["Stat Drop", "属性值掉落率"],
+    ["Stat Drop", "属性点掉落率"],
     ["Base Resource Amount", "基础资源量"],
     ["Focus Boost", "集中增幅"],
     ["Mana Boost", "魔力增幅"],
@@ -579,21 +619,23 @@ const Translation = new Map([
     ["Infuse", "注能等级"],
     ["Use", "使用"],
     // #region Elnaeth
-    ["Show stats tracker (lower left)", "显示属性追踪器（左下角）"], // default
-    ["Show individual stat gains log (upper right)", "显示属性掉落日志（右上角）"], // default
-    ["Show enhanced loot tracker (upper right)", "显示增强型掉落追踪器（右上角）"], // default
-    ["Enable item QoL as a whole", ""], // default
-    ["Enable item QoL on profile pages", ""], // default
-    ["Parse rare items", "显示稀有装备信息"], // default
-    ["Parse epic items", "显示史诗装备信息"], // default
-    ["Parse legendary items", "显示传说装备信息"], // default
-    ["Show codex boosts (such as exp, stat, mana dust, etc)", "显示法典加成（基础经验值，基础魔法尘等法典研究升级）"], // default
-    ["Show shard boosts (such as crit chance, crit damage, etc)", "显示碎片加成（暴击率，暴击伤害等元素碎片研究升级）"], // default
-    ["Show (missing) enchants", "显示（缺少的）附魔"], // default
-    ["Show which sets items belong to", "显示装备所属配装"], // default
-    ["Show item quality", "显示装备品质"], // default
-    ["Enable extensive debug output (developer mode)", "开启详细 debug 输出（开发者模式）"], // default
-    ["Shards range:", "碎片掉落范围："], // default
+    ["Show stats tracker (lower left)", "显示属性追踪器（左下角）"],
+    ["Show individual stat gains log (upper right)", "显示属性掉落日志（右上角）"],
+    ["Show enhanced loot tracker (upper right)", "显示增强型掉落追踪器（右上角）"],
+    ["Enable item QoL as a whole", "显示装备便利信息"],
+    ["Enable item QoL on profile pages", "在资料页显示装备便利信息"],
+    ["General settings", "通用设置"],
+    ["Item QoL settings", "装备便利信息设置"],
+    ["Parse rare items", "显示稀有装备信息"],
+    ["Parse epic items", "显示史诗装备信息"],
+    ["Parse legendary items", "显示传说装备信息"],
+    ["Show codex boosts (such as exp, stat, mana dust, etc)", "显示法典加成（基础经验值，基础魔法尘等法典研究升级）"],
+    ["Show shard boosts (such as crit chance, crit damage, etc)", "显示碎片加成（暴击率，暴击伤害等元素碎片研究升级）"],
+    ["Show (missing) enchants", "显示（缺少的）附魔"],
+    ["Show which sets items belong to", "显示装备所属配装"],
+    ["Show item quality", "显示装备品质"],
+    ["Enable extensive debug output (developer mode)", "开启详细 debug 输出（开发者模式）"],
+    ["Shards range:", "碎片掉落范围："],
     // #region battle text
     ["Your guild received:", "你的公会获得了："],
     ["Battle XP", "战斗经验"],
@@ -770,6 +812,10 @@ const Translation = new Map([
     ["Enchanting", "附魔"],
     ["Send", "发送"],
     ["Account", "账号"],
+    // #region elaneth
+    ["Loot Tracker", "掉落追踪器"],
+    ["\n        Tracker settings\n      ", "掉落追踪脚本设置"],
+    ["\n              Save settings\n            ", "保存设置"],
 ]);
 // #region SettingTrans
 const SettingsTranslation = new Map([
@@ -1034,6 +1080,13 @@ const ElementalRiftTranslation = new Map([
     ["Damage", "造成伤害"],
     ["Resources", "采集资源"],
 ]);
+const ElanethTranslation = new Map([
+    ["Battle Experience Boost", "经验"],
+    ["Mana Dust Boost", MANA_DUST_NAME],
+    ["Elemental Shard Boost", "元素碎片"],
+    ["Stat drop", "属性点掉率"],
+    ["Base Resource Amount", "资源"],
+])
 const equipRegex = /(?<lbracket>\[?)(?:Sigil of (?<sigilType>[A-Za-z]+))|(?:(?<quality>Worn|Refined|Runed|Ascended|Eternal) (?<type>[A-Za-z']+) (?<part>[A-Za-z]+)(?<elementType> of Water| of Fire| of Nature)?(?<upgradeLevel> \+[0-9]+)? \((?<level>[0-9]+)\)(?<rbracket>\]?))/;
 const EquipTranslate = (ele) => {
     const equip = equipRegex.exec(ele.textContent);
@@ -1083,7 +1136,7 @@ const _Translate = (ele, type = "default", keepOriginalText = false) => {
 const _TypedTranslate = (type) => {
     return (ele) => _Translate(ele, type);
 };
-unsafeWindow.ExportFailedTranslate = (comment = true) => {
+window.ExportFailedTranslate = (comment = true) => {
     console.log([..._FailedTranslate.keys()].map(json => {
         const data = JSON.parse(json);
         return `    ["${data.text}", ""],${comment ? ` // ${data.type}` : ""}`;
@@ -1741,11 +1794,6 @@ const FindAndReplaceText = () => {try {
         _Translate(a.parentElement.children[0]);
         _Translate(a.parentElement.children[1]);
     });
-    // #region elaneth属性掉落记录
-    CheckTranslation(document.getElementById("elnaeth-stats-log"), "span.rarity-uncommon", (span) => {
-        const result = /^ \+([0-9]+) ([A-Za-z ]+) $/.exec(span.textContent);
-        if(result) span.textContent = ` +${result[1]} ${Translation.get(result[2]) ?? result[2]}`;
-    });
     // #endregion
     // #region menuitem
     CheckTranslation(document, 'div[data-slot="dropdown-menu-item"]', _TypedTranslate(window.location.pathname.startsWith("/market")? "default" : "menuitem"));
@@ -1803,12 +1851,34 @@ const FindAndReplaceText = () => {try {
             return;
         }
         else if(span.dataset.slot === "tooltip-trigger" || span.dataset.slot === "popover-trigger"){
-            EquipTranslate(span.childNodes[1]);
-            new MutationObserver((_, observer) => {
-                observer.disconnect();
+            if(
+                window.location.pathname.startsWith("/profile") && document.querySelector("main")?.contains(span) ||
+                window.location.pathname === "/inventory" && document.querySelector("main>div:nth-child(1)>div.space-y-1")?.contains(span) ||
+                window.location.pathname === "/inventory" && document.querySelector("main>div:nth-child(1)>div.space-y-4>div.text-sm")?.contains(span)
+            ){
+                const spanClone = span.cloneNode(true);
+                span.style.opacity = "0";
+                spanClone.setAttribute("clone", "");
+                span.insertAdjacentElement("afterend", spanClone);
+                EquipTranslate(spanClone.childNodes[1]);
+                new MutationObserver((_, observer) => {
+                    observer.disconnect();
+                    const spanClone = span.parentElement.querySelector(":scope span[clone]");
+                    const newClone = span.cloneNode(true);
+                    newClone.style.opacity = "1";
+                    spanClone.replaceWith(newClone);
+                    EquipTranslate(newClone.childNodes[1]);
+                    observer.observe(span, {childList: true, subtree: true, characterData: true});
+                }).observe(span, {childList: true, subtree: true, characterData: true});
+            }
+            else{
                 EquipTranslate(span.childNodes[1]);
-                observer.observe(span, {childList: true, subtree: true, characterData: true});
-            }).observe(span, {childList: true, subtree: true, characterData: true});
+                new MutationObserver((_, observer) => {
+                    observer.disconnect();
+                    EquipTranslate(span.childNodes[1]);
+                    observer.observe(span, {childList: true, subtree: true, characterData: true});
+                }).observe(span, {childList: true, subtree: true, characterData: true});
+            }
         }
         else console.log("cannot translate|"+itemName+"|");
     });
@@ -1839,8 +1909,7 @@ const FindAndReplaceText = () => {try {
     // #endregion
     // #region research
     document.querySelectorAll(researchSelector).forEach(div => {
-        div.dataset.state = "translated";
-        div.querySelectorAll(":scope h2.my-4.text-2xl").forEach(h2 => _Translate(h2.childNodes[0]));
+        div.dataset.state = "translated"; div.querySelectorAll(":scope h2.my-4.text-2xl").forEach(h2 => _Translate(h2.childNodes[0]));
         div.querySelectorAll(":scope div.small-caps.text-xl:nth-child(1)").forEach(div => {
             _Translate(div.children[0]);
         });
@@ -1971,9 +2040,52 @@ const FindAndReplaceText = () => {try {
         }
         _Translate(titleEle, "dialog");
     })
+    // #region elaneth
+    // 属性掉落记录
+    CheckTranslation(document.getElementById("elnaeth-stats-log"), "span.rarity-uncommon", (span) => {
+        const result = /^ \+([0-9]+) ([A-Za-z ]+) $/.exec(span.textContent);
+        if(result) span.textContent = ` +${result[1]} ${Translation.get(result[2].trim()) ?? result[2]} `;
+        else console.log(`could not translate|${span.textContent}|`);
+    });
+    CheckTranslation(document, "div.elnaeth-stats-log.text-center.text-lg", div => {
+        div.textContent = div.textContent.trim();
+        _Translate(div);
+    });
+    CheckTranslation(document, "div.elnaeth-items-log.text-center.text-lg", div => {
+        const node = div.childNodes[0];
+        node.textContent = node.textContent.trim();
+        _Translate(node);
+    });
     CheckTranslation(document, "#reset-stat-tracker", button => button.textContent = "重置");
     CheckTranslation(document, 'div[title="Kindly provided by Elnaeth. Tips appreciated!"]>button.m-0.p-1.bg-red-500.text-sm.text-white.rounded.cursor-pointer', button => button.textContent = "重置");
     CheckTranslation(document, "#elnaeth-settings-button", _Translate);
+    CheckTranslation(document, "#tracker-modal h1.text-left.float-left", _Translate);
+    CheckTranslation(document, "#tracker-modal h2:not([class])", _Translate);
+    CheckTranslation(document, "#save-tracker-settings", _Translate);
+    CheckTranslation(document, ".item-qol-container.text-sm>span", span => {
+        let result;
+        if(result = ElanethTranslation.get(span.title)){
+            const kv = span.textContent.split(": ");
+            if(kv[1]) span.textContent = `${result}：${kv[1]}`;
+        }
+        if(result = Translation.get(span.title)){
+            const kv = span.textContent.split(": ");
+            if(kv[1]) span.textContent = `${result}：${kv[1]}`;
+        }
+        else if(span.textContent === "Missing enchant"){
+            span.textContent = "未附魔";
+        }
+        else if(span.title === "Item Quality"){
+            const kv = span.textContent.split(": ");
+            span.textContent = `品质：${kv[1]}`;
+        }
+        else if(result = /([^ ]+) \/ ([^ ]+) \(([^\)]+)\) (.*)/.exec(span.textContent)){
+            span.textContent = `${result[1]} / ${result[2]} (${result[3]}) ${Translation.get(result[4].trim()) ??  result[4]}`;
+        }
+        else if(result = /<([^ ]+) set>/.exec(span.textContent)){
+            span.textContent = `<${result[1]}>`;
+        }
+    })
 } catch(e) {console.error(e);}};
 // #region eventTrans
 const TranslateEventConfig = [
@@ -2073,6 +2185,15 @@ const OnMutate = (mutlist, observer) => {
 };
 observer = new MutationObserver(OnMutate).observe(document, {subtree: true, childList: true});
 window.addEventListener("load", (ev) => {
-    console.log('chinese translation loaded');
-    if(ev.isTrusted) setTimeout(() => window.dispatchEvent(new Event("load")), 1000);
+    const wakeElaneth = () => {
+        console.log("wakeElaneth");
+        if(!elanethWaken && !document.getElementById("elnaeth-settings-button")){
+            window.dispatchEvent(new Event("load"));
+            setTimeout(wakeElaneth, 500);
+        }
+    };
+    if(ev.isTrusted){
+        console.log('chinese translation loaded');
+        wakeElaneth();
+    }
 });
