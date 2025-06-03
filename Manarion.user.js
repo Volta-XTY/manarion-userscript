@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.14.0_test5
+// @version      0.14.0_test6
 // @description  Manarion Chinese Translation and Quest notification, on any issue occurred, please /whisper VoltaX in game
 // @description:zh  Manarion 文本汉化，以及任务通知（非自动点击），如果汉化出现任何问题，可以游戏私信VoltaX，在greasyfork页面留下评论，或者通过其他方式联系我
 // @author       VoltaX
@@ -59,11 +59,17 @@ main>div:nth-child(1)>div.space-y-4>div.text-sm>div.hover\\:bg-primary\\/20.mb-0
     grid-row: 1 / 2;
     grid-column: 1 / 2;
 }
+main>div:nth-child(1)>div.space-y-4>div.text-sm>div.hover\\:bg-primary\\/20.mb-0\\.5.flex.items-center>div:nth-child(1)>span[data-slot="tooltip-trigger"] {
+    width: max-content;
+    grid-row: 1 / 2;
+    grid-column: 1 / 2;
+}
 `;
 const InsertStyleSheet = (style) => {
     console.log("InsertStyleSheet");
     GM_addStyle(style);
 };
+InsertStyleSheet(css);
 const HTML = (tagname, attrs, ...children) => {
     if(attrs === undefined) return document.createTextNode(tagname);
     const ele = document.createElement(tagname);
@@ -1859,6 +1865,7 @@ const FindAndReplaceText = () => {try {
                 const spanClone = span.cloneNode(true);
                 span.style.opacity = "0";
                 spanClone.setAttribute("clone", "");
+                spanClone.style.pointerEvents = "none";
                 span.insertAdjacentElement("afterend", spanClone);
                 EquipTranslate(spanClone.childNodes[1]);
                 new MutationObserver((_, observer) => {
@@ -1866,6 +1873,7 @@ const FindAndReplaceText = () => {try {
                     const spanClone = span.parentElement.querySelector(":scope span[clone]");
                     const newClone = span.cloneNode(true);
                     newClone.style.opacity = "1";
+                    newClone.style.pointerEvents = "none";
                     spanClone.replaceWith(newClone);
                     EquipTranslate(newClone.childNodes[1]);
                     observer.observe(span, {childList: true, subtree: true, characterData: true});
@@ -2187,7 +2195,6 @@ const OnMutate = (mutlist, observer) => {
 };
 observer = new MutationObserver(OnMutate).observe(document, {subtree: true, childList: true});
 const wakeElaneth = () => {
-    InsertStyleSheet(css);
     console.log("wakeElaneth");
     let next = 500;
     if(!elanethWaken && !document.getElementById("elnaeth-settings-button")){
