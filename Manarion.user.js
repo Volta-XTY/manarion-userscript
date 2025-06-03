@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.14.0_test8
+// @version      0.14.0
 // @description  Manarion Chinese Translation and Quest notification, on any issue occurred, please /whisper VoltaX in game
 // @description:zh  Manarion 文本汉化，以及任务通知（非自动点击），如果汉化出现任何问题，可以游戏私信VoltaX，在greasyfork页面留下评论，或者通过其他方式联系我
 // @author       VoltaX
@@ -1257,7 +1257,7 @@ const LogTranslator = (channelType, nodes) => {
             else if(result = /([^ ]+) has invited ([^ ]+) to join the guild\./.exec(text)){
                 nodes[0].textContent = `${result[1]} 邀请了 ${result[2]} 加入公会。`;
             }
-            else if(result = /([^ ]+) has marked the ([^  ]+) as the next upgrade\./.exec(text)){
+            else if(result = /([^ ]+) has marked the (.+) as the next upgrade\./.exec(text)){
                 nodes[0].textContent = `${result[1]} 将「${Translation.get(result[2])}」标记为下一个公会升级。`;
             }
             else if(result = /The guild has advanced to level ([0-9]+) with the help of ([^\.]+). ([0-9]+) \[[^\]]+\] have been added to the guild funds./.exec(text)){
@@ -2076,6 +2076,7 @@ const FindAndReplaceText = () => {try {
             span.textContent = "未附魔";
         }
         else if(span.title === "Item Quality"){
+            span.title = "品质";
             const kv = span.textContent.split(": ");
             span.textContent = `品质：${kv[1]}`;
         }
@@ -2173,8 +2174,34 @@ const AddFAQ = () => {
         )
     )
 }
+class _FreqLock{
+    max = 3;
+    current = 3;
+    queue = [];
+    release(){
+        if(this.queue.length > 0){
+            this.queue.shift()();
+        }
+        else if(this.current < this.max) this.current += 1;
+    };
+    acquire(){
+        if(this.current > 0){
+            this.current -= 1;
+            return;
+        }
+        else{
+            const {promise, resolve} = Promise.withResolvers();
+            this.queue.push(resolve);
+            return promise;
+        }
+    };
+    init(){
+        setInterval(this.release.bind(this), 100);
+    }
+}
+const FreqLock = new _FreqLock();
 // #region OnMutate
-const OnMutate = (mutlist, observer) => {
+const OnMutate = async (mutlist, observer) => {
     observer.disconnect();
     if(DoTranslate){
         FindAndReplaceText();
@@ -2186,7 +2213,7 @@ const OnMutate = (mutlist, observer) => {
 observer = new MutationObserver(OnMutate).observe(document, {subtree: true, childList: true});
 const wakeElaneth = () => {
     console.log("wakeElaneth");
-    let next = 500;
+    let next = 3000;
     if(!elanethWaken && !document.getElementById("elnaeth-settings-button")){
         window.dispatchEvent(new Event("load"));
         setTimeout(wakeElaneth, next *= 2);
