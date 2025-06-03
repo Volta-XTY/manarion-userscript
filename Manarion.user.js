@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.14.0_test0
+// @version      0.14.0_test2
 // @description  Manarion Chinese Translation and Quest notification, on any issue occurred, please /whisper VoltaX in game
 // @description:zh  Manarion 文本汉化，以及任务通知（非自动点击），如果汉化出现任何问题，可以游戏私信VoltaX，在greasyfork页面留下评论，或者通过其他方式联系我
 // @author       VoltaX
@@ -2065,10 +2065,12 @@ const FindAndReplaceText = () => {try {
     CheckTranslation(document, ".item-qol-container.text-sm>span", span => {
         let result;
         if(result = ElanethTranslation.get(span.title)){
+            span.title = result;
             const kv = span.textContent.split(": ");
             if(kv[1]) span.textContent = `${result}：${kv[1]}`;
         }
         if(result = Translation.get(span.title)){
+            span.title = result;
             const kv = span.textContent.split(": ");
             if(kv[1]) span.textContent = `${result}：${kv[1]}`;
         }
@@ -2184,16 +2186,13 @@ const OnMutate = (mutlist, observer) => {
     observer.observe(document, {subtree: true, childList: true});
 };
 observer = new MutationObserver(OnMutate).observe(document, {subtree: true, childList: true});
-window.addEventListener("load", (ev) => {
-    const wakeElaneth = () => {
-        console.log("wakeElaneth");
-        if(!elanethWaken && !document.getElementById("elnaeth-settings-button")){
-            window.dispatchEvent(new Event("load"));
-            setTimeout(wakeElaneth, 500);
-        }
-    };
-    if(ev.isTrusted){
-        console.log('chinese translation loaded');
-        wakeElaneth();
+const wakeElaneth = () => {
+    console.log("wakeElaneth");
+    let next = 500;
+    if(!elanethWaken && !document.getElementById("elnaeth-settings-button")){
+        window.dispatchEvent(new Event("load"));
+        setTimeout(wakeElaneth, next *= 2);
     }
-});
+};
+console.log('chinese translation loaded');
+wakeElaneth();
