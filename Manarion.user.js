@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.14.0_test4
+// @version      0.14.0_test5
 // @description  Manarion Chinese Translation and Quest notification, on any issue occurred, please /whisper VoltaX in game
 // @description:zh  Manarion 文本汉化，以及任务通知（非自动点击），如果汉化出现任何问题，可以游戏私信VoltaX，在greasyfork页面留下评论，或者通过其他方式联系我
 // @author       VoltaX
@@ -31,33 +31,33 @@ const css =
 main div.space-y-4:nth-child(1) div[data-slot="card"]:nth-child(2) div.space-y-1 div.min-h-8{
     display: grid;
     grid-template-columns: max-content 1fr max-content;
-    &>.item-qol-container {
-        grid-column: 2 / 3;
-        grid-row: 2 / 3;
-    }
-    &>span[data-slot="popover-trigger"] {
-        width: max-content;
-        grid-row: 1 / 2;
-        grid-column: 2 / 3;
-    }
+}
+main div.space-y-4:nth-child(1) div[data-slot="card"]:nth-child(2) div.space-y-1 div.min-h-8>.item-qol-container {
+    grid-column: 2 / 3;
+    grid-row: 2 / 3;
+}
+main div.space-y-4:nth-child(1) div[data-slot="card"]:nth-child(2) div.space-y-1 div.min-h-8>span[data-slot="popover-trigger"] {
+    width: max-content;
+    grid-row: 1 / 2;
+    grid-column: 2 / 3;
 }
 main div.hover\\:bg-primary\\/20.text-md.flex.min-h-8.gap-2>div:not(.w-15):not(.shrink-0):not(.item-qol-container):not([data-slot]){
     display: grid;
     grid-template-columns: 1fr;
-    &>span[data-slot="popover-trigger"] {
-        width: max-content;
-        grid-row: 1 / 2;
-        grid-column: 1 / 2;
-    }
+}
+main div.hover\\:bg-primary\\/20.text-md.flex.min-h-8.gap-2>div:not(.w-15):not(.shrink-0):not(.item-qol-container):not([data-slot])>span[data-slot="popover-trigger"] {
+    width: max-content;
+    grid-row: 1 / 2;
+    grid-column: 1 / 2;
 }
 main>div:nth-child(1)>div.space-y-4>div.text-sm>div.hover\\:bg-primary\\/20.mb-0\\.5.flex.items-center>div:nth-child(1){
     display: grid;
     grid-template-columns: 1fr;
-    &>span[data-slot="popover-trigger"] {
-        width: max-content;
-        grid-row: 1 / 2;
-        grid-column: 1 / 2;
-    }
+}
+main>div:nth-child(1)>div.space-y-4>div.text-sm>div.hover\\:bg-primary\\/20.mb-0\\.5.flex.items-center>div:nth-child(1)>span[data-slot="popover-trigger"] {
+    width: max-content;
+    grid-row: 1 / 2;
+    grid-column: 1 / 2;
 }
 `;
 const InsertStyleSheet = (style) => {
