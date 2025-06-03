@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.14.0_test7
+// @version      0.14.0_test8
 // @description  Manarion Chinese Translation and Quest notification, on any issue occurred, please /whisper VoltaX in game
 // @description:zh  Manarion 文本汉化，以及任务通知（非自动点击），如果汉化出现任何问题，可以游戏私信VoltaX，在greasyfork页面留下评论，或者通过其他方式联系我
 // @author       VoltaX
@@ -144,7 +144,7 @@ const Translation = new Map([
         ["Four-leaf Clover", "四叶草"],
         ["Enchanted Droplet", "神秘结露"],
         ["Infernal Heart", "熔岩之心"],
-        ["Event Points", "事件点数 "],
+        ["Event Points", "事件点数"],
         ["Event Points ", "事件点数 "],
     ].flatMap(([key, value]) => [
         [key, value],
@@ -1935,28 +1935,25 @@ const FindAndReplaceText = () => {try {
     // #endregion
     // #region chat/log
     CheckTranslation(document, 'div.border-primary.shrink-0.border-t div.scrollbar-thin.scrollbar-track-transparent.flex-1.overflow-y-auto.pl-1.text-sm div.leading-4\\.5>span:nth-child(1):nth-last-child(1)', span => {
-        const spanClone = span.cloneNode(true);
-        span.setAttribute("hidden", "");
-        span.insertAdjacentElement("afterend", spanClone);
-        const timestampEle = spanClone.children[0];
+        const timestampEle = span.children[0];
         let result;
-        if(result = /([A-Za-z]+) borrowed you a /.exec(spanClone.childNodes[2]?.textContent ?? "")){
-            spanClone.childNodes[2].textContent = `${result[1]} 借给了你 `;
+        if(result = /([A-Za-z]+) borrowed you a /.exec(span.childNodes[2]?.textContent ?? "")){
+            span.childNodes[2].textContent = `${result[1]} 借给了你 `;
             return;
         }
-        if(result = /([A-Za-z]+) sent you a /.exec(spanClone.childNodes[2]?.textContent ?? "")){
-            spanClone.childNodes[2].textContent = `${result[1]} 送给了你 `;
+        if(result = /([A-Za-z]+) sent you a /.exec(span.childNodes[2]?.textContent ?? "")){
+            span.childNodes[2].textContent = `${result[1]} 送给了你 `;
             return;
         }
-        const message = spanClone.children[1];
+        const message = span.children[1];
         if(!message) {
-            console.log("no message", spanClone.innerHTML);
+            console.log("no message", span.innerHTML);
             return;
         }
         const channel = message.childNodes[2];
         if(!channel) {
             // should be whisper
-            spanClone.childNodes[2].textContent = {"From ":"来自 ","To ":"发给 "}[spanClone.childNodes[2].textContent] ?? spanClone.childNodes[2].textContent;
+            span.childNodes[2].textContent = {"From ":"来自 ","To ":"发给 "}[span.childNodes[2].textContent] ?? span.childNodes[2].textContent;
             return;
         }
         const channelType = channel.textContent;
