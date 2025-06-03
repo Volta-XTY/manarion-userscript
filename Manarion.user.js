@@ -1,13 +1,14 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.14.0_test2
+// @version      0.14.0_test3
 // @description  Manarion Chinese Translation and Quest notification, on any issue occurred, please /whisper VoltaX in game
 // @description:zh  Manarion 文本汉化，以及任务通知（非自动点击），如果汉化出现任何问题，可以游戏私信VoltaX，在greasyfork页面留下评论，或者通过其他方式联系我
 // @author       VoltaX
 // @match        https://manarion.com/*
 // @icon         https://s2.loli.net/2025/05/28/YmWGhwXJVHonOsI.png
 // @grant        unsafeWindow
+// @grant        GM_addStyle
 // @run-at       document-start
 // @downloadURL https://update.greasyfork.org/scripts/537308/Manarion%20Chinese%20Translation.user.js
 // @updateURL https://update.greasyfork.org/scripts/537308/Manarion%20Chinese%20Translation.meta.js
@@ -60,9 +61,7 @@ main>div:nth-child(1)>div.space-y-4>div.text-sm>div.hover\\:bg-primary\\/20.mb-0
 }
 `;
 const InsertStyleSheet = (style) => {
-    const s = new CSSStyleSheet();
-    s.replaceSync(style);
-    document.adoptedStyleSheets = [...document.adoptedStyleSheets, s];
+    GM_addStyle(style);
 };
 InsertStyleSheet(css);
 const HTML = (tagname, attrs, ...children) => {
