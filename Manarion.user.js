@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.15.3
+// @version      0.15.4
 // @description  Manarion Chinese Translation and Quest notification, on any issue occurred, please /whisper VoltaX in game
 // @description:zh  Manarion 文本汉化，以及任务通知（非自动点击），如果汉化出现任何问题，可以游戏私信VoltaX，在greasyfork页面留下评论，或者通过其他方式联系我
 // @author       VoltaX
@@ -40,6 +40,7 @@ const _Settings = {
     notifyQuestComplete: true,
     notifyElementalRiftBegin: true,
     notifyPowerRiftBegin: true,
+    //notifyWithInterval: -1,
     ...GetItem(localStorageKey),
 };
 const Settings = new Proxy(_Settings, {
@@ -903,7 +904,7 @@ const SettingsTranslation = new Map([
     ["Rift of Power (Event)", "力量裂隙（事件）"],
     ["Added on", "添加于"],
     ["Refer your friends to the game and get an additional 5% of any", "将游戏推荐给朋友，然后额外获得他们掉落的"],
-    [" they find.", " 的5%。"],
+    [" they find.", " 的 5%。"],
     ["You must both verify your account by linking an identity provider to earn rewards.", "双方均需绑定账号以获取奖励。"],
     ["Other devices", "其他设备"],
     ["You have earned a total of", "你总共获得了"],
@@ -913,6 +914,9 @@ const SettingsTranslation = new Map([
     ["药水耗尽", "药水耗尽"],
     ["力量裂隙（事件）", "力量裂隙（事件）"],
     ["Elemental Rift (Event)", "元素裂隙（事件）"],
+    ["Tooltip mode:", "物品悬浮窗触发方式："],
+    ["Hover", "鼠标悬浮"],
+    ["Click", "鼠标点击"],
 ]);
 // #region FarmTrans
 const FarmTranslation = new Map([
@@ -1137,6 +1141,8 @@ const DialogTranslation = new Map([
     ["Create equipment set", "新建配装"],
     ["Confirm upgrade", "确认升级"],
     ["Discard potions", "丢弃药水"],
+    ["Leave Event Queue", "取消准备"],
+    ["Are you sure you want to leave the event queue?", "确定要取消准备吗？"]
 ]);
 // #region ElementalRif
 const ElementalRiftTranslation = new Map([
@@ -1743,6 +1749,8 @@ const FindAndReplaceText = () => {try {
             CheckTranslation(document, "div.space-y-6>div>div.flex.gap-4>span.whitespace-nowrap", span => {
                 _Translate(span.childNodes[0], "settings");
             })
+            CheckTranslation(document, "div.space-y-6>div.flex.gap-4>div.mb-2:nth-child(1)", _TypedTranslate("settings")); // tooltip mode
+            CheckTranslation(document, "main button[data-slot='toggle-group-item']", _TypedTranslate("settings"));
             document.querySelectorAll("main>div:not([translated])").forEach((div) => {
                 div.setAttribute("translated", "");
                 [  
@@ -2156,6 +2164,10 @@ const FindAndReplaceText = () => {try {
                 div.children[0].childNodes[1].textContent = "你确定要丢弃这瓶药水吗？";
                 break;
             }
+            case "Leave Event Queue":{
+                _Translate(div.children[0].childNodes[1], "dialog");
+                break;
+            }
         }
         _Translate(titleEle, "dialog");
     })
@@ -2320,9 +2332,10 @@ const AddSettings = () => {
                     ...[
                         ["doTranslate", "是否汉化", "", "bool"],
                         ["manaDustName", "Mana Dust 译名", "设置完成后需刷新页面", "input"],
-                        ["notifyQuestComplete", "任务完成提醒", "和游戏提醒不同，在未手动点击之前不会消失", "bool"],
-                        ["notifyElementalRiftBegin", "元素裂隙事件准备阶段通知", "和游戏提醒不同，在未手动点击之前不会消失", "bool"],
-                        ["notifyPowerRiftBegin", "力量裂隙事件开始通知", "和游戏提醒不同，在未手动点击之前不会消失", "bool"],
+                        ["notifyQuestComplete", "任务完成提醒", "在未手动点击之前不会消失", "bool"],
+                        ["notifyElementalRiftBegin", "元素裂隙事件准备阶段通知", "在未手动点击之前不会消失", "bool"],
+                        ["notifyPowerRiftBegin", "力量裂隙事件开始通知", "在未手动点击之前不会消失", "bool"],
+                        //["notifyWithInterval", "定时发送通知", "例：用于提醒定期检查市场", "input"],
                         ["debug", "开启测试模式", "会影响正常使用", "bool"],
                     ].map(([settingProp, description, info, type]) => {
                         switch(type){
