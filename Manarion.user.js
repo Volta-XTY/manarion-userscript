@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.15.1
+// @version      0.15.2
 // @description  Manarion Chinese Translation and Quest notification, on any issue occurred, please /whisper VoltaX in game
 // @description:zh  Manarion 文本汉化，以及任务通知（非自动点击），如果汉化出现任何问题，可以游戏私信VoltaX，在greasyfork页面留下评论，或者通过其他方式联系我
 // @author       VoltaX
@@ -21,7 +21,7 @@ const SwitchBallClass = "bg-background dark:data-[state=unchecked]:bg-foreground
 const InputClass = "border-input file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground flex h-9 min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive w-30";
 const UpdateButtonID = "manarion-chinese-translation-update-button";
 const UpdateDotID = "manarion-chinese-translation-update-dot";
-let elanethWaken = false;
+let elnaethWaken = false;
 //const ElementalRiftEpoch = Date.UTC(2025, 5, 3, 12, 0, 0, 0);
 const ADD_FAQ = false;
 let observer;
@@ -676,6 +676,7 @@ const Translation = new Map([
     ["Resource / Day:", "资源 / 天:"],
     ["Shards / Hr:", "碎片 / 小时:"],
     ["Shards / Day:", "碎片 / 天:"],
+    ["Shards range:", "碎片掉落范围："],
     ["Intellect gained:", "获得智力:"],
     ["Stamina gained:", "获得耐力:"],
     ["Spirit gained:", "获得精神:"],
@@ -705,7 +706,6 @@ const Translation = new Map([
     ["Show which sets items belong to", "显示装备所属配装"],
     ["Show item quality", "显示装备品质"],
     ["Enable extensive debug output (developer mode)", "开启详细 debug 输出（开发者模式）"],
-    ["Shards range:", "碎片掉落范围："],
     // #region battle text
     ["Your guild received:", "你的公会获得了："],
     ["Battle XP", "战斗经验"],
@@ -715,8 +715,8 @@ const Translation = new Map([
     ["You spent ", "你消耗了 "],
     [" mana", " 点魔力"],
     [".", "."],
-    ["Kills: ", "击杀数："],
-    ["Deaths: ", "死亡数："],
+    ["Kills: ", "击杀："],
+    ["Deaths: ", "死亡："],
     ["Winrate:", "胜率："],
     ["Enemy", "敌人"],
     ["Average Damage Per Attack:", "每次攻击平均伤害："],
@@ -874,7 +874,8 @@ const Translation = new Map([
     ["Enchanting", "附魔"],
     ["Send", "发送"],
     ["Account", "账号"],
-    // #region elaneth
+    ["Event", "事件"],
+    // #region elnaeth
     ["Loot Tracker", "掉落追踪器"],
     ["\n        Tracker settings\n      ", "掉落追踪脚本设置"],
     ["\n              Save settings\n            ", "保存设置"],
@@ -972,6 +973,8 @@ const GuildTranslation = new Map([
     ["additional actions", "额外行动"],
     ["Capacity ", "装备库空间 "],
     ["Activity Log", "活动日志"],
+    ["Info", "信息"],
+    ["Message of the Day", "每日消息"],
 ]);
 // #region ChatTrans
 const ChatTranslation = new Map([
@@ -1135,13 +1138,23 @@ const DialogTranslation = new Map([
     ["Confirm upgrade", "确认升级"],
     ["Discard potions", "丢弃药水"],
 ]);
+// #region ElementalRif
 const ElementalRiftTranslation = new Map([
     ["Name", "玩家名"],
     ["Actions", "行动数"],
     ["Damage", "造成伤害"],
     ["Resources", "采集资源"],
+    ["Next Elemental Rift at ", "下一次元素裂隙时间为 "],
+    [" bosses were defeated in the last event.", " 个 boss。"],
+    ["Resources contributed", "贡献的资源"],
+    ["Event Points", "事件点数"],
+    ["Previous", "上一页"],
+    ["Next", "下一页"],
+    ["Page ", "第 "],
+    [" of", " /"],
 ]);
-const ElanethTranslation = new Map([
+// #region Elnaeth
+const ElnaethTranslation = new Map([
     ["Battle Experience Boost", "经验"],
     ["Mana Dust Boost", Settings.manaDustName],
     ["Elemental Shard Boost", "元素碎片"],
@@ -1286,6 +1299,10 @@ const LogTranslator = (channelType, nodes) => {
                 nodes[0].textContent = `以 ${result[4]} 单价售出 ${result[1]} `;
                 nodes[2].textContent = `，获得 ${result[3]} ${Settings.manaDustName}。`;
             }
+            else if(result = /You have earned ([^ ]+) event points\. ([^ ]+) bosses were defeated in the Elemental Rift/.exec(text)){
+                nodes[0].textContent = `你获得了 ${result[1]} 事件点数。此次元素裂隙事件共有 ${result[2]} 只 boss 被击败！`
+            }
+            else console.log(`cannot translate|${text}|(Activity Log)`);
             break;
         }
         case "Guild":{
@@ -1327,12 +1344,14 @@ const LogTranslator = (channelType, nodes) => {
             else if(result = /([^ ]+) has left the guild/.exec(text)){
                 nodes[0].textContent = `${result[1]} 离开了公会。`
             }
+            else console.log(`cannot translate|${text}|(Guild)`);
             break;
         }
         case "Global":{
             if(result = /([^ ]+) found a \[[^\]]+\]/.exec(text)){
                 nodes[0].textContent = `${result[1]} 发现了 `;
             }
+            else console.log(`cannot translate|${text}|(Global)`);
             break;
         }
         case "All":{
@@ -1366,12 +1385,37 @@ const LogTranslator = (channelType, nodes) => {
             else if(result = /You have earned ([^ ]+) event points\./.exec(text)){
                 nodes[0].textContent = `你获得了 ${result[1]} 事件点数。`
             }
+            else console.log(`cannot translate|${text}|(All)`);
             break;
         }
     }
 };
 const FindAndReplaceText = () => {try {
     switch(window.location.pathname){
+        // #region /event
+        case "/event":{
+            CheckTranslation(document, "main>div:nth-child(1)>div:nth-child(1):not([class])", div => {
+                _Translate(div.childNodes[0], "elementalRift");
+                div.children[0].title = div.children[0].title.split("/").reverse().join("/");
+            });
+            CheckTranslation(document, "main>div:nth-child(1)>div:nth-child(2):not([class])", div => {
+                _Translate(div.childNodes[1], "elementalRift");
+                div.insertBefore(document.createTextNode("上次事件共击败 "), div.childNodes[0]);
+            });
+            CheckTranslation(document, "main th[data-slot='table-head']>button>span", _TypedTranslate("elementalRift"));
+            CheckTranslation(document, "main>div:nth-child(1)>div:nth-child(3).mt-2.text-xl", _TypedTranslate("elementalRift"));
+            CheckTranslation(document, "main>div:nth-child(1)>div:nth-child(n+4):nth-last-child(n+2)", div => _Translate(div.childNodes[1]));
+            CheckTranslation(document, "main>div:nth-last-child(1)>div.space-y-2>div.space-y-2>div.px-2", div => {
+                [
+                    div.children[0],
+                    div.children[1].childNodes[0],
+                    div.children[1].childNodes[2],
+                    div.children[2],
+                ].forEach(_TypedTranslate("elementalRift"));
+                div.children[1].append(document.createTextNode(" 页"));
+            });
+            break;
+        }
         // #region /activity-log
         case "/activity-log":{
             CheckTranslation(document, 'main button[data-slot="select-trigger"]', button => {
@@ -1464,9 +1508,9 @@ const FindAndReplaceText = () => {try {
         case "/guild/list":
         case "/guild":{
             CheckTranslation(document, "th span.mr-1", _TypedTranslate("guild"));
+            CheckTranslation(document, "th[data-slot='table-head']", _TypedTranslate("guild"));
             CheckTranslation(document, 'div[data-slot="table-container"]>table>tbody>tr>td:nth-child(2)', td => {
                 if(!td.textContent) return;
-                console.log(td.textContent);
                 let result;
                 if(result = /about ([^ ]+) hours? ago/.exec(td.textContent)){
                     td.textContent = `约 ${result[1]} 小时前`;
@@ -1475,6 +1519,11 @@ const FindAndReplaceText = () => {try {
                     td.textContent = `${result[1]} 分钟前`;
                 }
             })
+            break;
+        }
+        // #region /guild/info
+        case "/guild/info":{
+            CheckTranslation(document, 'main div.space-y-2 div.space-y-2 div.text-xl', _TypedTranslate("guild"));
             break;
         }
         // #region /guild/ranks
@@ -1546,8 +1595,8 @@ const FindAndReplaceText = () => {try {
         }
         case "/":{
             // #region /(Event boss)
-            if(document.querySelector("main div div p.text-center.font-semibold")?.textContent.startsWith("Event Boss")){
-                CheckTranslation(document, 'div[data-slot="table-container"]>table>thead>tr>th>button>span.mr-1', _TypedTranslate("elementalRift")); // ranking header
+            if([...document.querySelectorAll("main div.flex.flex-wrap.justify-center.gap-2:nth-child(1) button.inline-flex.items-center")].filter(button => button.getAttribute("class") === `inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-[color,box-shadow] disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-primary text-primary-foreground shadow-xs hover:bg-primary/90 cursor-pointer h-9 px-4 py-2 has-[>svg]:px-3`).length === 4){
+                document.querySelectorAll("main th[data-slot='table-head']>button>span").forEach(_TypedTranslate("elementalRift"));
                 CheckTranslation(document, "main div div p.text-center.font-semibold", div => {
                     _Translate(div.childNodes[0]); // Event boss
                 });
@@ -1624,6 +1673,7 @@ const FindAndReplaceText = () => {try {
                 const result = /([^ ]+) Battle XP/;
                 if(result) li.childNodes[2].textContent = "战斗经验";
             });
+            // #region /(rift of pwr)
             document.querySelectorAll("html.dark.notranslate body div#root div.flex.max-h-screen.min-h-screen.flex-col.overflow-x-hidden div.flex.max-w-screen.grow.flex-col.overflow-y-scroll.lg\\:flex-row.lg\\:flex-wrap main>div:not([class]):not([translated])").forEach(div => {
                 div.setAttribute("translated", "");
                 if(div?.children[0]?.children[0]?.children[0]?.textContent === "You are currently siphoning power into your lowest quality equipped item..."){
@@ -1650,9 +1700,9 @@ const FindAndReplaceText = () => {try {
                 if(div.hasAttribute("translated", "")){
                     const lackMana = div.children[0].children[3].childNodes[3];
                     if(lackMana.textContent !== "."){
-                        const result = /[0-9]+/.exec(lackMana.textContent);
+                        const result = /and lacked ([^ ]+) mana/.exec(lackMana.textContent);
                         //, and lacked 1684 mana
-                        lackMana.textContent = `，缺少了 ${result[0]} 点魔力`;
+                        if(result) lackMana.textContent = `，缺少了 ${result[1]} 点魔力`;
                     }
                     return;
                 }
@@ -1889,7 +1939,6 @@ const FindAndReplaceText = () => {try {
     document.querySelectorAll(`body div#root div.flex.max-h-screen.min-h-screen.flex-col.overflow-x-hidden div.flex.max-w-screen.grow.flex-col.overflow-y-scroll.lg\\:flex-row.lg\\:flex-wrap div.border-primary.w-full.max-lg\\:border-b.lg\\:w-60.lg\\:border-r div.grid.grid-cols-4.gap-x-4.p-2.text-sm.lg\\:grid-cols-2 div.col-span-2.flex.justify-between span:not([translated]):nth-child(1)`).forEach(span => {
         span.setAttribute("translated", "");
         _Translate(span);
-
     });
     // #region popup
     document.querySelectorAll(popupSelector).forEach(div => {
@@ -2104,8 +2153,16 @@ const FindAndReplaceText = () => {try {
         }
         _Translate(titleEle, "dialog");
     })
-    // #region elaneth
+    // #region elnaeth
     // 属性掉落记录
+    CheckTranslation(document, "#shard-drop-range", span => {
+        new MutationObserver((mutlist, observer) => {
+            observer.disconnect();
+            result = /([^ ]+) to ([^ ]+)/.exec(span.textContent);
+            if(result) span.textContent = `${result[1]} 至 ${result[2]}`;
+            observer.observe(span, {childList: true, subtree: true, characterData: true});
+        }).observe(span, {childList: true, subtree: true, characterData: true});
+    })
     CheckTranslation(document, "div.elnaeth-stats-log.text-center.text-lg", div => {
         div.textContent = div.textContent.trim();
         _Translate(div);
@@ -2117,13 +2174,15 @@ const FindAndReplaceText = () => {try {
     });
     CheckTranslation(document, "#reset-stat-tracker", button => button.textContent = "重置");
     CheckTranslation(document, 'div[title="Kindly provided by Elnaeth. Tips appreciated!"]>button.m-0.p-1.bg-red-500.text-sm.text-white.rounded.cursor-pointer', button => button.textContent = "重置");
-    CheckTranslation(document, "#elnaeth-settings-button", _Translate);
+    CheckTranslation(document, "#elnaeth-settings-button", (button) => {
+        _Translate(button);
+    });
     CheckTranslation(document, "#tracker-modal h1.text-left.float-left", _Translate);
     CheckTranslation(document, "#tracker-modal h2:not([class])", _Translate);
     CheckTranslation(document, "#save-tracker-settings", _Translate);
     CheckTranslation(document, ".item-qol-container.text-sm>span", span => {
         let result;
-        if(result = ElanethTranslation.get(span.title)){
+        if(result = ElnaethTranslation.get(span.title)){
             span.title = result;
             const kv = span.textContent.split(": ");
             if(kv[1]) span.textContent = `${result}：${kv[1]}`;
@@ -2258,7 +2317,7 @@ const AddSettings = () => {
                         ["notifyQuestComplete", "任务完成提醒", "和游戏提醒不同，在未手动点击之前不会消失", "bool"],
                         ["notifyElementalRiftBegin", "元素裂隙事件准备阶段通知", "和游戏提醒不同，在未手动点击之前不会消失", "bool"],
                         ["notifyPowerRiftBegin", "力量裂隙事件开始通知", "和游戏提醒不同，在未手动点击之前不会消失", "bool"],
-                        ["debug", "开启测试功能", "会影响正常使用", "bool"],
+                        ["debug", "开启测试模式", "会影响正常使用", "bool"],
                     ].map(([settingProp, description, info, type]) => {
                         switch(type){
                             case "bool":
@@ -2324,16 +2383,16 @@ const OnMutate = async (mutlist, observer) => {
     observer.observe(document, {subtree: true, childList: true});
 };
 observer = new MutationObserver(OnMutate).observe(document, {subtree: true, childList: true});
-const wakeElaneth = () => {
-    console.log("wakeElaneth");
+const wakeElnaeth = () => {
+    console.log("wakeElnaeth");
     let next = 3000;
-    if(!elanethWaken && !document.getElementById("elnaeth-settings-button")){
+    if(!elnaethWaken && !document.getElementById("elnaeth-settings-button")){
         window.dispatchEvent(new Event("load"));
-        setTimeout(wakeElaneth, next *= 2);
+        setTimeout(wakeElnaeth, next *= 2);
     }
 };
 console.log('chinese translation loaded');
-wakeElaneth();
+wakeElnaeth();
 const CheckForUpdate = async () => {try {
     const request = await fetch(GM_info.script.updateURL, {mode: "cors"});
     const text = await request.text();
