@@ -2347,6 +2347,7 @@ const CheckForUpdate = async () => {try {
             if(Number(versions[i]) > Number(current[i] ?? 0)){
                 document.getElementById(UpdateButtonID).removeAttribute("hidden");
                 document.getElementById(UpdateDotID).removeAttribute("hidden");
+                break;
             }
         }
     }
