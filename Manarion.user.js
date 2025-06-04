@@ -503,7 +503,7 @@ const Translation = new Map([
     ["Change elemental rift timing to every 3.5 hours", "元素裂隙现在每 3.5 小时出现一次"],
     ["Add activity log entries for event points gained", "新增事件点数的活动日志项"],
     ["Potion of Renewal can now be created in higher tiers (with exponential cost scaling)", "现在可以制造更高等级的刷新药水（原料消耗指数级上升）"],
-    ["The farm now grows ", "农场现在收获的"],
+    ["The farm now grows ", "农场现在收获的 "],
     [" and", " 和"],
     [" at a 55:45 ratio instead of 60:40", " 数量比例由原来的 60:40 变为 55:45"],
     ["Show farm icon next to potion icon when farm is fully grown", "当农场完全成长时，在药水图标旁边显示农场图标"],
