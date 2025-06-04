@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.14.0
+// @version      0.15.0
 // @description  Manarion Chinese Translation and Quest notification, on any issue occurred, please /whisper VoltaX in game
 // @description:zh  Manarion 文本汉化，以及任务通知（非自动点击），如果汉化出现任何问题，可以游戏私信VoltaX，在greasyfork页面留下评论，或者通过其他方式联系我
 // @author       VoltaX
@@ -9,20 +9,66 @@
 // @icon         https://s2.loli.net/2025/05/28/YmWGhwXJVHonOsI.png
 // @grant        unsafeWindow
 // @grant        GM_addStyle
+// @grant        GM_info
 // @run-at       document-start
+// @connect      update.greasyfork.org
 // @downloadURL https://update.greasyfork.org/scripts/537308/Manarion%20Chinese%20Translation.user.js
 // @updateURL https://update.greasyfork.org/scripts/537308/Manarion%20Chinese%20Translation.meta.js
 // ==/UserScript==
+const ButtonClass = "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-[color,box-shadow] disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive border border-input bg-background dark:bg-primary/30 shadow-xs hover:bg-accent dark:hover:bg-primary/50 hover:text-accent-foreground cursor-pointer h-9 px-4 py-2 has-[>svg]:px-3";
+const SwitchClass = "peer data-[state=checked]:bg-primary data-[state=unchecked]:bg-input focus-visible:border-ring focus-visible:ring-ring/50 dark:data-[state=unchecked]:bg-input/40 inline-flex h-[1.15rem] w-8 shrink-0 items-center rounded-full border border-transparent shadow-xs transition-all outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50";
+const SwitchBallClass = "bg-background dark:data-[state=unchecked]:bg-foreground dark:data-[state=checked]:bg-primary-foreground pointer-events-none block size-4 rounded-full ring-0 transition-transform data-[state=checked]:translate-x-[calc(100%-2px)] data-[state=unchecked]:translate-x-0";
+const InputClass = "border-input file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground flex h-9 min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive w-30";
+const UpdateButtonID = "manarion-chinese-translation-update-button";
 let elanethWaken = false;
-const DoTranslate = true; // 把这里的true改成false就可以关闭翻译，反之亦然。
-const DEBUG = false;
+//const ElementalRiftEpoch = Date.UTC(2025, 5, 3, 12, 0, 0, 0);
 const ADD_FAQ = false;
-const MANA_DUST_NAME = `魔法尘`;
 let observer;
-const GetItem = (key) => JSON.parse(window.localStorage.getItem(key) ?? "null");
+const GetItem = (key) => {try {
+    return JSON.parse(window.localStorage.getItem(key) ?? "{}");
+} catch(e){
+    console.error(e);
+    return {};
+}};
 const SetItem = (key, value) => window.localStorage.setItem(key, JSON.stringify(value));
+const localStorageKey = "manarion-chinese-translation-settings"
+const _Settings = {
+    doTranslate: true,
+    debug: false,
+    manaDustName: "魔法尘",
+    notifyQuestComplete: true,
+    notifyElementalRiftBegin: true,
+    notifyPowerRiftBegin: true,
+    ...GetItem(localStorageKey),
+};
+const Settings = new Proxy(_Settings, {
+    set(target, p, newValue, receiver){
+        target[p] = newValue;
+        SetItem(localStorageKey, _Settings);
+        return true;
+    }
+});
+const SettingPanelID = "manarion-chinese-translation-settings-background";
 const css =
 `
+.min-w-\\[400px\\]{
+    min-width: 400px;
+}
+#${SettingPanelID}{
+    position: absolute;
+    display: flex;
+    width: 100%;
+    height: 100%;
+    top: 0px;
+    left: 0px;
+    background-color: rgba(0, 0, 0, 0.5);
+    &>div{
+        border-width: 3px;
+        border-radius: 5px;
+        margin: auto;
+        background-color: black;
+    }
+}
 :root{
     font-variant: none;
     font-family: Times New Roman;
@@ -65,6 +111,11 @@ const InsertStyleSheet = (style) => {
     GM_addStyle(style);
 };
 InsertStyleSheet(css);
+const html = (html) => {
+    const t = document.createElement("template");
+    t.innerHTML = html;
+    return t.content.firstElementChild;
+};
 const HTML = (tagname, attrs, ...children) => {
     if(attrs === undefined) return document.createTextNode(tagname);
     const ele = document.createElement(tagname);
@@ -84,6 +135,11 @@ const HTML = (tagname, attrs, ...children) => {
     for(const child of children) if(child) ele.append(child);
     return ele;
 };
+const translateSettingsSVG = html(`<svg width="24" height="24" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" fill="#8f96a9" class="bi bi-translate">
+  <path d="M4.545 6.714 4.11 8H3l1.862-5h1.284L8 8H6.833l-.435-1.286H4.545zm1.634-.736L5.5 3.956h-.049l-.679 2.022H6.18z"/>
+  <path d="M0 2a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v3h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-3H2a2 2 0 0 1-2-2V2zm2-1a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H2zm7.138 9.995c.193.301.402.583.63.846-.748.575-1.673 1.001-2.768 1.292.178.217.451.635.555.867 1.125-.359 2.08-.844 2.886-1.494.777.665 1.739 1.165 2.93 1.472.133-.254.414-.673.629-.89-1.125-.253-2.057-.694-2.82-1.284.681-.747 1.222-1.651 1.621-2.757H14V8h-3v1.047h.765c-.318.844-.74 1.546-1.272 2.13a6.066 6.066 0 0 1-.415-.492 1.988 1.988 0 0 1-.94.31z"/>
+</svg>`);
+// #region Settings
 const popupSelector = 'div[data-slot="tooltip-content"]:not([translated]), div[data-slot="popover-content"]:not([translated])';
 const Translation = new Map([
     ["Actions:", "行动次数"],
@@ -112,10 +168,9 @@ const Translation = new Map([
     ["Increases your mana pool", "增加你的魔力值"],
     ["Decreases enemy ward strength", "降低敌人的防御强度"],
     ["Increases your mana regeneration", "增加你的魔法回复"],
-    // #endregion
     // #region item names
     ...[
-        ["Mana Dust", `${MANA_DUST_NAME}`],
+        ["Mana Dust", `${Settings.manaDustName}`],
         ["Elemental Shards", "元素碎片"],
         ["Codex", "法典"],
         ["Bound Codex", "绑定法典"],
@@ -173,7 +228,6 @@ const Translation = new Map([
         [`Formula: ${key}:`, `术式：${value}:`],
         [`[Formula: ${key}]`, `[术式：${value}]`],
     ]),
-    // #endregion
     // #region tab
     ["Base Power", "基础能力值"],
     ["Combat Skills", "战斗加成"],
@@ -190,7 +244,6 @@ const Translation = new Map([
     ["Trade", "交易"],
     ["Guild", "公会"],
     ["Help", "帮助"],
-    // #endregion
     // #region market
     ["Quantity", "数量"],
     ["Unit Price", "单价"],
@@ -207,10 +260,9 @@ const Translation = new Map([
     [" each", " 单价"],
     ["View your orders", "查看我的挂单"],
     ["Marketplace", "市场"],
-    ["All prices are in Mana Dust", `所有价格的单位都是${MANA_DUST_NAME}`],
+    ["All prices are in Mana Dust", `所有价格的单位都是${Settings.manaDustName}`],
     ["Back to market", "回到市场"],
     ["Item", "物品"],
-    // #endregion
     // #region guild
     ["Create", "创建"],
     ["Guild Name", "公会名"],
@@ -224,7 +276,6 @@ const Translation = new Map([
     ["Active", "状态"],
     ["Rank", "职位"],
     ["Borrow", "借出"],
-    // #endregion
     // #region button
     ["Transfer", "赠送"],
     ["Seller", "出售者"],
@@ -259,16 +310,15 @@ const Translation = new Map([
     ["View Players", "查看所有玩家"],
     ["Refresh", "刷新"],
     ["Activate", "激活"],
-    ["Event Shop", "事件商店"],
+    ["Choose Sigil", "选择魔符"],
     ["View Event", "查看事件"],
     ["View Players", "查看玩家"],
-    // #endregion
     // #region research
     ["Staff (Damage)", "法杖（元素伤害）"],
     ["Cloak (Resistance)", "斗篷（元素抗性）"],
     ["Head (Base XP)", "头部（基础经验值）"],
     ["Neck (Base Resources)", "项链（基础资源量）"],
-    ["Chest (Base Mana Dust)", `衣服（基础${MANA_DUST_NAME}）`],
+    ["Chest (Base Mana Dust)", `衣服（基础${Settings.manaDustName}）`],
     ["Hands (Drop Boost)", "手部（掉落加成）"],
     ["Feet (Multistat)", "脚部（多重属性掉落）"],
     ["Ring (All stat boost)", "戒指（全属性增幅）"],
@@ -298,7 +348,7 @@ const Translation = new Map([
         ["Woodcutting", "伐木"],
         ["Base Experience", "基础经验值"],
         ["Base Resource", "基础资源量"],
-        ["Base Mana Dust", `基础${MANA_DUST_NAME}`],
+        ["Base Mana Dust", `基础${Settings.manaDustName}`],
         ["Drop Boost", "掉落加成"],
         ["Multistat", "多重属性掉落"],
         ["Actions", "行动次数"],
@@ -308,14 +358,12 @@ const Translation = new Map([
         [key, value],
         [key.toLowerCase(), value],
     ]),
-    // #endregion
     // #region equip detail
     ["Link", "链接至聊天"],
     ["Quality", "品质"],
     ["Currently Equipped", "已被装备"],
     ["Battle Level", "战斗等级"],
     ["Gather Level", "采集等级"],
-    // #endregion
     // #region equip
     ["Common", "普通"], ["Uncommon", "稀有"], ["Rare", "罕见"], ["Epic", "史诗"], ["Legendary", "传说"],
     ["Ward Boost", "抗性增幅"],
@@ -335,7 +383,6 @@ const Translation = new Map([
     ["Base Resource Amount", "基础资源量"],
     ["Focus Boost", "集中增幅"],
     ["Mana Boost", "魔力增幅"],
-    // #endregion
     // #region label
     ["Stat Drop Tracker", "属性值掉落记录"],
     ["Item Drop Tracker", "掉落物记录"],
@@ -346,8 +393,6 @@ const Translation = new Map([
     ["Mass Disenchant", "批量分解"],
     ["Amount", "数量"],
     ["Tier", "等级"],
-    // #endregion
-    // #endregion
     // #region battle text
     ["Are you sure you want to reset your codex boosts?", "确定要重置所有法典升级吗？"],
     ["You have invested ", "你已经投入了 "],
@@ -365,7 +410,6 @@ const Translation = new Map([
     ["Mana: ", "魔力："],
     ["Enemy attacked you ", "敌人对你攻击了 "],
     ["You found the following loot:", "你获得的战利品有："],
-    // #endregion
     // #region research text
     ["Increases base spellpower.", "增加基础法术强度。"],
     ["Increases base ward strength.", "增加基础抗性。"],
@@ -392,7 +436,7 @@ const Translation = new Map([
     ["Lets you enchant cloaks with stronger nature resistance.", "使你可以为斗篷附魔更高等级的自然抗性。"],
     ["Lets you enchant hoods with base experience.", "使你可以为兜帽附魔更高等级的基础经验值。"],
     ["Lets you enchant amulets with base resource gain.", "使你可以为项链附魔更高等级的基础资源量。"],
-    ["Lets you enchant robes with base mana dust", `使你可以为法袍附魔更高等级的基础${MANA_DUST_NAME}。`],
+    ["Lets you enchant robes with base mana dust", `使你可以为法袍附魔更高等级的基础${Settings.manaDustName}。`],
     ["Lets you enchant gloves with drop boost", "使你可以为手套附魔更高等级的掉落加成。"],
     ["Lets you enchant boots with multistat", "使你可以为鞋子附魔更高等级的多重属性掉落。"],
     ["Lets you enchant rings with vitality, increasing all stats", "使你可以为戒指附魔更高等级的活性，提升全属性。"],
@@ -401,11 +445,10 @@ const Translation = new Map([
     ["Increases resources harvested while woodcutting.", "增加伐木获取的资源。"],
     ["Provides a multiplier to base experience.", "增幅基础经验值。"],
     ["Increases the base amount of resources you get while gathering.", "增加采集获取的基础资源量。"],
-    ["Provides a multiplier to enemy base Mana Dust drop.", `增幅敌人掉落的基础${MANA_DUST_NAME}数量。`],
+    ["Provides a multiplier to enemy base Mana Dust drop.", `增幅敌人掉落的基础${Settings.manaDustName}数量。`],
     ["Increases your chance to get additional stat rolls and mastery.", "提升掉落额外属性点和元素精通点的概率。"],
     ["Increases the maximum amount of actions you can do.", "增加最大行动次数。"],
     ["Increases your chance to find nearly any item drop.", "提升获得绝大多数掉落物的概率。"],
-    // #endregion
     // #region guild text
     ["Manage Ranks (Admin)", "调整职位（管理员）"],
     ["Invite Members", "邀请成员"],
@@ -420,7 +463,7 @@ const Translation = new Map([
     ["Upgrades", "升级"],
     ["Edit Taxes", "修改税率"],
     ["Taxes: XP ", "税率：经验值 "],
-    ["%, Mana Dust", `%，${MANA_DUST_NAME}`],
+    ["%, Mana Dust", `%，${Settings.manaDustName}`],
     ["%, Elemental Shards", "%，元素碎片"],
     ["%, Resources", "%，资源"],
     ["Guild Level", "公会等级"],
@@ -440,8 +483,23 @@ const Translation = new Map([
     ["Increases base experience gains by 1% per level", "每级使成员基础经验值 +1%"],
     ["Sleeping Quarters", "睡眠区"],
     ["Increases maximum actions by 1% per level", "每级使成员最大行动次数 +1%"],
-    // #endregion
     // #region update text
+    ["Fix dropping out of elemental rift queue when doing certain things", "修复了执行某些操作时会取消准备元素裂隙的问题"],
+    ["/event (or /elementalrift) Brings up info about the latest elemental rift event", "/event（或者 /elementalrift）还会给出上一次元素裂隙的信息"],
+    ["Change elemental rift timing to every 3.5 hours", "元素裂隙现在每 3.5 小时出现一次"],
+    ["Add activity log entries for event points gained", "新增事件点数的活动日志项"],
+    ["Potion of Renewal can now be created in higher tiers (with exponential cost scaling)", "现在可以制造更高等级的刷新药水（原料消耗指数级上升）"],
+    ["The farm now grows ", "农场现在收获的"],
+    [" and", " 和"],
+    [" at a 55:45 ratio instead of 60:40", " 数量比例由原来的 60:40 变为 55:45"],
+    ["Show farm icon next to potion icon when farm is fully grown", "当农场完全成长时，在药水图标旁边显示农场图标"],
+    ["Add equipment set names to star icon tooltip", "表示保护的星星标记现在点击会显示装备所属配装名字"],
+    ["Add chatbox size preference in settings", "在设置中新增聊天框大小设置"],
+    ["Add preference option to use clickable tooltips instead of hover", "在设置中现在可以选择点击而非悬浮触发提示弹窗"],
+    ["Temporarily remember inventory filters when changing pages", "切换页面时会临时记住仓库过滤选项"],
+    ["Fix an issue where quality would downgrade slightly when chaos orbing max percentile items", "修复了使用混沌球随机具有最大可能值属性的装备属性值时，装备品质可能稍微降低的问题"],
+    ["Fix market category sometimes not switching fully", "修复了市场中切换物品分类有时不能完全更新挂单信息的问题"],
+    ["Changed various texts for clarity", "更改了若干文字，以使表述更清晰"],
     ["Added Elemental Rift Event. Will occur every 2.5 hours, lasting 10 minutes with a 5 minute queue time. Awards Event Points based on bosses defeated/damage done/resources harvested.", "新增元素裂隙事件。每 2.5 小时出现一次，持续 10 分钟，并且带有 5 分钟准备时间。基于击败的 boss 数/造成的伤害/采集的资源奖励事件点数。"],
     ["Added Sigils and Event Shop, you can find them in the inventory. Sigils upgrade automatically based on total event points earned and can be exchanged freely.", "新增魔符和事件商店，你可以在仓库页面找到它们。魔符基于总事件点数自动升级，并且可以自由在不同种类间切换。"],
     ["Added leaderboards for event points and herbs/hr.", "新增事件点数和每小时药草数排行榜。"],
@@ -571,7 +629,6 @@ const Translation = new Map([
     [" until quest counter reaches 1000", "，直至任务数字到达 1000"],
     ["Normal tradeable codex drop rates buffed to 1/4k base", "普通的可交易法典掉落率增加至 1/4000 基础值"],
     ["Closed 50 accounts for multi farming/botting", "封禁了 50 个小号/脚本"],
-    // #endregion
     // #region town text
     ["Welcome to Manarion", "欢迎来到 Manarion"],
     ["Battle Zones", "战斗区"],
@@ -590,7 +647,6 @@ const Translation = new Map([
     ["Hall of Fame", "荣耀大厅"],
     ["Notice Board (Rules)", "告示板（游戏规则）"],
     ["News Board", "新闻栏"],
-    // #endregion
     // #region label
     ["Adjust personal contribution", "调整个人上税"],
     ["Example", "示例按钮"],
@@ -601,8 +657,8 @@ const Translation = new Map([
     ["Time to Level:", "升级倒计时："],
     ["XP / Hr:", "XP / 小时:"],
     ["XP / Day:", "XP / 天:"],
-    ["Mana Dust / Hr:", `${MANA_DUST_NAME} / 小时:`],
-    ["Mana Dust / Day:", `${MANA_DUST_NAME} / 天:`],
+    ["Mana Dust / Hr:", `${Settings.manaDustName} / 小时:`],
+    ["Mana Dust / Day:", `${Settings.manaDustName} / 天:`],
     ["Resource / Hr:", "资源 / 小时:"],
     ["Resource / Day:", "资源 / 天:"],
     ["Shards / Hr:", "碎片 / 小时:"],
@@ -660,7 +716,6 @@ const Translation = new Map([
     [" and gained", "，获得了"],
     [" experience", " 点经验"],
     ["You received the following loot:", "你获得了以下物品："],
-    // #endregion
     ["Set name", "设置名称"],
     // #region rule text
     ["1. Respect Others", "1. 尊重他人"],
@@ -677,12 +732,10 @@ const Translation = new Map([
     ["Do not share your account. You are responsible for all activity on your account.", "不要分享你的账号。你为你账号的所有行动负责。"],
     ["7. No Bug Abuse", "7. 禁止恶意利用漏洞"],
     ["If you find an exploit, report it privately to a staff member. Abusing bugs will result in a ban.", "如果你发现了一个漏洞，请私下向制作人员反馈。恶意利用漏洞将会导致封禁。"],
-    // #endregion
     // #region siphon text
     ["You are currently siphoning power into your lowest quality equipped item...", "为装备中的最低品质物品汲取裂隙之力..."],
     ["Siphoning power into ", "汲取力量至 "],
     ["You don't have any items equipped.", "你没有装备任何物品。"],
-    // #endregion
     ["Currencies", "通用物品"],
     ["Resources", "资源"],
     ["Orbs", "特殊球"],
@@ -700,7 +753,6 @@ const Translation = new Map([
     ["Rules", "规则"],
     ["News", "新闻"],
     ["Settings", "设置"],
-    // #endregion
     // #region item desc txt
     ["You have ", "仓库数量 "],
     ["Fragments of raw elemental power.", "含有纯净元素之力的碎片。"],
@@ -737,12 +789,11 @@ const Translation = new Map([
     ["Improves your nature resistance enchantment ability", "提升你的自然抗性附魔能力"],
     ["An enchantment that multiplies base experience.", "一种提高基础经验的附魔。"],
     ["An enchantment that multiplies base resources.", "一种提高基础资源的附魔。"],
-    ["An enchantment that multiplies base mana dust drops.", `一种提高基础${MANA_DUST_NAME}的附魔。`],
+    ["An enchantment that multiplies base mana dust drops.", `一种提高基础${Settings.manaDustName}的附魔。`],
     ["An enchantment that increases drop rates.", "一种提高掉落概率的附魔。"],
     ["An enchantment that increases your multistat.", "一种提高多重属性掉落的附魔。"],
     ["An enchantment that multiplies all your base stats.", "一种提高你的所有属性值的附魔。"],
     ["Used to upgrade Sigils", "用于升级魔符"],
-    // #endregion
     // #region quest/event
     ["Defeat ", "击败 "],
     [" enemies.", " 个敌人"],
@@ -761,7 +812,6 @@ const Translation = new Map([
     ["iron", "铁"],
     ["wood", "木"],
     ["fish", "鱼"],
-    // #endregion
     // #region misc
     ["Edit Profile", "编辑资料"],
     ["Enchant", "附魔"],
@@ -776,7 +826,6 @@ const Translation = new Map([
     ["Your account has been disabled.", "你的账号已被封禁"],
     ["Farm Herbs/Hr", "农场每小时收获"],
     ["No results", "无结果"],
-    // #endregion
     // #region profile text
     ["Battle Quest # ", "战斗任务 # "],
     ["Gather Actions: ", "采集次数："],
@@ -794,7 +843,6 @@ const Translation = new Map([
     [" times. Siphon chance: ", " 次力量。下次成功汲取概率："],
     ["% Upgrade Chance)", "% 强化概率)"],
     ["Event Points: ", "事件点数："],
-    // #endregion
     // #region dropdown text
     ["View Profile", "查看资料页"],
     ["Wire", "给予物品"],
@@ -850,7 +898,6 @@ const SettingsTranslation = new Map([
     ["力量裂隙（事件）", "力量裂隙（事件）"],
     ["Elemental Rift (Event)", "元素裂隙（事件）"],
 ]);
-// #endregion
 // #region FarmTrans
 const FarmTranslation = new Map([
     ["", ""],
@@ -889,7 +936,6 @@ const FarmTranslation = new Map([
     ["Increases the maximum amount of potions you can store.", "增加你最多可以保存的药水数量。"],
 ]);
 [...FarmTranslation.values()].forEach(value => FarmTranslation.set(value, value));
-// #endregion FarmTrans
 // #region GuildTrans
 const GuildTranslation = new Map([
     ["Guild Funds", "公会仓库"],
@@ -969,7 +1015,7 @@ const UpgradeTranslation = new Map([
     ["Increase ", "提升 "],
     [" times (+", " 级 (+"],
     [") for ", "), 消耗 "],
-    ["Chance to get extra credit for progressing your quest.", "完成行动时，概率获得额外的任务进度。"],
+    ["Each action taken toward progressing your quest has a chance to grant extra credit.", "完成行动时，概率获得额外的任务进度。"],
     ["Increases the potency of potions.", "增强药水的效果。"],
     ["Increases your chance to get additional stat rolls and mastery.", "提高掉落额外属性点和元素精通的概率。"],
     ["Increases all base stats (intellect, stamina, focus, spirit, mana).", "提高全属性（智力、耐力、集中、精神、魔力）。"],
@@ -1016,7 +1062,7 @@ const PlaceholderTranslation = new Map([
     ["Set name", "配装名称"],
     ["Search player...", "搜索玩家..."],
 ]);
-if(!DEBUG) [...Translation.values()].forEach(value => Translation.set(value, value));
+if(!Settings.debug) [...Translation.values()].forEach(value => Translation.set(value, value));
 // #region EquipTrans
 const EquipTranslation = new Map([
     // quality
@@ -1032,7 +1078,6 @@ const EquipTranslation = new Map([
     ["Vitality", "活性"],
     ["Sigil", "魔符"],
 ]);
-// #endregion
 // #region HelpTL
 const SystemMsgTranslation = new Map([
     ["A Rift of Power has opened!", "力量裂隙事件开启！"],
@@ -1069,7 +1114,7 @@ const DialogTranslation = new Map([
     [" times (+", " 级 ( +"],
     [") for ", ")，消耗 "],
     ["Upgrade potions", "提升药水等级"],
-    ["Upgrading these potions by 1 tier will cost ", "将这些药水提升 1 级将消耗 "],
+    ["Upgrading these potions by 1 tier will cost", "将这些药水提升 1 级将消耗"],
     ["Are you sure", "你确定吗"],
     ["Create equipment set", "新建配装"],
     ["Confirm upgrade", "确认升级"],
@@ -1083,7 +1128,7 @@ const ElementalRiftTranslation = new Map([
 ]);
 const ElanethTranslation = new Map([
     ["Battle Experience Boost", "经验"],
-    ["Mana Dust Boost", MANA_DUST_NAME],
+    ["Mana Dust Boost", Settings.manaDustName],
     ["Elemental Shard Boost", "元素碎片"],
     ["Stat drop", "属性点掉率"],
     ["Base Resource Amount", "资源"],
@@ -1124,7 +1169,7 @@ const _Translate = (ele, type = "default", keepOriginalText = false) => {
     }
     const text = ele.textContent;
     const translation = __TypedTranslation.get(type) ?? Translation;
-    ele.textContent = (translation.get(text) ?? (console.log("未翻译", type, text), (DEBUG && !keepOriginalText) ? "未翻译" : text));
+    ele.textContent = (translation.get(text) ?? (console.log("未翻译", type, text), (Settings.debug && !keepOriginalText) ? "未翻译" : text));
     if(!keepOriginalText && (ele.textContent === "未翻译" || ele.textContent === text)){
         _FailedTranslate.add(JSON.stringify({
             type: type,
@@ -1215,16 +1260,16 @@ const LogTranslator = (channelType, nodes) => {
                 nodes[2].textContent = `，花费 ${result[3]} `;
             }
             else if(result = /Sold \[([^\]]+)\] to ([^ ]+) for ([^ ]+)/.exec(text)){
-                nodes[0].textContent = `从 ${result[2]} 处购买 `;
-                nodes[2].textContent = `，花费 ${result[3]} `;
+                nodes[0].textContent = `将 `;
+                nodes[2].textContent = ` 卖给 ${result[2]}，获得 ${result[3]} `;
             }
             else if(result = /You bought ([^ ]+) \[([^\]]+)\] for ([^ ]+) \(([^ ]+) each\)/.exec(text)){
                 nodes[0].textContent = `以 ${result[4]} 单价购买 ${result[1]} `;
-                nodes[2].textContent = `，花费 ${result[3]} ${MANA_DUST_NAME}。`;
+                nodes[2].textContent = `，花费 ${result[3]} ${Settings.manaDustName}。`;
             }
             else if(result = /You sold ([^ ]+) \[([^\]]+)\] for ([^ ]+) \(([^ ]+) each\)/.exec(text)){
                 nodes[0].textContent = `以 ${result[4]} 单价售出 ${result[1]} `;
-                nodes[2].textContent = `，获得 ${result[3]} ${MANA_DUST_NAME}。`;
+                nodes[2].textContent = `，获得 ${result[3]} ${Settings.manaDustName}。`;
             }
             break;
         }
@@ -1288,12 +1333,12 @@ const LogTranslator = (channelType, nodes) => {
             else if(result = /MARKET: You sold ([^ ]+) \[[^\]]+\] for ([^ ]+) \(([^ ]+) each\)\./.exec(text)){
                 nodes[0].textContent = "市场";
                 nodes[2].textContent = `你卖出了 ${result[1]} `;
-                nodes[4].textContent = `, 获得 ${result[2]} ${MANA_DUST_NAME}（单价 ${result[3]}）`;
+                nodes[4].textContent = `, 获得 ${result[2]} ${Settings.manaDustName}（单价 ${result[3]}）`;
             }
             else if(result = /MARKET: You bought ([^ ]+) \[[^\]]+\] for ([^ ]+) \(([^ ]+) each\)\./.exec(text)){
                 nodes[0].textContent = "市场";
                 nodes[2].textContent = `你购买了 ${result[1]} `;
-                nodes[4].textContent = `, 花费 ${result[2]} ${MANA_DUST_NAME}（单价 ${result[3]}）`;
+                nodes[4].textContent = `, 花费 ${result[2]} ${Settings.manaDustName}（单价 ${result[3]}）`;
             }
             else if(result = /Your \[[^\]]+\] has increased in power\./.exec(text)){
                 nodes[0].textContent = "你的 ";
@@ -1351,7 +1396,6 @@ const FindAndReplaceText = () => {try {
             });
             break;
         }
-        // #endregion
         // #region /market/*
         case "/market/my-orders":
             CheckTranslation(document, "main div.text-xl", _TypedTranslate("market"));
@@ -1380,7 +1424,6 @@ const FindAndReplaceText = () => {try {
             CheckTranslation(document, "div.mt-2 div.mb-2>div:nth-child(3)>div:nth-child(3)", (div) => _Translate(div.childNodes[0], "market"));
             break;
         }
-        // #endregion
         // #region /research
         case "/research":{
             document.querySelectorAll('div[data-slot="dialog-header"]:not([translated])').forEach(div => {
@@ -1389,8 +1432,7 @@ const FindAndReplaceText = () => {try {
             });
             break;
         }
-        // #endregion
-        // #region /guild/*
+        // #region /guild/log
         case "/guild/log":{
             CheckTranslation(document, "main h1", _TypedTranslate("guild"));
             CheckTranslation(document, 'main button[data-slot="select-trigger"]:not([translated])', (button) => {
@@ -1403,6 +1445,7 @@ const FindAndReplaceText = () => {try {
             });
             break;
         }
+        // #region /guild/(list)
         case "/guild/list":
         case "/guild":{
             CheckTranslation(document, "th span.mr-1", _TypedTranslate("guild"));
@@ -1419,6 +1462,7 @@ const FindAndReplaceText = () => {try {
             })
             break;
         }
+        // #region /guild/ranks
         case "/guild/ranks":{
             document.querySelectorAll('div.hover\\:bg-primary\\/20:not([translated])').forEach(div => {
                 div.setAttribute("translated", '');
@@ -1432,8 +1476,12 @@ const FindAndReplaceText = () => {try {
             });
             break;
         }
+        // #region /g*/upgrades
         case "/guild/upgrades":{
             CheckTranslation(document, "main div.space-y-2>div:nth-child(2)>div:nth-child(1)", _TypedTranslate("guild"));
+            CheckTranslation(document, "main>div.space-y-2 div.mt-4.gap-6>div.border-primary:nth-child(1)>div:nth-child(3):nth-last-child(2)", div => {
+                div.childNodes[3].textContent = " 战斗经验";
+            })
             document.querySelectorAll("div.mt-4:nth-child(4) div.border-primary.flex.w-full.flex-col.border.p-2.md\\:w-80:not([translated])").forEach(div => {
                 div.setAttribute("translated", "");
                 [
@@ -1450,11 +1498,11 @@ const FindAndReplaceText = () => {try {
             });
             break;
         }
+        // #region /g*/armory
         case "/guild/armory":{
             CheckTranslation(document, "main>div:nth-child(1)>div:nth-child(2)", div => _Translate(div.childNodes[0], "guild"));
             break;
         }
-        // #endregion
         // #region /news
         case "/news":{
             document.querySelectorAll(`html.dark.notranslate body div#root div.flex.max-h-screen.min-h-screen.flex-col.overflow-x-hidden div.flex.max-w-screen.grow.flex-col.overflow-y-scroll.lg\\:flex-row.lg\\:flex-wrap main.grow.p-2.lg\\:w-1.lg\\:p-4 div.space-y-4.p-2 div div ul.ml-6.list-disc li span:not([translated])`).forEach(span => {
@@ -1466,7 +1514,6 @@ const FindAndReplaceText = () => {try {
             });
             break;
         }
-        // #endregion
         // #region /rankings
         case "/rankings": {
             // page xx of xx
@@ -1477,9 +1524,8 @@ const FindAndReplaceText = () => {try {
             })
             break;
         }
-        // #region /
         case "/":{
-            // Event boss
+            // #region /(Event boss)
             if(document.querySelector("main div div p.text-center.font-semibold")?.textContent.startsWith("Event Boss")){
                 CheckTranslation(document, 'div[data-slot="table-container"]>table>thead>tr>th>button>span.mr-1', _TypedTranslate("elementalRift")); // ranking header
                 CheckTranslation(document, "main div div p.text-center.font-semibold", div => {
@@ -1494,7 +1540,11 @@ const FindAndReplaceText = () => {try {
                 CheckTranslation(document, "div.space-y-1>p:nth-child(1):nth-last-child(1)", p => {
                     _Translate(p.childNodes[0]);
                     _Translate(p.childNodes[3]);
-                })
+                });
+                CheckTranslation(document, "div.space-y-1>p:nth-child(2):nth-last-child(1)>span:nth-child(3):nth-last-child(1)", span => {
+                    _Translate(span.childNodes[0]);
+                    _Translate(span.childNodes[2]);
+                });
                 CheckTranslation(document, "div.space-y-1:nth-child(3):nth-last-child(3)", div => {
                     if(div.textContent.startsWith("You attacked")){
                         [
@@ -1510,7 +1560,7 @@ const FindAndReplaceText = () => {try {
                     }
                 });
             }
-            // Siphon rift of pwer
+            // #region /(rift of pwer)
             CheckTranslation(document, "main div div div.mt-2>div.text-foreground.flex.justify-between", div => {
                 _Translate(div.children[0]);
                 _Translate(div.children[1].childNodes[0]);
@@ -1524,6 +1574,7 @@ const FindAndReplaceText = () => {try {
             CheckTranslation(document, "main>div:nth-child(1):nth-last-child(1)>div.mt-4.text-xl", div => {
                 _Translate(div);
             });
+            // #region /(work)
             // monster name
             CheckTranslation(document, "main>div.space-y-2>div.grid.grid-cols-1>div.mt-4:nth-child(2)", _Translate);
             // main translation 1
@@ -1547,6 +1598,11 @@ const FindAndReplaceText = () => {try {
             });
             CheckTranslation(document, "main>div.space-y-2>div:nth-child(4)>div:nth-child(2)", (p) => {
                 _Translate(p.childNodes[0]);
+            });
+            CheckTranslation(document, "main>div.space-y-2>div:nth-child(4)>div:nth-child(2)>ul>li:nth-last-child(1)", (li) => {
+                const text = li.textContent;
+                const result = /([^ ]+) Battle XP/;
+                if(result) li.childNodes[2].textContent = "战斗经验";
             });
             document.querySelectorAll("html.dark.notranslate body div#root div.flex.max-h-screen.min-h-screen.flex-col.overflow-x-hidden div.flex.max-w-screen.grow.flex-col.overflow-y-scroll.lg\\:flex-row.lg\\:flex-wrap main>div:not([class]):not([translated])").forEach(div => {
                 div.setAttribute("translated", "");
@@ -1596,7 +1652,6 @@ const FindAndReplaceText = () => {try {
             });
             break;
         }
-        // #endregion
         // #region /rules
         case "/rules":{
             document.querySelectorAll("main h2.text-lg:not([translated]), main p.text-md:not([translated]), main h1:not([translated])").forEach(p => {
@@ -1605,7 +1660,6 @@ const FindAndReplaceText = () => {try {
             });
             break;
         }
-        // #endregion
         // #region /inventory
         case "/inventory":{
             document.querySelectorAll("main div.mt-2.mb-1.text-xl:not([translated]), main span.text-2xl:not([translated]), main div.text-2xl:not([translated]), main div.space-y-1 div.text-md div.w-15:not([translated])").forEach(div => {
@@ -1614,7 +1668,6 @@ const FindAndReplaceText = () => {try {
             });
             break;
         }
-        // #endregion
         // #region /settings
         case "/settings":{
             document.querySelectorAll("main>div:not([translated])").forEach((div) => {
@@ -1652,8 +1705,7 @@ const FindAndReplaceText = () => {try {
             });
             break;
         }
-        // #endregion
-        // #region /farm
+        // #region /farm(farm)
         case "/farm":{
             const farmId = `div[id$="\\:-content-farm"]`;
             const potionsId = `div[id$="\\:-content-potions"]`;
@@ -1699,6 +1751,7 @@ const FindAndReplaceText = () => {try {
                 ].forEach(_TypedTranslate("farm"));
             };
             CheckTranslation(document, `${farmId}>div.flex.flex-col.gap-2.rounded-lg.p-3`, UpgradeTranslation);
+        // #region /farm(potion)
             CheckTranslation(document, `${potionsId}>div.flex.flex-col.gap-2.rounded-lg.p-3`, UpgradeTranslation);
             CheckTranslation(document, `${potionsId} div.text-2xl`, _TypedTranslate("farm"));
             CheckTranslation(document, `${potionsId} div.space-y-1 div.flex.items-center`, (div) => {
@@ -1711,14 +1764,15 @@ const FindAndReplaceText = () => {try {
             });
             CheckTranslation(document, `${potionsId} span.text-sm`, (span) => {
                 const text = span.textContent;
-                if(!text.startsWith("+")){
-                    console.log("direct", text);
-                    span.textContent = FarmTranslation.get(text);
-                    return;
+                let result;
+                if(result = /Restores ([^ ]+) actions when you run out/.exec(text)){
+                    span.textContent = `当行动次数不足时回复 ${result[1]} 次数。`;
                 }
-                const splitPos = text.indexOf(" ");
-                const prefix = text.substring(0, splitPos);
-                span.textContent = `${prefix}${FarmTranslation.get(text.substring(splitPos))}`;
+                else if(text.startsWith("+")){
+                    const splitPos = text.indexOf(" ");
+                    const prefix = text.substring(0, splitPos);
+                    span.textContent = `${prefix}${FarmTranslation.get(text.substring(splitPos))}`;
+                }
             });
             CheckTranslation(document, `${potionsId} div.space-x-2>span:nth-child(1)`, _TypedTranslate("farm"));
             CheckTranslation(document, `${potionsId} div.ml-1.space-y-4 div.flex.flex-wrap.items-end.gap-2>div:nth-last-child(2)`, (div) => {
@@ -1726,9 +1780,8 @@ const FindAndReplaceText = () => {try {
             });
             break;
         }
-        // #endregion
         // #region /eventshop
-        case "/eventshop":{
+        case "/sigils":{
             CheckTranslation(document, "div.flex.items-center.gap-2>div.break-words", _TypedTranslate("upgrade"))
             CheckTranslation(document, "main>div.space-y-2:nth-child(1)>div:nth-child(1)", div => {
                 div.childNodes[0].textContent = "你有 ";
@@ -1755,7 +1808,6 @@ const FindAndReplaceText = () => {try {
             if(span.childNodes[0].textContent === "(Total ") span.childNodes[0].textContent = "(总计 ";
         });
     }
-    // #endregion
     // #region /upgrade
     if(window.location.pathname.endsWith("/upgrade")){
         CheckTranslation(document, "main>div>h2", (h2) => _Translate(h2.childNodes[0], "upgrade"));
@@ -1783,7 +1835,6 @@ const FindAndReplaceText = () => {try {
             ].forEach(_TypedTranslate("upgrade"));
         });
     }
-    // #endregion
     // #region active count
     CheckTranslation(document, 'div#root div.flex.max-h-screen.min-h-screen.flex-col.overflow-x-hidden div.flex.max-w-screen.grow.flex-col.overflow-y-scroll.lg\\:flex-row.lg\\:flex-wrap div.border-primary.w-full.max-lg\\:border-b.lg\\:w-60.lg\\:border-r div.border-primary.flex.justify-between.border-b.px-2.py-1.text-sm', (div) => {
         _Translate(div.children[0].childNodes[1]);
@@ -1795,7 +1846,6 @@ const FindAndReplaceText = () => {try {
         _Translate(a.parentElement.children[0]);
         _Translate(a.parentElement.children[1]);
     });
-    // #endregion
     // #region menuitem
     CheckTranslation(document, 'div[data-slot="dropdown-menu-item"]', _TypedTranslate(window.location.pathname.startsWith("/market")? "default" : "menuitem"));
     // #region nav
@@ -1807,24 +1857,21 @@ const FindAndReplaceText = () => {try {
         a.setAttribute("translated", "");
         _Translate(a.childNodes[2]);
     });
-    // #endregion
     // #region label
     document.querySelectorAll("label:not([translated])").forEach((label) => {
         label.setAttribute("translated", "");
         _Translate(label);
     });
-    // #endregion
     // #region stat panel
     document.querySelectorAll(`body div#root div.flex.max-h-screen.min-h-screen.flex-col.overflow-x-hidden div.flex.max-w-screen.grow.flex-col.overflow-y-scroll.lg\\:flex-row.lg\\:flex-wrap div.border-primary.w-full.max-lg\\:border-b.lg\\:w-60.lg\\:border-r div.grid.grid-cols-4.gap-x-4.p-2.text-sm.lg\\:grid-cols-2 div.col-span-2.flex.justify-between span:not([translated]):nth-child(1)`).forEach(span => {
         span.setAttribute("translated", "");
         _Translate(span);
 
     });
-    // #endregion
     // #region popup
     document.querySelectorAll(popupSelector).forEach(div => {
         div.setAttribute("translated", "");
-        if(DEBUG) document.body.append(div.cloneNode(true));
+        if(Settings.debug) document.body.append(div.cloneNode(true));
         if(div.childNodes[0].nodeType === Node.TEXT_NODE){
             _Translate(div.childNodes[0]);
         }
@@ -1842,14 +1889,16 @@ const FindAndReplaceText = () => {try {
             div.children[1].childNodes[0].textContent = "绑定：";
         }
     });
-    // #endregion
     // #region item
     document.querySelectorAll("span.rarity-common:not([translated]), span.rarity-uncommon:not([translated]), span.rarity-rare:not([translated]), span.rarity-epic:not([translated]), span.rarity-legendary:not([translated])").forEach(span => {
         span.setAttribute("translated", "");
         const itemName = span.textContent;
+        let result;
         if(Translation.has(itemName)) {
             span.textContent = Translation.get(itemName);
-            return;
+        }
+        else if(result = /^ \+([0-9]+) ([A-Za-z ]+) $/.exec(span.textContent)){
+            span.textContent = ` +${result[1]} ${Translation.get(result[2].trim()) ?? result[2]} `;
         }
         else if(span.dataset.slot === "tooltip-trigger" || span.dataset.slot === "popover-trigger"){
             if(
@@ -1883,7 +1932,6 @@ const FindAndReplaceText = () => {try {
         }
         else console.log("cannot translate|"+itemName+"|");
     });
-    // #endregion
     // #region equip detail
     document.querySelectorAll("div.rarity-common.bg-popover:not([translated]), div.rarity-uncommon.bg-popover:not([translated]), div.rarity-rare.bg-popover:not([translated]), div.rarity-epic.bg-popover:not([translated]), div.rarity-legendary.bg-popover:not([translated])").forEach(div => {
         div.setAttribute("translated", "");
@@ -1896,7 +1944,6 @@ const FindAndReplaceText = () => {try {
         // Enchantment
         div.querySelectorAll(":scope div.flex.justify-between.text-green-500").forEach(div => _Translate(div.children[0]));
     });
-    // #endregion
     // #region tab button
     document.querySelectorAll('div.font-chatbox button[role="tab"]:not([translated])').forEach(button => {
         button.setAttribute("translated", "");
@@ -1907,7 +1954,6 @@ const FindAndReplaceText = () => {try {
         _Translate(button);
     });
     CheckTranslation(document, 'span[data-slot="tabs-trigger"]', _Translate);
-    // #endregion
     // #region research
     document.querySelectorAll(researchSelector).forEach(div => {
         div.dataset.state = "translated"; div.querySelectorAll(":scope h2.my-4.text-2xl").forEach(h2 => _Translate(h2.childNodes[0]));
@@ -1923,16 +1969,13 @@ const FindAndReplaceText = () => {try {
             div.childNodes[4].textContent = ")，消耗 ";
         });
     });
-    // #endregion
     // #region select
     document.querySelectorAll(`div[role="option"][data-slot="select-item"] span[id^="radix-"]:not([translated])`).forEach(span => {
         span.setAttribute("translated", "");
         _Translate(span);
     });
-    // #endregion
     // #region placeholder
     CheckTranslation(document, 'input[placeholder][data-slot="input"]', input => input.placeholder = PlaceholderTranslation.get(input.placeholder) ?? input.placeholder);
-    // #endregion
     // #region chat/log
     CheckTranslation(document, 'div.border-primary.shrink-0.border-t div.scrollbar-thin.scrollbar-track-transparent.flex-1.overflow-y-auto.pl-1.text-sm div.leading-4\\.5>span:nth-child(1):nth-last-child(1)', span => {
         const timestampEle = span.children[0];
@@ -1969,7 +2012,7 @@ const FindAndReplaceText = () => {try {
         _Translate(div.children[2]);
     });
     document.querySelectorAll('button[role="combobox"][aria-controls^="radix-"] span[data-slot="select-value"]:nth-child(1):not([translated])').forEach(span => {
-        if(DEBUG) document.body.append(span.cloneNode(true));
+        if(Settings.debug) document.body.append(span.cloneNode(true));
         span.setAttribute("translated", "");
         if(span.parentElement.title === "Attack with magic type"){
             span.parentElement.title = "选择用于攻击的元素类型";
@@ -2040,11 +2083,6 @@ const FindAndReplaceText = () => {try {
     })
     // #region elaneth
     // 属性掉落记录
-    CheckTranslation(document.getElementById("elnaeth-stats-log"), "span.rarity-uncommon", (span) => {
-        const result = /^ \+([0-9]+) ([A-Za-z ]+) $/.exec(span.textContent);
-        if(result) span.textContent = ` +${result[1]} ${Translation.get(result[2].trim()) ?? result[2]} `;
-        else console.log(`could not translate|${span.textContent}|`);
-    });
     CheckTranslation(document, "div.elnaeth-stats-log.text-center.text-lg", div => {
         div.textContent = div.textContent.trim();
         _Translate(div);
@@ -2098,8 +2136,8 @@ const TranslateEventConfig = [
             _Translate(div.children[2].childNodes[0], "default", true);
             _Translate(div.children[2].childNodes[4], "default", true);
             if(div.children[3]) _Translate(div.children[3].childNodes[0]);
-            if(Number(div.children[2].childNodes[1].textContent) === Number(div.children[2].childNodes[3].textContent)) {
-                new Notification("Quest Complete", { requireInteraction: true, });
+            if(Settings.notifyQuestComplete && Number(div.children[2].childNodes[1].textContent) === Number(div.children[2].childNodes[3].textContent)) {
+                new Notification("任务完成", { requireInteraction: true, });
             }
         },
     },
@@ -2108,7 +2146,7 @@ const TranslateEventConfig = [
         title: ["Siphon Rift of Power", "Siphoning Rift of Power"],
         childrenLength: 2,
         OnStart: () => {
-            new Notification("Rift of power is to begin!", {requireInteraction: true});
+            if(Settings.notifyPowerRiftBegin) new Notification("力量裂隙已经开放！", {requireInteraction: true});
         },
         OnProgress: (div) => {
             _Translate(div.children[2].childNodes[1], "default", true);
@@ -2119,7 +2157,7 @@ const TranslateEventConfig = [
         title: ["Queue for Elemental Rift", " Elemental Rift"],
         childrenLength: 2,
         OnStart: () => {
-            new Notification("Elemental Rift is to begin!", {requireInteraction: true});
+            if(Settings.notifyElementalRiftBegin) new Notification("元素裂隙事件开始！", {requireInteraction: true});
         },
         OnProgress: (div) => {
             [
@@ -2174,36 +2212,87 @@ const AddFAQ = () => {
         )
     )
 }
-class _FreqLock{
-    max = 3;
-    current = 3;
-    queue = [];
-    release(){
-        if(this.queue.length > 0){
-            this.queue.shift()();
-        }
-        else if(this.current < this.max) this.current += 1;
-    };
-    acquire(){
-        if(this.current > 0){
-            this.current -= 1;
-            return;
-        }
-        else{
-            const {promise, resolve} = Promise.withResolvers();
-            this.queue.push(resolve);
-            return promise;
-        }
-    };
-    init(){
-        setInterval(this.release.bind(this), 100);
+// #region Settings
+const AddSettings = () => {
+    if(document.body && !document.getElementById(SettingPanelID)){
+        document.body.append(
+            HTML("div", {id: SettingPanelID, hidden: "", _click: (ev) => {
+                document.getElementById(SettingPanelID).setAttribute("hidden", "");
+            }},
+                HTML("div", {id: "setting-panel", class: "min-w-[400px] h-fit rounded-[4px] space-y-4 z-50 border-primary p-6", _click: (ev) => {
+                    ev.stopPropagation();
+                }},
+                    HTML("div", {class: "flex"},
+                        HTML("div", {class: "flex-grow text-2xl"}, "汉化脚本设置"),
+                        HTML("button", {id: UpdateButtonID, class: ButtonClass, translated: "", hidden: "", _click: () => {
+                            const a = HTML("a", {href: GM_info.script.downloadURL, target: "_blank", download: "", hidden: "", style: "display:none;"});
+                            a.click();
+                        }}, "有可用更新"),
+                    ),
+                    ...[
+                        ["doTranslate", "是否汉化", "", "bool"],
+                        ["manaDustName", "Mana Dust 译名", "设置完成后需刷新页面", "input"],
+                        ["notifyQuestComplete", "任务完成提醒", "和游戏提醒不同，在未手动点击之前不会消失", "bool"],
+                        ["notifyElementalRiftBegin", "元素裂隙事件准备阶段通知", "和游戏提醒不同，在未手动点击之前不会消失", "bool"],
+                        ["notifyPowerRiftBegin", "力量裂隙事件开始通知", "和游戏提醒不同，在未手动点击之前不会消失", "bool"],
+                        ["debug", "开启测试功能", "会影响正常使用", "bool"],
+                    ].map(([settingProp, description, info, type]) => {
+                        switch(type){
+                            case "bool":
+                                return HTML("div", {class: "flex items-center gap-2"},
+                                    HTML("div", {class: "flex-grow flex flex-col"},
+                                        HTML("label", {translated: ""}, description),
+                                        ...(info ? [
+                                            HTML("label", {class: "text-xs", translated: ""}, info)
+                                        ] : []),
+                                    ),
+                                    HTML("button", {class: SwitchClass, type: "button", role: "switch", "aria-checked": Settings[settingProp], "data-state": Settings[settingProp] ? "checked" : "unchecked", value: "on", "data-slot": "switch", _click: (ev) => {
+                                        const button = ev.currentTarget;
+                                        const cur = button.dataset.state === "checked";
+                                        button.dataset.state = cur ? "unchecked" : "checked";
+                                        button.setAttribute("aria-checked", cur ? "false" : "true");
+                                        button.children[0].dataset.state = cur ? "unchecked" : "checked";
+                                        Settings[settingProp] = !cur;
+                                    }},
+                                        HTML("span", {class: SwitchBallClass, "data-state": Settings[settingProp] ? "checked" : "unchecked", "data-slot": "switch-thumb"})
+                                    ),
+                                );
+                            case "input":
+                                return HTML("div", {class: "flex items-center gap-2"},
+                                    HTML("label", {class: "flex-grow", translated: ""}, description),
+                                    HTML("input", {class: InputClass, "data-slot": "input", type: 'text', value: Settings[settingProp], translated: '', _change: (ev) => {
+                                        Settings[settingProp] = ev.target.value;
+                                    }}),
+                                );
+                        }
+                    }),
+                )
+            )
+        );
     }
-}
-const FreqLock = new _FreqLock();
+};
+const AddSettingsNavItem = () => {
+    if(document.getElementById(`${SettingPanelID}-nav`)) return;
+    const navs = document.querySelector("nav div.flex.w-0.flex-shrink.flex-grow.justify-end.gap-1.overflow-x-hidden");
+    navs?.append(
+        HTML("a", {id: `${SettingPanelID}-nav`, class: "cursor-pointer text-muted-foreground hover:bg-primary/50 ring-primary mx-1 my-1 flex flex-shrink-0 items-center gap-2 rounded-lg px-1 py-1 transition hover:ring", "data-discover": 'true', translated: '', _click: (ev) => {
+            ev.preventDefault();
+            ev.stopPropagation();
+            document.getElementById(SettingPanelID)?.removeAttribute("hidden");
+        }},
+            HTML("div", {class: 'relative'},
+                translateSettingsSVG.cloneNode(true),
+            ),
+            HTML('span', {class: 'hidden lg:inline'}, "汉化设置"),
+        )
+    )
+};
 // #region OnMutate
 const OnMutate = async (mutlist, observer) => {
     observer.disconnect();
-    if(DoTranslate){
+    AddSettings();
+    AddSettingsNavItem();
+    if(Settings.doTranslate){
         FindAndReplaceText();
         TranslateEvent();
     }
@@ -2221,3 +2310,20 @@ const wakeElaneth = () => {
 };
 console.log('chinese translation loaded');
 wakeElaneth();
+const CheckForUpdate = async () => {try {
+    const request = await fetch(GM_info.script.updateURL, {mode: "cors"});
+    const text = await request.text();
+    console.log(text);
+    const result = /\/\/ *@version +(.*)$/m.exec(text);
+    if(result){
+        console.log(result[1]);
+        const versions = result[1].split(".");
+        const current = GM_info.script.version.split(".");
+        for(let i = 0; i < versions.length; i++){
+            if(Number(versions[i]) > Number(current[i] ?? 0)){
+                document.getElementById(UpdateButtonID).removeAttribute("hidden");
+            }
+        }
+    }
+}catch(e){console.error(e)}finally{setTimeout(CheckForUpdate, 10*60*1000)}};
+CheckForUpdate();
