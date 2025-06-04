@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.15.2
+// @version      0.15.3
 // @description  Manarion Chinese Translation and Quest notification, on any issue occurred, please /whisper VoltaX in game
 // @description:zh  Manarion 文本汉化，以及任务通知（非自动点击），如果汉化出现任何问题，可以游戏私信VoltaX，在greasyfork页面留下评论，或者通过其他方式联系我
 // @author       VoltaX
@@ -1836,16 +1836,22 @@ const FindAndReplaceText = () => {try {
                 else _Translate(node04, "farm");
             });
             CheckTranslation(document, `${potionsId} span.text-sm`, (span) => {
-                const text = span.textContent;
-                let result;
-                if(result = /Restores ([^ ]+) actions when you run out/.exec(text)){
-                    span.textContent = `当行动次数不足时回复 ${result[1]} 次数。`;
+                const OnMutate = (_, observer) => {
+                    observer.disconnect();
+                    const text = span.textContent;
+                    let result;
+                    if(result = /Restores ([^ ]+) actions when you run out/.exec(text)){
+                        span.textContent = `当行动次数不足时回复 ${result[1]} 次数。`;
+                    }
+                    else if(text.startsWith("+")){
+                        const splitPos = text.indexOf(" ");
+                        const prefix = text.substring(0, splitPos);
+                        span.textContent = `${prefix}${FarmTranslation.get(text.substring(splitPos))}`;
+                    }
+                    observer.observe(span, {childList: true, subtree: true, characterData: true});
                 }
-                else if(text.startsWith("+")){
-                    const splitPos = text.indexOf(" ");
-                    const prefix = text.substring(0, splitPos);
-                    span.textContent = `${prefix}${FarmTranslation.get(text.substring(splitPos))}`;
-                }
+                const observer = new MutationObserver(OnMutate);
+                OnMutate(undefined, observer);
             });
             CheckTranslation(document, `${potionsId} div.space-x-2>span:nth-child(1)`, _TypedTranslate("farm"));
             CheckTranslation(document, `${potionsId} div.ml-1.space-y-4 div.flex.flex-wrap.items-end.gap-2>div:nth-last-child(2)`, (div) => {
