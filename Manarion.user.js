@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.15.0
+// @version      0.15.1
 // @description  Manarion Chinese Translation and Quest notification, on any issue occurred, please /whisper VoltaX in game
 // @description:zh  Manarion 文本汉化，以及任务通知（非自动点击），如果汉化出现任何问题，可以游戏私信VoltaX，在greasyfork页面留下评论，或者通过其他方式联系我
 // @author       VoltaX
@@ -20,6 +20,7 @@ const SwitchClass = "peer data-[state=checked]:bg-primary data-[state=unchecked]
 const SwitchBallClass = "bg-background dark:data-[state=unchecked]:bg-foreground dark:data-[state=checked]:bg-primary-foreground pointer-events-none block size-4 rounded-full ring-0 transition-transform data-[state=checked]:translate-x-[calc(100%-2px)] data-[state=unchecked]:translate-x-0";
 const InputClass = "border-input file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground flex h-9 min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive w-30";
 const UpdateButtonID = "manarion-chinese-translation-update-button";
+const UpdateDotID = "manarion-chinese-translation-update-dot";
 let elanethWaken = false;
 //const ElementalRiftEpoch = Date.UTC(2025, 5, 3, 12, 0, 0, 0);
 const ADD_FAQ = false;
@@ -53,6 +54,11 @@ const css =
 `
 .min-w-\\[400px\\]{
     min-width: 400px;
+}
+#${UpdateDotID}{
+    position: absolute;
+    top: -4px;
+    left: -4px;
 }
 #${SettingPanelID}{
     position: absolute;
@@ -138,6 +144,13 @@ const HTML = (tagname, attrs, ...children) => {
 const translateSettingsSVG = html(`<svg width="24" height="24" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" fill="#8f96a9" class="bi bi-translate">
   <path d="M4.545 6.714 4.11 8H3l1.862-5h1.284L8 8H6.833l-.435-1.286H4.545zm1.634-.736L5.5 3.956h-.049l-.679 2.022H6.18z"/>
   <path d="M0 2a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v3h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-3H2a2 2 0 0 1-2-2V2zm2-1a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H2zm7.138 9.995c.193.301.402.583.63.846-.748.575-1.673 1.001-2.768 1.292.178.217.451.635.555.867 1.125-.359 2.08-.844 2.886-1.494.777.665 1.739 1.165 2.93 1.472.133-.254.414-.673.629-.89-1.125-.253-2.057-.694-2.82-1.284.681-.747 1.222-1.651 1.621-2.757H14V8h-3v1.047h.765c-.318.844-.74 1.546-1.272 2.13a6.066 6.066 0 0 1-.415-.492 1.988 1.988 0 0 1-.94.31z"/>
+</svg>`);
+const dotSVG = html(`<svg hidden="" height="10" width="10" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 31.955 31.955" xml:space="preserve" fill="#8f96a9" id="${UpdateDotID}">
+<g>
+	<path d="M27.25,4.655C20.996-1.571,10.88-1.546,4.656,4.706C-1.571,10.96-1.548,21.076,4.705,27.3   c6.256,6.226,16.374,6.203,22.597-0.051C33.526,20.995,33.505,10.878,27.25,4.655z"/>
+	<path d="M13.288,23.896l-1.768,5.207c2.567,0.829,5.331,0.886,7.926,0.17l-0.665-5.416   C17.01,24.487,15.067,24.5,13.288,23.896z M8.12,13.122l-5.645-0.859c-0.741,2.666-0.666,5.514,0.225,8.143l5.491-1.375   C7.452,17.138,7.426,15.029,8.12,13.122z M28.763,11.333l-4.965,1.675c0.798,2.106,0.716,4.468-0.247,6.522l5.351,0.672   C29.827,17.319,29.78,14.193,28.763,11.333z M11.394,2.883l1.018,5.528c2.027-0.954,4.356-1.05,6.442-0.288l1.583-5.137   C17.523,1.94,14.328,1.906,11.394,2.883z"/>
+	<circle cx="15.979" cy="15.977" r="6.117"/>
+</g>
 </svg>`);
 // #region Settings
 const popupSelector = 'div[data-slot="tooltip-content"]:not([translated]), div[data-slot="popover-content"]:not([translated])';
@@ -493,9 +506,9 @@ const Translation = new Map([
     [" and", " 和"],
     [" at a 55:45 ratio instead of 60:40", " 数量比例由原来的 60:40 变为 55:45"],
     ["Show farm icon next to potion icon when farm is fully grown", "当农场完全成长时，在药水图标旁边显示农场图标"],
-    ["Add equipment set names to star icon tooltip", "表示保护的星星标记现在点击会显示装备所属配装名字"],
+    ["Add equipment set names to star icon tooltip", "表示保护的星星标记会在提示悬浮窗中显示装备所属配装名字"],
     ["Add chatbox size preference in settings", "在设置中新增聊天框大小设置"],
-    ["Add preference option to use clickable tooltips instead of hover", "在设置中现在可以选择点击而非悬浮触发提示弹窗"],
+    ["Add preference option to use clickable tooltips instead of hover", "在设置中现在可以选择点击而非悬浮触发提示悬浮窗"],
     ["Temporarily remember inventory filters when changing pages", "切换页面时会临时记住仓库过滤选项"],
     ["Fix an issue where quality would downgrade slightly when chaos orbing max percentile items", "修复了使用混沌球随机具有最大可能值属性的装备属性值时，装备品质可能稍微降低的问题"],
     ["Fix market category sometimes not switching fully", "修复了市场中切换物品分类有时不能完全更新挂单信息的问题"],
@@ -873,6 +886,8 @@ const SettingsTranslation = new Map([
     ["Guild Taxes", "公会税收"],
     ["Push Notifications", "推送通知"],
     ["Customize Colors", "自定义颜色"],
+    ["Chatbox size: ", "聊天框大小："],
+    ["Preferences", "偏好"],
     ["Theme", "主题"],
     ["Whispers", "私信消息"],
     ["General", "通用频道"],
@@ -1512,6 +1527,11 @@ const FindAndReplaceText = () => {try {
                     _Translate(node);
                 });
             });
+            CheckTranslation(document, "main h2.text-lg", h2 => {
+                const dateComp = h2.textContent.split("/");
+                dateComp.reverse();
+                h2.textContent = dateComp.join("/");
+            })
             break;
         }
         // #region /rankings
@@ -1670,6 +1690,9 @@ const FindAndReplaceText = () => {try {
         }
         // #region /settings
         case "/settings":{
+            CheckTranslation(document, "div.space-y-6>div>div.flex.gap-4>span.whitespace-nowrap", span => {
+                _Translate(span.childNodes[0], "settings");
+            })
             document.querySelectorAll("main>div:not([translated])").forEach((div) => {
                 div.setAttribute("translated", "");
                 [  
@@ -2282,6 +2305,7 @@ const AddSettingsNavItem = () => {
         }},
             HTML("div", {class: 'relative'},
                 translateSettingsSVG.cloneNode(true),
+                dotSVG.cloneNode(true),
             ),
             HTML('span', {class: 'hidden lg:inline'}, "汉化设置"),
         )
@@ -2322,6 +2346,7 @@ const CheckForUpdate = async () => {try {
         for(let i = 0; i < versions.length; i++){
             if(Number(versions[i]) > Number(current[i] ?? 0)){
                 document.getElementById(UpdateButtonID).removeAttribute("hidden");
+                document.getElementById(UpdateDotID).removeAttribute("hidden");
             }
         }
     }
