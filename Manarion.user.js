@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.15.4
+// @version      0.16.0
 // @description  Manarion Chinese Translation and Quest notification, on any issue occurred, please /whisper VoltaX in game
 // @description:zh  Manarion 文本汉化，以及任务通知（非自动点击），如果汉化出现任何问题，可以游戏私信VoltaX，在greasyfork页面留下评论，或者通过其他方式联系我
 // @author       VoltaX
@@ -15,6 +15,10 @@
 // @downloadURL https://update.greasyfork.org/scripts/537308/Manarion%20Chinese%20Translation.user.js
 // @updateURL https://update.greasyfork.org/scripts/537308/Manarion%20Chinese%20Translation.meta.js
 // ==/UserScript==
+/*
+TODO: 
+    * wait for firefox to implement position-anchor feature and use it on settings dropdown menu
+*/
 const ButtonClass = "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-[color,box-shadow] disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive border border-input bg-background dark:bg-primary/30 shadow-xs hover:bg-accent dark:hover:bg-primary/50 hover:text-accent-foreground cursor-pointer h-9 px-4 py-2 has-[>svg]:px-3";
 const SwitchClass = "peer data-[state=checked]:bg-primary data-[state=unchecked]:bg-input focus-visible:border-ring focus-visible:ring-ring/50 dark:data-[state=unchecked]:bg-input/40 inline-flex h-[1.15rem] w-8 shrink-0 items-center rounded-full border border-transparent shadow-xs transition-all outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50";
 const SwitchBallClass = "bg-background dark:data-[state=unchecked]:bg-foreground dark:data-[state=checked]:bg-primary-foreground pointer-events-none block size-4 rounded-full ring-0 transition-transform data-[state=checked]:translate-x-[calc(100%-2px)] data-[state=unchecked]:translate-x-0";
@@ -40,19 +44,134 @@ const _Settings = {
     notifyQuestComplete: true,
     notifyElementalRiftBegin: true,
     notifyPowerRiftBegin: true,
+    fontFamilyEn: "Times New Roman",
+    fontFamily: "Microsoft YaHei",
     //notifyWithInterval: -1,
     ...GetItem(localStorageKey),
 };
+const FontEnOptions = [
+    ["Arial","Arial"],
+    ["Verdana","Verdana"],
+    ["Tahoma","Tahoma"],
+    ["Trebuchet MS","Trebuchet MS"],
+    ["Times New Roman","Times New Roman"],
+    ["Georgia","Georgia"],
+    ["Garamond","Garamond"],
+    ["Courier New","Courier New"],
+];
+const FontEnOptionsLookup = new Map(FontEnOptions);
+const FontOptions = [
+    ["SimSun", "宋体"],
+    ["SimHei", "黑体"],
+    ["Microsoft YaHei", "微软雅黑"],
+    ["Microsoft JhengHei", "微软正黑体"],
+    ["NSimSun", "新宋体"],
+    ["DFKai-SB", "标楷体"],
+    ["FangSong", "仿宋"],
+    ["KaiTi", "楷体"],
+    ["FangSong_GB2312", "仿宋_GB2312"],
+    ["KaiTi_GB2312", "楷体_GB2312"],
+    ...navigator.userAgent.includes("Macintosh")?[
+        ["STHeiti Light", "华文细黑"],
+        ["STHeiti", "华文黑体"],
+        ["STKaiti", "华文楷体"],
+        ["STSong", "华文宋体"],
+        ["STFangsong", "华文仿宋"],
+        ["LiHei Pro Medium", "儷黑 Pro"],
+        ["LiSong Pro Light", "儷宋 Pro"],
+        ["BiauKai", "標楷體"],
+        ["Apple LiGothic Medium", "蘋果儷中黑"],
+        ["Apple LiSung Light", "蘋果儷細宋"],
+    ]:[],
+];
+const FontOptionsLookup = new Map(FontOptions);
 const Settings = new Proxy(_Settings, {
     set(target, p, newValue, receiver){
         target[p] = newValue;
         SetItem(localStorageKey, _Settings);
+        if(p === "fontFamily"){
+            document.body.fontFamily = newValue;
+        }
         return true;
     }
 });
 const SettingPanelID = "manarion-chinese-translation-settings-background";
 const css =
 `
+.detect-box{
+    opacity: 0;
+    pointer-events: none;
+}
+.font-selector:hover{
+    background-color: color-mix(in oklab,var(--input)50%,transparent)
+}
+.font-selector{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    min-width: 100px;
+    border-color: var(--primary);
+    border-width: 1px;
+    border-radius: 3px;
+    padding: 5.5px;
+    padding-left: 10px;
+    background-color: color-mix(in oklab,var(--input)30%,transparent)
+    transition: background-color 0.2s;
+    &>svg{
+        position: relative;
+        top: 5px;
+    }
+}
+.font-family-name{
+    pointer-events: none;
+    margin-right: 10px;
+    flex-grow: 1;
+}
+.font-family-options-background{
+    z-index: 1;
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0);
+}
+.font-family-options-wrapper{
+    position: absolute;
+    right: var(--font-family-options-wrapper-right);
+    top: var(--font-family-options-wrapper-top);
+    min-width: var(--font-family-options-wrapper-min-width);
+    width: max-content;
+    height: fit-content;
+    max-height: var(--font-family-options-wrapper-height);
+    display: flex;
+    flex-direction: column;
+    overflow-y: scroll;
+    border-radius: 3px;
+    border-color: var(--primary);
+    border-width: 1px;
+    background-color: black;
+}
+.font-family-option{
+    padding: 2px 5px;
+    display: flex;
+    flex-wrap: nowrap;
+    width: 100%;
+    &>span{
+        margin-right: 10px;
+    }
+    &>svg{
+        opacity: 0;
+        position: relative;
+        top: 5px;
+    }
+    &[data-selected="true"]>svg{
+        opacity: 1;
+    }
+}
+.font-family-option:hover{
+    background-color: color-mix(in oklab,var(--input)30%,transparent)
+}
 .min-w-\\[400px\\]{
     min-width: 400px;
 }
@@ -78,8 +197,16 @@ const css =
 }
 :root{
     font-variant: none;
-    font-family: Times New Roman;
     font-weight: 500;
+    --font-family-options-wrapper-right: 0px;
+    --font-family-options-wrapper-top: 0px;
+    --font-family-options-wrapper-height: 0px;
+    --font-family-options-wrapper-min-width: 0px;
+    --curr-font-family-en: ${Settings.fontFamilyEn};
+    --curr-font-family-zh: ${Settings.fontFamily};
+}
+body{
+    font-family: var(--temp-font-family-en, var(--curr-font-family-en, ${Settings.fontFamilyEn})), var(--temp-font-family-zh, var(--curr-font-family-zh, ${Settings.fontFamily}));
 }
 main div.space-y-4:nth-child(1) div[data-slot="card"]:nth-child(2) div.space-y-1 div.min-h-8{
     display: grid;
@@ -142,6 +269,8 @@ const HTML = (tagname, attrs, ...children) => {
     for(const child of children) if(child) ele.append(child);
     return ele;
 };
+const tickSVG = html(`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check size-4"><path d="M20 6 9 17l-5-5"></path></svg>`);
+const dropdownArrowSVG = html(`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down size-4 opacity-50" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>`);
 const translateSettingsSVG = html(`<svg width="24" height="24" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" fill="#8f96a9" class="bi bi-translate">
   <path d="M4.545 6.714 4.11 8H3l1.862-5h1.284L8 8H6.833l-.435-1.286H4.545zm1.634-.736L5.5 3.956h-.049l-.679 2.022H6.18z"/>
   <path d="M0 2a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v3h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-3H2a2 2 0 0 1-2-2V2zm2-1a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H2zm7.138 9.995c.193.301.402.583.63.846-.748.575-1.673 1.001-2.768 1.292.178.217.451.635.555.867 1.125-.359 2.08-.844 2.886-1.494.777.665 1.739 1.165 2.93 1.472.133-.254.414-.673.629-.89-1.125-.253-2.057-.694-2.82-1.284.681-.747 1.222-1.651 1.621-2.757H14V8h-3v1.047h.765c-.318.844-.74 1.546-1.272 2.13a6.066 6.066 0 0 1-.415-.492 1.988 1.988 0 0 1-.94.31z"/>
@@ -795,6 +924,9 @@ const Translation = new Map([
     ["Scales from a mystical fish. Can provide resistance to water.", "来自一条神秘之鱼的鱼鳞。可以提供水系抗性。"],
     ["A wood fragment from an ancient tree.", "一片来自某株古树的木材。"],
     ["A mystical stone that resonates.", "一颗产生共振的神秘石子。"],
+    ["A rare pearl", "一种稀有的珍珠。"],
+    ["A rare clover", "一种稀有的三叶草。"],
+    ["Swirling with magic.", "富含的魔法在其内产生了漩涡。"],
     ["An enchantment that amplifies fire magic.", "一种增强火系魔法的附魔。"],
     ["An enchantment that empowers water magic.", "一种增强水系魔法的附魔。"],
     ["An enchantment that enhances nature magic.", "一种增强自然魔法的附魔。"],
@@ -1124,6 +1256,7 @@ const SystemMsgTranslation = new Map([
     ["Potion belt is full.", "药水腰带容量已满。"],
     ["No items match filter", "没有符合条件的物品。"],
     ["Next Elemental Rift is now!", "元素裂隙事件进行中！"],
+    ["The Elemental Rift is opening in 5 minutes!", "元素裂隙还有 5 分钟开始！"],
 ]);
 // #region DialogTL
 const DialogTranslation = new Map([
@@ -1142,7 +1275,8 @@ const DialogTranslation = new Map([
     ["Confirm upgrade", "确认升级"],
     ["Discard potions", "丢弃药水"],
     ["Leave Event Queue", "取消准备"],
-    ["Are you sure you want to leave the event queue?", "确定要取消准备吗？"]
+    ["Are you sure you want to leave the event queue?", "确定要取消准备吗？"],
+    ["Total Contributions", "所有贡献"],
 ]);
 // #region ElementalRif
 const ElementalRiftTranslation = new Map([
@@ -1324,11 +1458,18 @@ const LogTranslator = (channelType, nodes) => {
                 nodes[0].textContent = `${result[1]} 将 `;
                 nodes[2].textContent = ` 借出装备库。`;
             }
+            else if(result = /([^ ]+) revoked \[[^\]]+\] from ([^\.]+)/.exec(text)){
+                nodes[0].textContent = `${result[1]} 将 `;
+                nodes[2].textContent = ` 从 ${result[2]} 处收回。`;
+            }
             else if(result = /([^ ]+) received ([0-9]+) extra \[[^\]]+\] for the guild while completing their quest!/.exec(text)){
                 nodes[0].textContent = `${result[1]} 完成任务后，为公会额外获得了 ${result[2]} 本 `;
                 nodes[2].textContent = `！`;
             }
             else if(result = /([^ ]+) has upgraded the ([A-Za-z ]+)/.exec(text)){
+                nodes[0].textContent = `${result[1]} 升级了「${Translation.get(result[2])}」`;
+            }
+            else if(result = /([^ ]+) has upgraded ([A-Za-z ]+)/.exec(text)){
                 nodes[0].textContent = `${result[1]} 升级了「${Translation.get(result[2])}」`;
             }
             else if(result = /([^ ]+) has joined the guild!/.exec(text)){
@@ -1374,6 +1515,9 @@ const LogTranslator = (channelType, nodes) => {
                 nodes[0].textContent = "市场";
                 nodes[2].textContent = `你卖出了 ${result[1]} `;
                 nodes[4].textContent = `, 获得 ${result[2]} ${Settings.manaDustName}（单价 ${result[3]}）`;
+            }
+            else if(result = /You sent ([^ ]+) ([^ ]+) /.exec(text)){
+                nodes[0].textContent = `你送给了 ${result[1]} ${result[2]} `;
             }
             else if(result = /MARKET: You bought ([^ ]+) \[[^\]]+\] for ([^ ]+) \(([^ ]+) each\)\./.exec(text)){
                 nodes[0].textContent = "市场";
@@ -2168,6 +2312,11 @@ const FindAndReplaceText = () => {try {
                 _Translate(div.children[0].childNodes[1], "dialog");
                 break;
             }
+            case "Total Contributions":{
+                const lastCh = div.querySelector("div[data-slot='dialog-header']>div:nth-last-child(1)");
+                if(lastCh.childNodes[0].textContent === "Battle XP") lastCh.childNodes[0].textContent = "战斗经验";
+                break;
+            }
         }
         _Translate(titleEle, "dialog");
     })
@@ -2312,6 +2461,89 @@ const AddFAQ = () => {
         )
     )
 }
+const CreateFontSelect = (settingsProp, FontOptions, FontOptionsLookup, lang) => {
+    return HTML("div", {class: "font-selector", _click: (ev) => {
+        const self = ev.currentTarget;
+        const rect = self.getBoundingClientRect();
+        console.log("self rect", rect);
+        const detectBox = HTML("div", {class: "detect-box fixed"});
+        document.body.append(detectBox);
+        detectBox.style.width = `${rect.width + 2}px`;
+        detectBox.style.height = `${rect.height + 2}px`;
+        detectBox.style.top = `${rect.top - 1}px`;
+        detectBox.style.left = `${rect.left - 1}px`;
+        console.log(detectBox.getBoundingClientRect());
+        const thresholds = [];
+        for(let i = 0; i <= 1; i += 0.01) thresholds.push(i);
+        new IntersectionObserver((entries, observer) => {
+            entries.sort((a, b) => b.time - a.time);
+            console.log(entries);
+            const rect = self.getBoundingClientRect();
+            const topHeight = rect.top;
+            detectBox.style.width = `${rect.width + 2}px`;
+            detectBox.style.height = `${rect.height + 2}px`;
+            detectBox.style.top = `${rect.top - 1}px`;
+            detectBox.style.left = `${rect.left - 1}px`;
+            const bottomHeight = window.innerHeight - rect.bottom;
+            if(topHeight > bottomHeight){
+                document.body.style.setProperty("--font-family-options-wrapper-top", "5px");
+                document.body.style.setProperty("--font-family-options-wrapper-height", `${topHeight - 10}px`);
+            }
+            else{
+                document.body.style.setProperty("--font-family-options-wrapper-top", `${rect.bottom + 5}px`);
+                document.body.style.setProperty("--font-family-options-wrapper-height", `${bottomHeight - 10}px`);
+            }
+            document.body.style.setProperty("--font-family-options-wrapper-right", `${window.innerWidth - rect.right}px`);
+            document.body.style.setProperty("--font-family-options-wrapper-min-width", `${rect.width}px`);
+        }, {root: detectBox, threshold: thresholds}).observe(self);
+        self.querySelector(":scope>.font-family-options-background")?.removeAttribute("hidden");
+    }},
+        HTML("div", {class: "font-family-name", "data-active-font": Settings[settingsProp]}, FontOptionsLookup.get(Settings[settingsProp])),
+        dropdownArrowSVG.cloneNode(true),
+        HTML("div", {class: "font-family-options-background", hidden: "", _click: (ev) => {
+            ev.stopPropagation();
+            ev.currentTarget.setAttribute("hidden", "");
+            document.querySelectorAll(".detect-box").forEach(ele => ele.remove());
+        }},
+            HTML("div", {class: "font-family-options-wrapper"},
+                ...FontOptions.map(([fontFamily, fontName]) => 
+                    HTML("div", {class: "font-family-option", "data-font-family": fontFamily, "data-selected": Settings[settingsProp] === fontFamily, _pointerenter: (ev) => {
+                        ev.stopPropagation();
+                        const curr = ev.currentTarget;
+                        const fontFamily = curr.dataset.fontFamily;
+                        const root = document.documentElement;
+                        root.style.setProperty(`--temp-font-family-${lang}`, fontFamily);
+                        curr.parentElement/*wrapper*/.parentElement/*background*/.parentElement/*selector*/.children[0].textContent = FontOptionsLookup.get(fontFamily);
+                    }, _pointerleave: (ev) => {
+                        ev.stopPropagation();
+                        const curr = ev.currentTarget;
+                        const fontFamily = curr.dataset.fontFamily;
+                        const root = document.documentElement;
+                        if(root.style.getPropertyValue(`--temp-font-family-${lang}`) === fontFamily){
+                            root.style.removeProperty(`--temp-font-family-${lang}`);
+                            const select = curr.parentElement/*wrapper*/.parentElement/*background*/.parentElement/*selector*/.children[0];
+                            select.textContent = FontOptionsLookup.get(select.dataset.activeFont);
+                        }
+                    }, _click: (ev) => {
+                        const curr = ev.currentTarget;
+                        const fontFamily = curr.dataset.fontFamily;
+                        Settings[settingsProp] = fontFamily;
+                        const root = document.documentElement;
+                        root.style.setProperty(`--curr-font-family-${lang}`, fontFamily);
+                        const selectEle = curr.parentElement/*wrapper*/.parentElement/*background*/.parentElement/*selector*/.children[0];
+                        selectEle.textContent = curr.children[0].textContent;
+                        selectEle.dataset.activeFont = curr.dataset.fontFamily;
+                        curr.parentElement/*wrapper*/.querySelectorAll(":scope .font-family-option[data-selected='true']").forEach(div => div.dataset.selected = "false");
+                        curr.dataset.selected = true;
+                    }},
+                        HTML("span", {class: "font-family-option-text flex-grow", style: `font-family: ${fontFamily}`}, fontName),
+                        tickSVG.cloneNode(true),
+                    ),
+                )
+            )
+        ),
+    );
+};
 // #region Settings
 const AddSettings = () => {
     if(document.body && !document.getElementById(SettingPanelID)){
@@ -2332,6 +2564,7 @@ const AddSettings = () => {
                     ...[
                         ["doTranslate", "是否汉化", "", "bool"],
                         ["manaDustName", "Mana Dust 译名", "设置完成后需刷新页面", "input"],
+                        ["fontFamily", "游戏字体", "可分别设置英文和中文字体", "font"],
                         ["notifyQuestComplete", "任务完成提醒", "在未手动点击之前不会消失", "bool"],
                         ["notifyElementalRiftBegin", "元素裂隙事件准备阶段通知", "在未手动点击之前不会消失", "bool"],
                         ["notifyPowerRiftBegin", "力量裂隙事件开始通知", "在未手动点击之前不会消失", "bool"],
@@ -2340,7 +2573,7 @@ const AddSettings = () => {
                     ].map(([settingProp, description, info, type]) => {
                         switch(type){
                             case "bool":
-                                return HTML("div", {class: "flex items-center gap-2"},
+                                return HTML("div", {class: "flex items-center gap-2 mr-1"},
                                     HTML("div", {class: "flex-grow flex flex-col"},
                                         HTML("label", {translated: ""}, description),
                                         ...(info ? [
@@ -2359,12 +2592,23 @@ const AddSettings = () => {
                                     ),
                                 );
                             case "input":
-                                return HTML("div", {class: "flex items-center gap-2"},
+                                return HTML("div", {class: "flex items-center gap-2 mr-1"},
                                     HTML("label", {class: "flex-grow", translated: ""}, description),
                                     HTML("input", {class: InputClass, "data-slot": "input", type: 'text', value: Settings[settingProp], translated: '', _change: (ev) => {
                                         Settings[settingProp] = ev.target.value;
                                     }}),
                                 );
+                            case "font":
+                                return HTML("div", {class: "flex items-center gap-2 mr-1"},
+                                    HTML("div", {class: "flex-grow flex flex-col"},
+                                        HTML("label", {translated: ""}, description),
+                                        ...(info ? [
+                                            HTML("label", {class: "text-xs", translated: ""}, info)
+                                        ] : []),
+                                    ),
+                                    CreateFontSelect("fontFamilyEn", FontEnOptions, FontEnOptionsLookup, "en"),
+                                    CreateFontSelect("fontFamily", FontOptions, FontOptionsLookup, "zh"),
+                                )
                         }
                     }),
                 )
