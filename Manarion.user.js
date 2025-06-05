@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.16.0
+// @version      0.16.1
 // @description  Manarion Chinese Translation and Quest notification, on any issue occurred, please /whisper VoltaX in game
 // @description:zh  Manarion 文本汉化，以及任务通知（非自动点击），如果汉化出现任何问题，可以游戏私信VoltaX，在greasyfork页面留下评论，或者通过其他方式联系我
 // @author       VoltaX
@@ -1206,6 +1206,8 @@ const ProfileTranslation = new Map([
 // #region PlacehlderTL
 const PlaceholderTranslation = new Map([
     ["Player name", "玩家名称"],
+    ["To player name", "要赠送的玩家名称"],
+    ["Quantity", "数量"],
     ["Lookup player", "查询玩家"],
     ["Min", "最小值"],
     ["Max", "最大值"],
@@ -2266,7 +2268,7 @@ const FindAndReplaceText = () => {try {
     });
     // #region dialog
     CheckTranslation(document, 'div[data-slot="dialog-content"]', (div) => {
-        const titleEle = div.querySelector(":scope h2");
+        const titleEle = div.querySelector(":scope [data-slot='dialog-title']");
         if(!titleEle){
             console.log("cound not find dialog title");
             return;
@@ -2276,6 +2278,9 @@ const FindAndReplaceText = () => {try {
         if(result = /Are you sure you want to disenchant ([0-9]+) items\?/.exec(title)){
             titleEle.textContent = `确定要分解 ${result[1]} 件装备吗？` ;
             div.children[0].children[1].children[0].textContent = "你将获得";
+        }
+        else if(result = /Transfer \[[^\]]+\]/.exec(title)){
+            titleEle.childNodes[0].textContent = "赠送 ";
         }
         else switch(title){
             case "Enchant item":{
