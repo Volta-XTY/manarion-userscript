@@ -2730,5 +2730,7 @@ CheckForUpdate();
 
 
 // modify color settings
+/*
 const dependency = html(`<script id="manarion-chinese-translation-dependency" type="module" src="https://unpkg.com/vanilla-colorful?module"></script>`);
 document.head.append(dependency);
+*/
