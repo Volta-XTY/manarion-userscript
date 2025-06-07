@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.16.2
+// @version      0.16.3
 // @description  Manarion Chinese Translation and Quest notification, on any issue occurred, please /whisper VoltaX in game
 // @description:zh  Manarion 文本汉化，以及任务通知（非自动点击），如果汉化出现任何问题，可以游戏私信VoltaX，在greasyfork页面留下评论，或者通过其他方式联系我
 // @author       VoltaX
@@ -803,6 +803,7 @@ const Translation = new Map([
     ["Quest Timer:", "任务计时器："],
     ["Time to Level:", "升级倒计时："],
     ["XP / Hr:", "XP / 小时:"],
+    ["Levels / Hr:", "等级 / 小时:"],
     ["XP / Day:", "XP / 天:"],
     ["Mana Dust / Hr:", `${Settings.manaDustName} / 小时:`],
     ["Mana Dust / Day:", `${Settings.manaDustName} / 天:`],
@@ -2158,7 +2159,7 @@ const FindAndReplaceText = () => {try {
         if(Translation.has(itemName)) {
             span.textContent = Translation.get(itemName);
         }
-        else if(result = /^ \+([0-9]+) ([A-Za-z ]+) $/.exec(span.textContent)){
+        else if(result = /^ \+([^ ]+) ([A-Za-z ]+) $/.exec(span.textContent)){
             span.textContent = ` +${result[1]} ${Translation.get(result[2].trim()) ?? result[2]} `;
         }
         else if(span.dataset.slot === "tooltip-trigger" || span.dataset.slot === "popover-trigger"){
@@ -2709,7 +2710,7 @@ const wakeElnaeth = () => {
 console.log('chinese translation loaded');
 wakeElnaeth();
 const CheckForUpdate = async () => {try {
-    const request = await fetch(GM_info.script.updateURL, {mode: "cors"});
+    const request = await fetch(GM_info.script.updateURL, {mode: "cors", cache: "reload"});
     const text = await request.text();
     console.log(text);
     const result = /\/\/ *@version +(.*)$/m.exec(text);
@@ -2725,7 +2726,7 @@ const CheckForUpdate = async () => {try {
             }
         }
     }
-}catch(e){console.error(e)}finally{setTimeout(CheckForUpdate, 10*60*1000)}};
+}catch(e){console.error(e)}finally{setTimeout(CheckForUpdate, 30*60*1000)}};
 CheckForUpdate();
 
 
