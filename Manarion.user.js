@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.16.1
+// @version      0.16.2
 // @description  Manarion Chinese Translation and Quest notification, on any issue occurred, please /whisper VoltaX in game
 // @description:zh  Manarion 文本汉化，以及任务通知（非自动点击），如果汉化出现任何问题，可以游戏私信VoltaX，在greasyfork页面留下评论，或者通过其他方式联系我
 // @author       VoltaX
@@ -96,6 +96,7 @@ const Settings = new Proxy(_Settings, {
     }
 });
 const SettingPanelID = "manarion-chinese-translation-settings-background";
+// #region style
 const css =
 `
 .detect-box{
@@ -151,6 +152,7 @@ const css =
     border-color: var(--primary);
     border-width: 1px;
     background-color: black;
+    scrollbar-color: color-mix(in oklab,var(--input)70%,transparent) transparent;
 }
 .font-family-option{
     padding: 2px 5px;
@@ -250,6 +252,7 @@ const html = (html) => {
     t.innerHTML = html;
     return t.content.firstElementChild;
 };
+//#region HTML
 const HTML = (tagname, attrs, ...children) => {
     if(attrs === undefined) return document.createTextNode(tagname);
     const ele = document.createElement(tagname);
@@ -269,6 +272,7 @@ const HTML = (tagname, attrs, ...children) => {
     for(const child of children) if(child) ele.append(child);
     return ele;
 };
+//#region SVG
 const tickSVG = html(`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check size-4"><path d="M20 6 9 17l-5-5"></path></svg>`);
 const dropdownArrowSVG = html(`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down size-4 opacity-50" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>`);
 const translateSettingsSVG = html(`<svg width="24" height="24" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" fill="#8f96a9" class="bi bi-translate">
@@ -1052,6 +1056,9 @@ const SettingsTranslation = new Map([
 ]);
 // #region FarmTrans
 const FarmTranslation = new Map([
+    [" (Tier ", " (等级 "],
+    [" Ticks)", " 刻)"],
+    [" more in potion belt", " 瓶存于药水腰带"],
     ["", ""],
     ["Your farm has been growing for ", "你的农场已经生长了 "],
     ["Your farm has been growing for less than a minute", "你的农场已经生长了不到一分钟"],
@@ -1349,8 +1356,8 @@ const _Translate = (ele, type = "default", keepOriginalText = false) => {
     }
     else return true;
 };
-const _TypedTranslate = (type) => {
-    return (ele) => _Translate(ele, type);
+const _TypedTranslate = (type, keepOriginalText = false) => {
+    return (ele) => _Translate(ele, type, keepOriginalText);
 };
 window.ExportFailedTranslate = (comment = true) => {
     console.log([..._FailedTranslate.keys()].map(json => {
@@ -1888,6 +1895,10 @@ const FindAndReplaceText = () => {try {
                 div.setAttribute("translated", "");
                 _Translate(div);
             });
+            CheckTranslation(document, "div.flex.min-h-8.gap-2>div.block.md\\:hidden:nth-child(2):nth-last-child(1)", div => {
+                div.childNodes[0].textContent = "无";
+                _Translate(div.childNodes[1]);
+            })
             break;
         }
         // #region /settings
@@ -2119,6 +2130,24 @@ const FindAndReplaceText = () => {try {
             // Codex popup
             div.children[0].childNodes[0].textContent = "可交易：";
             div.children[1].childNodes[0].textContent = "绑定：";
+        }
+        else if(div.children[0]?.children.length === 3 && div.children[0].children[0].textContent.startsWith("Potion of")){
+            const div0 = div.children[0];
+            const OnMutate = (_, observer) => {
+                observer.disconnect();
+                [
+                    div0.children[0].childNodes[0],
+                    div0.children[0].childNodes[1],
+                    div0.children[0].childNodes[5],
+                    div0.children[2].childNodes[1],
+                ].forEach(_TypedTranslate("farm", true));
+                observer.observe(div0, {subtree: true, childList: true, characterData: true});
+            };
+            const div01t = div0.children[1].textContent;
+            const firstSpacePos = div01t.indexOf(" ");
+            div01t.textContent = `${div01t.slice(0, firstSpacePos)}${FarmTranslation.get(div01t.slice(firstSpacePos)) ?? div01t.slice(firstSpacePos)}`
+            const observer = new MutationObserver(OnMutate);
+            OnMutate(undefined, observer);
         }
     });
     // #region item
@@ -2428,15 +2457,32 @@ const TranslateEvent = () => {
         const config = MappedTranlsateEventConfig.get(div.children[0]?.textContent);
         if(!config || div.children.length !== config.childrenLength) return;
         if(config.OnStart) config.OnStart();
-        const title = div.children[0];
-        const titleClone = title.cloneNode(true);
-        title.setAttribute("hidden", "");
-        title.insertAdjacentElement("afterend", titleClone);
+        if(Settings.doTranslate){
+            const title = div.children[0];
+            const titleClone = title.cloneNode(true);
+            titleClone.setAttribute("clone", "");
+            title.setAttribute("hidden", "");
+            title.insertAdjacentElement("afterend", titleClone);
+        }
         const OnQuestProgress = (mutlist, observer) => {
             observer.disconnect();
-            div.children[1].replaceWith(div.children[0].cloneNode(true));
-            div.children[1].removeAttribute("hidden");
-            _Translate(div.children[1]);
+            if(Settings.doTranslate){
+                const clone = div.querySelector(":scope [clone]");
+                if(clone){
+                    const newClone = div.children[0].cloneNode(true);
+                    newClone.removeAttribute("hidden");
+                    newClone.setAttribute("clone", "")
+                    _Translate(newClone);
+                    clone.replaceWith(newClone);
+                }
+                else{
+                    const title = div.children[0];
+                    const titleClone = title.cloneNode(true);
+                    titleClone.setAttribute("clone", "");
+                    title.setAttribute("hidden", "");
+                    title.insertAdjacentElement("afterend", titleClone);
+                }
+            }
             config.OnProgress(div);
             observer.observe(div, {childList: true, subtree: true, characterData: true});
         };
@@ -2466,6 +2512,7 @@ const AddFAQ = () => {
         )
     )
 }
+// #region FontSelect
 const CreateFontSelect = (settingsProp, FontOptions, FontOptionsLookup, lang) => {
     return HTML("div", {class: "font-selector", _click: (ev) => {
         const self = ev.currentTarget;
@@ -2645,8 +2692,8 @@ const OnMutate = async (mutlist, observer) => {
     AddSettingsNavItem();
     if(Settings.doTranslate){
         FindAndReplaceText();
-        TranslateEvent();
     }
+    TranslateEvent();
     if(ADD_FAQ) AddFAQ();
     observer.observe(document, {subtree: true, childList: true});
 };
@@ -2680,3 +2727,8 @@ const CheckForUpdate = async () => {try {
     }
 }catch(e){console.error(e)}finally{setTimeout(CheckForUpdate, 10*60*1000)}};
 CheckForUpdate();
+
+
+// modify color settings
+const dependency = html(`<script id="manarion-chinese-translation-dependency" type="module" src="https://unpkg.com/vanilla-colorful?module"></script>`);
+document.head.append(dependency);
