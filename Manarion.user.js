@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.16.4
+// @version      0.16.5
 // @description  Manarion Chinese Translation and Quest notification, on any issue occurred, please /whisper VoltaX in game
 // @description:zh  Manarion 文本汉化，以及任务通知（非自动点击），如果汉化出现任何问题，可以游戏私信VoltaX，在greasyfork页面留下评论，或者通过其他方式联系我
 // @author       VoltaX
@@ -1520,6 +1520,7 @@ const LogTranslator = (channelType, nodes) => {
             else console.log(`cannot translate|${text}|(Activity Log)`);
             break;
         }
+        //#region Guild↑ActLog
         case "Guild":{
             if(result = /([^ ]+) deposited \[[^\]]+\] into the armory\./.exec(text)){
                 nodes[0].textContent = `${result[1]} 将 `;
@@ -1569,6 +1570,7 @@ const LogTranslator = (channelType, nodes) => {
             else console.log(`cannot translate|${text}|(Guild)`);
             break;
         }
+        //#region Global
         case "Global":{
             if(result = /([^ ]+) found a \[[^\]]+\]/.exec(text)){
                 nodes[0].textContent = `${result[1]} 发现了 `;
@@ -1576,6 +1578,7 @@ const LogTranslator = (channelType, nodes) => {
             else console.log(`cannot translate|${text}|(Global)`);
             break;
         }
+        //#region All
         case "All":{
             if(SystemMsgTranslation.has(nodes[0].textContent)) _Translate(nodes[0], "help");
             else if(result = /Sold \[[^\]]+\] to ([^ ]+) for ([^ ]+) \[[^\]]+\]./.exec(text)){
@@ -1609,6 +1612,13 @@ const LogTranslator = (channelType, nodes) => {
             }
             else if(result = /You have earned ([^ ]+) event points\./.exec(text)){
                 nodes[0].textContent = `你获得了 ${result[1]} 事件点数。`
+            }
+            else if(result = /([^ ])+ returned \[([^\]])\] to you/.exec(text)){
+                nodes[0].textContent = `${result[1]} 将 `;
+                nodes[2].textContent = ` 还给了你。`
+            }
+            else if(result = /You sent ([^ ])+ ([^ ])+ \[([^\]])\]/.exec(text)){
+                nodes[0].textContent = `你送给了 ${result[1]} ${result[2]} `;
             }
             else console.log(`cannot translate|${text}|(All)`);
             break;
@@ -2493,7 +2503,6 @@ const TranslateEventConfig = [
         },
         TLOnProgress: (div) => {
             const questContent = div.querySelector(":scope p.text-foreground.text-sm");
-            console.log(div, questContent);
             _Translate(questContent.childNodes[0], "default", true);
             _Translate(questContent.childNodes[4], "default", true);
             if(div.children[3]) _Translate(div.children[3].childNodes[0]);
@@ -2507,7 +2516,7 @@ const TranslateEventConfig = [
             if(Settings.notifyPowerRiftBegin) new Notification("力量裂隙已出现！", {requireInteraction: true});
         },
         TLOnProgress: (div) => {
-            _Translate(div.querySelector(":scope p.text-foreground.text-sm").childNodes[1], "default", true);
+            _Translate(div.querySelector(":scope>div:nth-last-child(1)").childNodes[1], "default", true);
         },
     },
     {
@@ -2519,7 +2528,7 @@ const TranslateEventConfig = [
         },
         TLOnProgress: (div) => {
             if(Settings.doTranslate) {
-                const content = div.querySelector(":scope p.text-foreground.text-sm");
+                const content = div.querySelector(":scope>div:nth-last-child(1)");
                 [...content.childNodes].filter(node => node).forEach(node => _Translate(node, "default", true));
             }
         },
@@ -2592,12 +2601,10 @@ const CreateFontSelect = (settingsProp, FontOptions, FontOptionsLookup, lang) =>
         detectBox.style.height = `${rect.height + 2}px`;
         detectBox.style.top = `${rect.top - 1}px`;
         detectBox.style.left = `${rect.left - 1}px`;
-        console.log(detectBox.getBoundingClientRect());
         const thresholds = [];
         for(let i = 0; i <= 1; i += 0.01) thresholds.push(i);
         new IntersectionObserver((entries, observer) => {
             entries.sort((a, b) => b.time - a.time);
-            console.log(entries);
             const rect = self.getBoundingClientRect();
             const topHeight = rect.top;
             detectBox.style.width = `${rect.width + 2}px`;
@@ -2757,7 +2764,6 @@ const AddSettingsNavItem = () => {
     )
 };
 const CheckDeaths = () => {
-    console.log("CheckDeath");
     const set = Temp.DeathNotificationSet;
     if(Temp.Deaths && unsafeWindow.manarion && unsafeWindow.manarion.player.CurrentEnemyDeaths > Temp.Deaths){
         const note = new Notification("角色死亡");
