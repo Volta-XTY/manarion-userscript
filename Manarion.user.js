@@ -2504,7 +2504,7 @@ const TranslateEventConfig = [
         title: ["Siphon Rift of Power", "Siphoning Rift of Power"],
         childrenLength: 2,
         OnStart: () => {
-            if(Settings.notifyPowerRiftBegin) new Notification("力量裂隙已经开放！", {requireInteraction: true});
+            if(Settings.notifyPowerRiftBegin) new Notification("力量裂隙已出现！", {requireInteraction: true});
         },
         TLOnProgress: (div) => {
             _Translate(div.querySelector(":scope p.text-foreground.text-sm").childNodes[1], "default", true);
@@ -2515,7 +2515,7 @@ const TranslateEventConfig = [
         title: ["Queue for Elemental Rift", " Elemental Rift"],
         childrenLength: 2,
         OnStart: () => {
-            if(Settings.notifyElementalRiftBegin) new Notification("元素裂隙事件生效中！", {requireInteraction: true});
+            if(Settings.notifyElementalRiftBegin) new Notification("元素裂隙已出现！", {requireInteraction: true});
         },
         TLOnProgress: (div) => {
             if(Settings.doTranslate) {
