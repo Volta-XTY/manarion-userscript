@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.16.5
+// @version      0.16.6
 // @description  Manarion Chinese Translation and Quest notification, on any issue occurred, please /whisper VoltaX in game
 // @description:zh  Manarion 文本汉化，以及任务通知（非自动点击），如果汉化出现任何问题，可以游戏私信VoltaX，在greasyfork页面留下评论，或者通过其他方式联系我
 // @author       VoltaX
@@ -373,6 +373,7 @@ const Translation = new Map([
     ["Increases your mana regeneration", "增加你的魔法回复"],
     // #region item names
     ...[
+        ["Crystallized Mana", "魔力结晶"],
         ["Mana Dust", `${Settings.manaDustName}`],
         ["Elemental Shards", "元素碎片"],
         ["Codex", "法典"],
@@ -687,6 +688,12 @@ const Translation = new Map([
     ["Sleeping Quarters", "睡眠区"],
     ["Increases maximum actions by 1% per level", "每级使成员最大行动次数 +1%"],
     // #region update text
+    ["Added premium shop with Codex and Crystallized Mana", "新增可购买法典和魔力结晶的高级商店"], // default
+    ["Added more item names for battle items by level. Existing items have been renamed.", "新增更多战斗装备的等级名。现有装备的名称同样会改变。"], // default
+    ["Added cosmetic chat titles matching these names that can be unlocked with Crystallized Mana", "新增装饰性聊天头衔，可以通过魔力结晶解锁"], // default
+    ["Sigils are now part of equipment sets. Also moved sigil to top.", "魔符现在也可以被配装保存。此外将魔符移到装备栏顶端。"], // default
+    ["Change referral bonus to be 5% of codex purchases and shards reduced to 5% of base drop (no longer includes % bonus shards from equipment).", "将推荐奖励变为所购买法典的 5% 以及所掉落基础元素碎片的 5%（不再计算装备的元素碎片加成）。"], // default
+    [" No reset", " 不会有删档重置"], // default
     ["Fix dropping out of elemental rift queue when doing certain things", "修复了执行某些操作时会取消准备元素裂隙的问题"],
     ["/event (or /elementalrift) Brings up info about the latest elemental rift event", "/event（或者 /elementalrift）还会给出上一次元素裂隙的信息"],
     ["Change elemental rift timing to every 3.5 hours", "元素裂隙现在每 3.5 小时出现一次"],
@@ -880,7 +887,14 @@ const Translation = new Map([
     ["Logout", "登出"],
     ["Infuse", "注能等级"],
     ["Use", "使用"],
-    // #region Elnaeth
+    ["Premium", "高级商店"], // default
+    ["Current Title", "当前头衔"], // default
+    [" Checkout with Stripe", " 使用 Stripe 支付"], // default
+    ["Unlock", "解锁"], // default
+    ["Title", "头衔"], // default
+    ["Used to purchase premium features like titles", "用来购买包含头衔等高级特性的货币"], // default
+    ["None", "无"], // default
+    ["Neophyte", "Neophyte"], // default // #region Elnaeth
     ["Show stats tracker (lower left)", "显示属性追踪器（左下角）"],
     ["Show individual stat gains log (upper right)", "显示属性掉落日志（右上角）"],
     ["Show enhanced loot tracker (upper right)", "显示增强型掉落追踪器（右上角）"],
@@ -1288,7 +1302,7 @@ const EquipTranslation = new Map([
     // quality
     ["Worn", "破旧的"], ["Refined", "精制的"], ["Runed", "铭文的"], ["Ascended", "进阶的"], ["Eternal", "永恒的"],
     // type
-    ["Initiate", "初始"], ["Novice", "新手"], ["Apprentice", "学徒"], ["Acolyte", "助手"], ["Adept", "熟手"], ["Scholar", "专家"], ["Magus", "术士"], ["Invoker", "祈求者"], ["Archmage", "大巫师"], ["Eldritch", "异界"], ["Primordial", "原初"], ["Celestial", "星辉"], ["Lumberjack's", "伐木工"], ["Tidecaller's", "唤潮人"], ["Prospector's", "探矿者"],
+    ["Neophyte", "初学者"], ["Initiate", "初始"], ["Novice", "新手"], ["Apprentice", "学徒"], ["Acolyte", "助手"], ["Adept", "熟手"], ["Scholar", "专家"], ["Magus", "术士"], ["Invoker", "祈求者"], ["Archmage", "大巫师"], ["Eldritch", "异界"], ["Primordial", "原初"], ["Celestial", "星辉"], ["Lumberjack's", "伐木工"], ["Tidecaller's", "唤潮人"], ["Prospector's", "探矿者"], ["Thaumaturge", "奇术师"], ["Incantator", "唤魔者"], ["Disciple", "门徒"],
     // part
     ["Staff", "法杖"], ["Hood", "兜帽"], ["Pendant", "项链"], ["Cloak", "斗篷"], ["Robes", "法袍"], ["Gloves", "手套"], ["Sandals", "鞋子"], ["Ring", "戒指"], [" of Water", "水"], [" of Fire", "火"], [" of Nature", "自然"], ["Helmet", "头盔"], ["Pickaxe", "镐子"], ["Axe", "斧头"], ["Rod", "鱼竿"], ["Jacket", "夹克"], ["Cape", "披风"], ["Boots", "靴子"], ["Hat", "帽子"], ["Tunic", "外衣"],
     // Sigil
@@ -1313,7 +1327,7 @@ const SystemMsgTranslation = new Map([
     ["/afk <message> Set auto reply message. Empty message to clear. Alias /autoreply", "/afk <自动回复消息> 设置离线自动回复消息。设置为空以取消此功能。相同效果指令：/autoreply"],
     ["/wire <name> <amount> <mana|dust|shards|codex|...> Transfer items to player. Alias /transfer", "/wire <玩家名> <数量> <mana|dust|shards|codex|...> 输送指定数量的指定物品至指定玩家。相同效果指令：/transfer"],
     ["/w <name> <msg> Send a private message. Alias /whisper, /tell, /msg", "/w <玩家名> <消息> 发送私信。相同效果指令：/whisper, /tell, /msg"],
-    ["/elementalrift Display next elemental rift time", "/elementalrift 显示下一次元素裂隙事件的开始时间"],
+    ["/event Display next elemental rift time and previous event stats", "/event 显示下一次元素裂隙事件的开始时间以及上一次事件的数据"],
     ["You already have an open order for this item.", "你已经有一个此物品的交易挂单了。"],
     ["You have recently cancelled an order for this item and must wait 10 minutes before creating new orders less than 1% above the best price.", "你在不久前取消了一个此物品的挂单，因此如果你新创建的挂单价格小于当前最高买价的 101%，将有 10 分钟的挂单冷却时间。"],
     ["You have recently cancelled an order for this item and must wait 10 minutes before creating new orders less than 1% under the best price.", "你在不久前取消了一个此物品的挂单，因此如果你新创建的挂单价格大于当前最低卖价的 99%，将有 10 分钟的挂单冷却时间。"],
@@ -1371,7 +1385,7 @@ const equipRegex = /(?<lbracket>\[?)(?:Sigil of (?<sigilType>[A-Za-z]+))|(?:(?<q
 const EquipTextTranslate = (text) => {
     const result = equipRegex.exec(text);
     const group = result.groups;
-    if(result) return group.sigilType? `${EquipTranslation.get(group.sigilType)}魔符` : `${group.lbracket ?? ""}${EquipTranslation.get(group.quality)}${EquipTranslation.get(group.type)}${group.elementType ? EquipTranslation.get(group.elementType) : ""}${EquipTranslation.get(group.part) ?? group.part}${group.upgradeLevel ?? ""} (${group.level})${group.rbracket ?? ""}`;
+    if(result) return group.sigilType? `${EquipTranslation.get(group.sigilType)}魔符` : `${group.lbracket ?? ""}${EquipTranslation.get(group.quality)}${EquipTranslation.get(group.type) ?? group.type}${group.elementType ? EquipTranslation.get(group.elementType) : ""}${EquipTranslation.get(group.part) ?? group.part}${group.upgradeLevel ?? ""} (${group.level})${group.rbracket ?? ""}`;
     else return "";
 }
 const EquipTranslate = (ele) => {
