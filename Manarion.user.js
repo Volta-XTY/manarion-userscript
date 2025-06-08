@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.16.3
+// @version      0.16.4
 // @description  Manarion Chinese Translation and Quest notification, on any issue occurred, please /whisper VoltaX in game
 // @description:zh  Manarion 文本汉化，以及任务通知（非自动点击），如果汉化出现任何问题，可以游戏私信VoltaX，在greasyfork页面留下评论，或者通过其他方式联系我
 // @author       VoltaX
@@ -19,6 +19,9 @@
 TODO: 
     * wait for firefox to implement position-anchor feature and use it on settings dropdown menu
 */
+const Temp = {
+    DeathNotificationSet: new Set(),
+};
 const ButtonClass = "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-[color,box-shadow] disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive border border-input bg-background dark:bg-primary/30 shadow-xs hover:bg-accent dark:hover:bg-primary/50 hover:text-accent-foreground cursor-pointer h-9 px-4 py-2 has-[>svg]:px-3";
 const SwitchClass = "peer data-[state=checked]:bg-primary data-[state=unchecked]:bg-input focus-visible:border-ring focus-visible:ring-ring/50 dark:data-[state=unchecked]:bg-input/40 inline-flex h-[1.15rem] w-8 shrink-0 items-center rounded-full border border-transparent shadow-xs transition-all outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50";
 const SwitchBallClass = "bg-background dark:data-[state=unchecked]:bg-foreground dark:data-[state=checked]:bg-primary-foreground pointer-events-none block size-4 rounded-full ring-0 transition-transform data-[state=checked]:translate-x-[calc(100%-2px)] data-[state=unchecked]:translate-x-0";
@@ -36,6 +39,56 @@ const GetItem = (key) => {try {
     return {};
 }};
 const SetItem = (key, value) => window.localStorage.setItem(key, JSON.stringify(value));
+//#region EquipAnal
+const _AvailEquip = new Map(); // name -> equipDetail
+const _EquipParts = new Map(); // part -> equips
+const AddToAnalysis = (div) => {
+    console.log(div);
+    const detail = {};
+    const name = div.querySelector(":scope>div.text-sm>div[class='mb-1 text-lg font-bold']").textContent;
+    [...div.querySelectorAll(":scope>div.text-sm>div[class='text-foreground flex justify-between']")].forEach(div => {
+        const key = div.children[0].textContent;
+        const value = div.children[1].childNodes[1].textContent.replace("%", "");
+        detail[key] = value;
+    });
+    const part = div.querySelector(":scope>div.text-sm>div[class='text-foreground mb-2 flex justify-between gap-2']>span:nth-child(2)").childNodes[2].textContent;
+    const level = div.querySelector(":scope>div.text-sm>div[class='text-foreground mb-2 flex justify-between gap-2']>span:nth-child(1)").childNodes[2].textContent;
+    detail.level = Number(level);
+    _AvailEquip.set(name, detail);
+    if(!_EquipParts.has(part)) _EquipParts.set(part, [name]);
+    else _EquipParts.get(part).push(name);
+};
+const Boosts = [
+    [1,"Spellpower","法术强度"],
+    [2,"Ward","抗性"],
+    [3,"Intellect","智力"],
+    [4,"Stamina","耐力"],
+    [5,"Focus","集中"],
+    [6,"Spirit","精神"],
+    [7,"Mana","魔力"],
+    [10,"Fire Mastery","火系精通"],
+    [11,"Water Mastery","水系精通"],
+    [12,"Nature Mastery","自然精通"],
+    [40,"Damage","伤害"],
+    [41,"Multicast","多重施法"],
+    [42,"Critical hit chance","暴击几率"],
+    [43,"Critical hit damage","暴击伤害"],
+    [44,"Haste","技能急速"],
+    [45,"Health Boost","生命值增幅"],
+    [46,"Ward Boost","抗性增幅"],
+    [47,"Focus","集中"],
+    [48,"Mana Boost","魔力增幅"],
+    [49,"Overload","过载"],
+    [50,"Time dilation","时间膨胀"],
+];
+const BoostID2CN = new Map(Boosts.map(([id, EN, CN]) => [id, CN]));
+unsafeWindow.ExpertEquipAnalState = () => {
+    console.log("_AvailEquip");
+    console.log(_AvailEquip);
+    console.log("_EquipParts");
+    console.log(_EquipParts);
+};
+//#region Settings
 const localStorageKey = "manarion-chinese-translation-settings"
 const _Settings = {
     doTranslate: true,
@@ -44,8 +97,10 @@ const _Settings = {
     notifyQuestComplete: true,
     notifyElementalRiftBegin: true,
     notifyPowerRiftBegin: true,
+    notifyDeaths: false,
     fontFamilyEn: "Times New Roman",
     fontFamily: "Microsoft YaHei",
+    enableTestFeature: false,
     //notifyWithInterval: -1,
     ...GetItem(localStorageKey),
 };
@@ -152,7 +207,6 @@ const css =
     border-color: var(--primary);
     border-width: 1px;
     background-color: black;
-    scrollbar-color: color-mix(in oklab,var(--input)70%,transparent) transparent;
 }
 .font-family-option{
     padding: 2px 5px;
@@ -191,6 +245,8 @@ const css =
     left: 0px;
     background-color: rgba(0, 0, 0, 0.5);
     &>div{
+        max-height: 100%;
+        overflow-y: scroll;
         border-width: 3px;
         border-radius: 5px;
         margin: auto;
@@ -1312,16 +1368,25 @@ const ElnaethTranslation = new Map([
     ["Base Resource Amount", "资源"],
 ])
 const equipRegex = /(?<lbracket>\[?)(?:Sigil of (?<sigilType>[A-Za-z]+))|(?:(?<quality>Worn|Refined|Runed|Ascended|Eternal) (?<type>[A-Za-z']+) (?<part>[A-Za-z]+)(?<elementType> of Water| of Fire| of Nature)?(?<upgradeLevel> \+[0-9]+)? \((?<level>[0-9]+)\)(?<rbracket>\]?))/;
-const EquipTranslate = (ele) => {
-    const equip = equipRegex.exec(ele.textContent);
-    if(equip){
-        const group = equip.groups;
-        ele.textContent = group.sigilType? `${EquipTranslation.get(group.sigilType)}魔符` : `${group.lbracket ?? ""}${EquipTranslation.get(group.quality)}${EquipTranslation.get(group.type)}${group.elementType ? EquipTranslation.get(group.elementType) : ""}${EquipTranslation.get(group.part) ?? group.part}${group.upgradeLevel ?? ""} (${group.level})${group.rbracket ?? ""}`;
-    }
-    else{
-        console.log("could not translate item: ", ele.textContent);
-    }
+const EquipTextTranslate = (text) => {
+    const result = equipRegex.exec(text);
+    const group = result.groups;
+    if(result) return group.sigilType? `${EquipTranslation.get(group.sigilType)}魔符` : `${group.lbracket ?? ""}${EquipTranslation.get(group.quality)}${EquipTranslation.get(group.type)}${group.elementType ? EquipTranslation.get(group.elementType) : ""}${EquipTranslation.get(group.part) ?? group.part}${group.upgradeLevel ?? ""} (${group.level})${group.rbracket ?? ""}`;
+    else return "";
 }
+const EquipTranslate = (ele) => {
+    const tl = EquipTextTranslate(ele.textContent);
+    if(tl) ele.textContent = tl;   
+    else console.log("could not translate item: ", ele.textContent);
+}
+const ImportInventory = () => {
+    manarion.inventory.items.filter(item => item.Rarity === 5).forEach(({ ID, Name, Boosts, Level }) => {
+        const name = EquipTextTranslate(Name);
+        const details = Object.fromEntries(Boosts.map(([id, value]) => [BoostID2CN.get(id), value]).filter(([id, value]) => id));
+        details.level = Level;
+        _AvailEquip.set(name, details);
+    })
+};
 const researchSelector = ["-content-mana-dust", "-content-combat-skills", "-content-enchants", "-content-gathering", "-content-codex"].map(id => `div[data-state="active"][id$="${id.replaceAll(":", "\\:")}"]:not([data-state="translated"])`).join(",");
 const _FailedTranslate = new Set();
 // #region __TypedTL
@@ -1360,7 +1425,7 @@ const _Translate = (ele, type = "default", keepOriginalText = false) => {
 const _TypedTranslate = (type, keepOriginalText = false) => {
     return (ele) => _Translate(ele, type, keepOriginalText);
 };
-window.ExportFailedTranslate = (comment = true) => {
+unsafeWindow.ExportFailedTranslate = (comment = true) => {
     console.log([..._FailedTranslate.keys()].map(json => {
         const data = JSON.parse(json);
         return `    ["${data.text}", ""],${comment ? ` // ${data.type}` : ""}`;
@@ -2178,6 +2243,7 @@ const FindAndReplaceText = () => {try {
                     const spanClone = span.parentElement.querySelector(":scope span[clone]");
                     const newClone = span.cloneNode(true);
                     newClone.style.opacity = "1";
+                    newClone.setAttribute("clone", "");
                     spanClone.replaceWith(newClone);
                     EquipTranslate(newClone.childNodes[1]);
                     observer.observe(span, {childList: true, subtree: true, characterData: true});
@@ -2201,7 +2267,10 @@ const FindAndReplaceText = () => {try {
         div.querySelectorAll(":scope div.text-foreground.flex.justify-between:not(.gap-2)").forEach(div => _Translate(div.children[0]));
         div.querySelectorAll(":scope div.text-foreground\\/70.flex").forEach(div => _Translate(div.children[0]));
         div.querySelectorAll(":scope div.text-foreground\\/70.text-sm").forEach(div => _Translate(div));
-        div.querySelectorAll(":scope .text-sm.underline.select-none").forEach(div => _Translate(div));
+        div.querySelectorAll(":scope .text-sm.underline.select-none").forEach(link => {
+            _Translate(link);
+            if(Settings.enableTestFeature) link.insertAdjacentElement("afterend", HTML("div", {class: "text-foreground float-right cursor-pointer text-sm underline select-none", _click: () => AddToAnalysis(div)}, " 加入分析"));
+        });
         div.querySelectorAll(":scope div.text-foreground.mb-2.flex.justify-between.gap-2").forEach(div => {console.log(div.outerHTML); _Translate(div.children[0].childNodes[0]), _Translate(div.children[1].childNodes[0]), _Translate(div.children[1].childNodes[2])});
         // Enchantment
         div.querySelectorAll(":scope div.flex.justify-between.text-green-500").forEach(div => _Translate(div.children[0]));
@@ -2305,7 +2374,7 @@ const FindAndReplaceText = () => {try {
         }
         const title = titleEle.textContent;
         let result;
-        if(result = /Are you sure you want to disenchant ([0-9]+) items\?/.exec(title)){
+        if(result = /Are you sure you want to disenchant ([0-9]+) items?\?/.exec(title)){
             titleEle.textContent = `确定要分解 ${result[1]} 件装备吗？` ;
             div.children[0].children[1].children[0].textContent = "你将获得";
         }
@@ -2417,13 +2486,18 @@ const TranslateEventConfig = [
         title: ["Quest Progress"],
         childrenLength: 2,
         OnProgress: (div) => {
-            _Translate(div.children[2].childNodes[0], "default", true);
-            _Translate(div.children[2].childNodes[4], "default", true);
-            if(div.children[3]) _Translate(div.children[3].childNodes[0]);
-            if(Settings.notifyQuestComplete && Number(div.children[2].childNodes[1].textContent) === Number(div.children[2].childNodes[3].textContent)) {
+            const questContent = div.querySelector(":scope p.text-foreground.text-sm");
+            if(Settings.notifyQuestComplete && Number(questContent.childNodes[1].textContent) === Number(questContent.childNodes[3].textContent)) {
                 new Notification("任务完成", { requireInteraction: true, });
             }
         },
+        TLOnProgress: (div) => {
+            const questContent = div.querySelector(":scope p.text-foreground.text-sm");
+            console.log(div, questContent);
+            _Translate(questContent.childNodes[0], "default", true);
+            _Translate(questContent.childNodes[4], "default", true);
+            if(div.children[3]) _Translate(div.children[3].childNodes[0]);
+        }
     },
     {
         id: "rift of power",
@@ -2432,8 +2506,8 @@ const TranslateEventConfig = [
         OnStart: () => {
             if(Settings.notifyPowerRiftBegin) new Notification("力量裂隙已经开放！", {requireInteraction: true});
         },
-        OnProgress: (div) => {
-            _Translate(div.children[2].childNodes[1], "default", true);
+        TLOnProgress: (div) => {
+            _Translate(div.querySelector(":scope p.text-foreground.text-sm").childNodes[1], "default", true);
         },
     },
     {
@@ -2441,23 +2515,23 @@ const TranslateEventConfig = [
         title: ["Queue for Elemental Rift", " Elemental Rift"],
         childrenLength: 2,
         OnStart: () => {
-            if(Settings.notifyElementalRiftBegin) new Notification("元素裂隙事件开始！", {requireInteraction: true});
+            if(Settings.notifyElementalRiftBegin) new Notification("元素裂隙事件生效中！", {requireInteraction: true});
         },
-        OnProgress: (div) => {
-            [
-                div.children[2].childNodes[2],
-                div.children[2].childNodes[1],
-                div.children[2].childNodes[0],
-            ].filter(node => node).forEach(node => _Translate(node, "default", true));
+        TLOnProgress: (div) => {
+            if(Settings.doTranslate) {
+                const content = div.querySelector(":scope p.text-foreground.text-sm");
+                [...content.childNodes].filter(node => node).forEach(node => _Translate(node, "default", true));
+            }
         },
     }
 ];
 const MappedTranlsateEventConfig = new Map(TranslateEventConfig.flatMap((config) => config.title.map(title => [title, config])));
 const TranslateEvent = () => {
-    document.querySelectorAll("div.border-primary div.grid-cols-4 div.col-span-4 div.p-2.w-full:not([watching])").forEach(div => {
+    document.querySelectorAll("div.border-primary div.grid-cols-4 div.col-span-4 div.p-2.w-full:not([translated])").forEach(div => {
+        if(!Settings.doTranslate) return;
         const config = MappedTranlsateEventConfig.get(div.children[0]?.textContent);
         if(!config || div.children.length !== config.childrenLength) return;
-        if(config.OnStart) config.OnStart();
+        div.setAttribute("translated", "");
         if(Settings.doTranslate){
             const title = div.children[0];
             const titleClone = title.cloneNode(true);
@@ -2465,30 +2539,23 @@ const TranslateEvent = () => {
             title.setAttribute("hidden", "");
             title.insertAdjacentElement("afterend", titleClone);
         }
-        const OnQuestProgress = (mutlist, observer) => {
+        config.OnStart?.(div);
+        const OnEventlikeProgress = (mutlist, observer) => {
             observer.disconnect();
+            config.OnProgress?.(div);
             if(Settings.doTranslate){
                 const clone = div.querySelector(":scope [clone]");
-                if(clone){
-                    const newClone = div.children[0].cloneNode(true);
-                    newClone.removeAttribute("hidden");
-                    newClone.setAttribute("clone", "")
-                    _Translate(newClone);
-                    clone.replaceWith(newClone);
-                }
-                else{
-                    const title = div.children[0];
-                    const titleClone = title.cloneNode(true);
-                    titleClone.setAttribute("clone", "");
-                    title.setAttribute("hidden", "");
-                    title.insertAdjacentElement("afterend", titleClone);
-                }
+                const newClone = div.children[0].cloneNode(true);
+                newClone.removeAttribute("hidden");
+                newClone.setAttribute("clone", "")
+                _Translate(newClone);
+                clone.replaceWith(newClone);
+                config.TLOnProgress?.(div);
             }
-            config.OnProgress(div);
             observer.observe(div, {childList: true, subtree: true, characterData: true});
         };
-        const observer = new MutationObserver(OnQuestProgress)
-        OnQuestProgress(undefined, observer);
+        const observer = new MutationObserver(OnEventlikeProgress);
+        OnEventlikeProgress(undefined, observer);
     })
 };
 // #region FAQ
@@ -2558,7 +2625,7 @@ const CreateFontSelect = (settingsProp, FontOptions, FontOptionsLookup, lang) =>
             ev.currentTarget.setAttribute("hidden", "");
             document.querySelectorAll(".detect-box").forEach(ele => ele.remove());
         }},
-            HTML("div", {class: "font-family-options-wrapper"},
+            HTML("div", {class: "font-family-options-wrapper scrollbar-thin scrollbar-track-transparent"},
                 ...FontOptions.map(([fontFamily, fontName]) => 
                     HTML("div", {class: "font-family-option", "data-font-family": fontFamily, "data-selected": Settings[settingsProp] === fontFamily, _pointerenter: (ev) => {
                         ev.stopPropagation();
@@ -2604,7 +2671,7 @@ const AddSettings = () => {
             HTML("div", {id: SettingPanelID, hidden: "", _click: (ev) => {
                 document.getElementById(SettingPanelID).setAttribute("hidden", "");
             }},
-                HTML("div", {id: "setting-panel", class: "min-w-[400px] h-fit rounded-[4px] space-y-4 z-50 border-primary p-6", _click: (ev) => {
+                HTML("div", {id: "setting-panel", class: "min-w-[400px] h-fit rounded-[4px] space-y-4 z-50 border-primary p-6 scrollbar-thin scrollbar-track-transparent", _click: (ev) => {
                     ev.stopPropagation();
                 }},
                     HTML("div", {class: "flex"},
@@ -2615,15 +2682,17 @@ const AddSettings = () => {
                         }}, "有可用更新"),
                     ),
                     ...[
-                        ["doTranslate", "是否汉化", "", "bool"],
-                        ["manaDustName", "Mana Dust 译名", "设置完成后需刷新页面", "input"],
+                        ["doTranslate", "是否汉化", "更改此设置将刷新页面", "bool", () => window.location.reload()],
+                        ["manaDustName", "Mana Dust 译名", "更改此设置将刷新页面", "input", () => window.location.reload()],
                         ["fontFamily", "游戏字体", "可分别设置英文和中文字体", "font"],
                         ["notifyQuestComplete", "任务完成提醒", "在未手动点击之前不会消失", "bool"],
-                        ["notifyElementalRiftBegin", "元素裂隙事件准备阶段通知", "在未手动点击之前不会消失", "bool"],
-                        ["notifyPowerRiftBegin", "力量裂隙事件开始通知", "在未手动点击之前不会消失", "bool"],
+                        ["notifyElementalRiftBegin", "元素裂隙通知", "未手动点击之前不会消失", "bool"],
+                        ["notifyPowerRiftBegin", "力量裂隙通知", "未手动点击之前不会消失", "bool"],
+                        ["notifyDeaths", "死亡时通知", "防止脱下装备忘记穿回", "bool"],
                         //["notifyWithInterval", "定时发送通知", "例：用于提醒定期检查市场", "input"],
-                        ["debug", "开启测试模式", "会影响正常使用", "bool"],
-                    ].map(([settingProp, description, info, type]) => {
+                        ["debug", "开启测试模式", "会影响正常使用", "bool", () => window.location.reload()],
+                        ["enableTestFeature", "开启开发中功能", "会影响正常使用", "bool", () => window.location.reload()],
+                    ].map(([settingProp, description, info, type, ...args]) => {
                         switch(type){
                             case "bool":
                                 return HTML("div", {class: "flex items-center gap-2 mr-1"},
@@ -2640,6 +2709,7 @@ const AddSettings = () => {
                                         button.setAttribute("aria-checked", cur ? "false" : "true");
                                         button.children[0].dataset.state = cur ? "unchecked" : "checked";
                                         Settings[settingProp] = !cur;
+                                        args[0]?.();
                                     }},
                                         HTML("span", {class: SwitchBallClass, "data-state": Settings[settingProp] ? "checked" : "unchecked", "data-slot": "switch-thumb"})
                                     ),
@@ -2686,6 +2756,22 @@ const AddSettingsNavItem = () => {
         )
     )
 };
+const CheckDeaths = () => {
+    console.log("CheckDeath");
+    const set = Temp.DeathNotificationSet;
+    if(Temp.Deaths && unsafeWindow.manarion && unsafeWindow.manarion.player.CurrentEnemyDeaths > Temp.Deaths){
+        const note = new Notification("角色死亡");
+        [...set.keys()].forEach(note => {
+            set.delete(note);
+            note.close();
+        });
+        set.add(note);
+        note.addEventListener("close", (note) => set.has(note) ? set.delete(note) : undefined);
+    }
+    if(unsafeWindow.manarion){ Temp.Deaths = unsafeWindow.manarion.player.CurrentEnemyDeaths; }
+    setTimeout(CheckDeaths, 1000);
+}
+CheckDeaths();
 // #region OnMutate
 const OnMutate = async (mutlist, observer) => {
     observer.disconnect();
@@ -2728,10 +2814,3 @@ const CheckForUpdate = async () => {try {
     }
 }catch(e){console.error(e)}finally{setTimeout(CheckForUpdate, 30*60*1000)}};
 CheckForUpdate();
-
-
-// modify color settings
-/*
-const dependency = html(`<script id="manarion-chinese-translation-dependency" type="module" src="https://unpkg.com/vanilla-colorful?module"></script>`);
-document.head.append(dependency);
-*/
