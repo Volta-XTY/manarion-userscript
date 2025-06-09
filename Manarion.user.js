@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.16.9
+// @version      0.16.10
 // @description  Manarion Chinese Translation and Quest notification, on any issue occurred, please /whisper VoltaX in game
 // @description:zh  Manarion 文本汉化，以及任务通知（非自动点击），如果汉化出现任何问题，可以游戏私信VoltaX，在greasyfork页面留下评论，或者通过其他方式联系我
 // @author       VoltaX
@@ -662,7 +662,7 @@ const Translation = new Map([
     ["Edit Description", "编辑介绍"],
     ["Donate Items", "捐赠物品"],
     ["Borrow Items", "借出物品"],
-    ["Retrieve Items", "提出物品"],
+    ["Retrieve Items", "提取物品"],
     ["Revoke Items", "强制归还"],
     ["Withdraw Funds", "提出仓库"],
     ["Upgrades", "升级"],
@@ -1298,12 +1298,12 @@ const PlaceholderTranslation = new Map([
     ["Enter amount in €", "输入要支付的€"]
 ]);
 if(!Settings.debug) [...Translation.values()].forEach(value => Translation.set(value, value));
-// #region EquipTrans
+// #region EquipTL
 const EquipTranslation = new Map([
     // quality
     ["Worn", "破旧的"], ["Refined", "精制的"], ["Runed", "铭文的"], ["Ascended", "进阶的"], ["Eternal", "永恒的"],
     // type
-    ["Neophyte", "新手"], ["Initiate", "初始"], ["Novice", "见习"], ["Apprentice", "学徒"], ["Acolyte", "助手"], ["Adept", "熟手"], ["Scholar", "专家"], ["Magus", "术士"], ["Invoker", "祈求者"], ["Archmage", "大巫师"], ["Eldritch", "异界"], ["Primordial", "原初"], ["Celestial", "星辉"], ["Lumberjack's", "伐木工"], ["Tidecaller's", "唤潮人"], ["Prospector's", "探矿者"], ["Thaumaturge", "奇术师"], ["Incantator", "唤魔者"], ["Disciple", "门徒"],
+    ["Neophyte", "新手"], ["Initiate", "初始"], ["Novice", "见习"], ["Apprentice", "学徒"], ["Acolyte", "助手"], ["Adept", "熟手"], ["Scholar", "专家"], ["Magus", "术士"], ["Invoker", "祈求者"], ["Archmage", "大巫师"], ["Eldritch", "异界"], ["Primordial", "原初"], ["Celestial", "星辉"], ["Lumberjack's", "伐木工"], ["Tidecaller's", "唤潮人"], ["Prospector's", "探矿者"], ["Thaumaturge", "奇术师"], ["Incantator", "唤魔者"], ["Disciple", "门徒"], ["Paragon", "贤者"],
     // part
     ["Staff", "法杖"], ["Hood", "兜帽"], ["Pendant", "项链"], ["Cloak", "斗篷"], ["Robes", "法袍"], ["Gloves", "手套"], ["Sandals", "鞋子"], ["Ring", "戒指"], [" of Water", "水"], [" of Fire", "火"], [" of Nature", "自然"], ["Helmet", "头盔"], ["Pickaxe", "镐子"], ["Axe", "斧头"], ["Rod", "鱼竿"], ["Jacket", "夹克"], ["Cape", "披风"], ["Boots", "靴子"], ["Hat", "帽子"], ["Tunic", "外衣"],
     // Sigil
@@ -1442,6 +1442,9 @@ const _Translate = (ele, type = "default", keepOriginalText = false) => {
     if(ele?.nodeType !== Node.TEXT_NODE && (!ele || !ele.textContent || [...ele.childNodes].filter(node => node.nodeType !== Node.TEXT_NODE).length > 0)){
         console.log("_Translate() return early");
         return;
+    }
+    if(ele.nodeType !== Node.TEXT_NODE && ele.childNodes.length > 1){
+        console.log("_Translate() replace multiple childNodes", ele);
     }
     const text = ele.textContent;
     const translation = __TypedTranslation.get(type) ?? Translation;
@@ -2170,7 +2173,7 @@ const FindAndReplaceText = () => {try {
             CheckTranslation(document, "div.flex.items-center.gap-2>div.break-words", _TypedTranslate("upgrade"))
             CheckTranslation(document, "main>div.space-y-2:nth-child(1)>div:nth-child(1)", div => {
                 div.childNodes[0].textContent = "你有 ";
-                div.childNodes[4].textContent = "。到达下一魔符升级需要总";
+                div.childNodes[4].textContent = "。到达下一魔符升级需要累计";
             })
         }
     };
@@ -2231,13 +2234,8 @@ const FindAndReplaceText = () => {try {
         _Translate(a.parentElement.children[0]);
         _Translate(a.parentElement.children[1]);
     });
-    // #region menuitem
-    CheckTranslation(document, 'div[data-slot="dropdown-menu-item"]', _TypedTranslate(
-        window.location.pathname.startsWith("/market")? 
-            "default" : 
-            window.location.pathname === "/shop" ?
-                "equipment" :
-                "menuitem"));
+    // #region dropdown
+    CheckTranslation(document, 'div[data-slot="dropdown-menu-item"]', (ele) => _Translate(ele, window.location.pathname.startsWith("/market") ?  "default" : window.location.pathname === "/shop" ? "equipment" : "menuitem"));
     // #region nav
     document.querySelectorAll(`html body div#root div.flex.max-h-screen.min-h-screen.flex-col.overflow-x-hidden nav.bg-card.small-caps.border-primary.z-1.w-full.max-w-screen.border-b.shadow-md div.flex.items-center.px-4.py-2 div.ml-auto.flex.w-full.max-w-full.items-center.gap-2 div.flex.w-0.flex-shrink.flex-grow.justify-end.gap-1.overflow-x-hidden a.text-muted-foreground.hover\\:bg-primary\\/50.ring-primary.mx-1.my-1.flex.flex-shrink-0.items-center.gap-2.rounded-lg.px-1.py-1.transition.hover\\:ring:not([translated])`).forEach(a => {
         a.setAttribute("translated", "");
@@ -2388,6 +2386,11 @@ const FindAndReplaceText = () => {try {
     // #region placeholder
     CheckTranslation(document, 'input[placeholder][data-slot="input"]', input => input.placeholder = PlaceholderTranslation.get(input.placeholder) ?? input.placeholder);
     // #region chat/log
+    CheckTranslation(document, 'div.border-primary.shrink-0.border-t div.scrollbar-thin.scrollbar-track-transparent.flex-1.overflow-y-auto.pl-1.text-sm div.leading-4\\.5>span:nth-child(1):nth-last-child(1) span.text-gray-300', span => {
+        const node = span.childNodes[0];
+        const tl = EquipTranslation.get(node.textContent);
+        if(tl) node.textContent = tl;
+    });
     CheckTranslation(document, 'div.border-primary.shrink-0.border-t div.scrollbar-thin.scrollbar-track-transparent.flex-1.overflow-y-auto.pl-1.text-sm div.leading-4\\.5>span:nth-child(1):nth-last-child(1)', span => {
         const timestampEle = span.children[0];
         let result;
@@ -2454,7 +2457,10 @@ const FindAndReplaceText = () => {try {
         }
         const title = titleEle.textContent;
         let result;
-        if(result = /Are you sure you want to disenchant ([0-9]+) items?\?/.exec(title)){
+        if(title.startsWith("List [")){
+            titleEle.childNodes[0].textContent = "挂单 ";
+        }
+        else if(result = /Are you sure you want to disenchant ([0-9]+) items?\?/.exec(title)){
             titleEle.textContent = `确定要分解 ${result[1]} 件装备吗？` ;
             div.children[0].children[1].children[0].textContent = "你将获得";
         }
