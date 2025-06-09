@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.16.8
+// @version      0.16.9
 // @description  Manarion Chinese Translation and Quest notification, on any issue occurred, please /whisper VoltaX in game
 // @description:zh  Manarion 文本汉化，以及任务通知（非自动点击），如果汉化出现任何问题，可以游戏私信VoltaX，在greasyfork页面留下评论，或者通过其他方式联系我
 // @author       VoltaX
@@ -481,6 +481,7 @@ const Translation = new Map([
     ["Rank", "职位"],
     ["Borrow", "借出"],
     // #region button
+    ["Checkout with Stripe", "使用 Stripe 支付"],
     ["Transfer", "赠送"],
     ["Seller", "出售者"],
     ["Quality", "品质"],
@@ -889,7 +890,6 @@ const Translation = new Map([
     ["Use", "使用"],
     ["Premium", "高级商店"],
     ["Current Title", "当前头衔"],
-    [" Checkout with Stripe", " 使用 Stripe 支付"],
     ["Unlock", "解锁"],
     ["Title", "头衔"],
     ["Used to purchase premium features like titles", "用来购买包含头衔等高级特性的货币"],
@@ -2362,7 +2362,7 @@ const FindAndReplaceText = () => {try {
     });
     document.querySelectorAll('button[role="tab"]:not([translated]), button[data-slot="button"]:not([translated])').forEach(button => {
         button.setAttribute("translated", "");
-        _Translate(button);
+        button.childNodes.forEach(_Translate);
     });
     CheckTranslation(document, 'span[data-slot="tabs-trigger"]', _Translate);
     // #region research
