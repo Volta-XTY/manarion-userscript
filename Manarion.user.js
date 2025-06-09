@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.16.6
+// @version      0.16.7
 // @description  Manarion Chinese Translation and Quest notification, on any issue occurred, please /whisper VoltaX in game
 // @description:zh  Manarion 文本汉化，以及任务通知（非自动点击），如果汉化出现任何问题，可以游戏私信VoltaX，在greasyfork页面留下评论，或者通过其他方式联系我
 // @author       VoltaX
@@ -688,12 +688,12 @@ const Translation = new Map([
     ["Sleeping Quarters", "睡眠区"],
     ["Increases maximum actions by 1% per level", "每级使成员最大行动次数 +1%"],
     // #region update text
-    ["Added premium shop with Codex and Crystallized Mana", "新增可购买法典和魔力结晶的高级商店"], // default
-    ["Added more item names for battle items by level. Existing items have been renamed.", "新增更多战斗装备的等级名。现有装备的名称同样会改变。"], // default
-    ["Added cosmetic chat titles matching these names that can be unlocked with Crystallized Mana", "新增装饰性聊天头衔，可以通过魔力结晶解锁"], // default
-    ["Sigils are now part of equipment sets. Also moved sigil to top.", "魔符现在也可以被配装保存。此外将魔符移到装备栏顶端。"], // default
-    ["Change referral bonus to be 5% of codex purchases and shards reduced to 5% of base drop (no longer includes % bonus shards from equipment).", "将推荐奖励变为所购买法典的 5% 以及所掉落基础元素碎片的 5%（不再计算装备的元素碎片加成）。"], // default
-    [" No reset", " 不会有删档重置"], // default
+    ["Added premium shop with Codex and Crystallized Mana", "新增可购买法典和魔力结晶的高级商店"],
+    ["Added more item names for battle items by level. Existing items have been renamed.", "新增更多战斗装备的等级名。现有装备的名称同样会改变。"],
+    ["Added cosmetic chat titles matching these names that can be unlocked with Crystallized Mana", "新增装饰性聊天头衔，可以通过魔力结晶解锁"],
+    ["Sigils are now part of equipment sets. Also moved sigil to top.", "魔符现在也可以被配装保存。此外将魔符移到装备栏顶端。"],
+    ["Change referral bonus to be 5% of codex purchases and shards reduced to 5% of base drop (no longer includes % bonus shards from equipment).", "将推荐奖励变为所购买法典的 5% 以及所掉落基础元素碎片的 5%（不再计算装备的元素碎片加成）。"],
+    [" No reset", " 不会有删档重置"],
     ["Fix dropping out of elemental rift queue when doing certain things", "修复了执行某些操作时会取消准备元素裂隙的问题"],
     ["/event (or /elementalrift) Brings up info about the latest elemental rift event", "/event（或者 /elementalrift）还会给出上一次元素裂隙的信息"],
     ["Change elemental rift timing to every 3.5 hours", "元素裂隙现在每 3.5 小时出现一次"],
@@ -887,14 +887,14 @@ const Translation = new Map([
     ["Logout", "登出"],
     ["Infuse", "注能等级"],
     ["Use", "使用"],
-    ["Premium", "高级商店"], // default
-    ["Current Title", "当前头衔"], // default
-    [" Checkout with Stripe", " 使用 Stripe 支付"], // default
-    ["Unlock", "解锁"], // default
-    ["Title", "头衔"], // default
-    ["Used to purchase premium features like titles", "用来购买包含头衔等高级特性的货币"], // default
-    ["None", "无"], // default
-    ["Neophyte", "Neophyte"], // default // #region Elnaeth
+    ["Premium", "高级商店"],
+    ["Current Title", "当前头衔"],
+    [" Checkout with Stripe", " 使用 Stripe 支付"],
+    ["Unlock", "解锁"],
+    ["Title", "头衔"],
+    ["Used to purchase premium features like titles", "用来购买包含头衔等高级特性的货币"],
+    ["None", "无"],
+    ["Neophyte", "Neophyte"], // #region Elnaeth
     ["Show stats tracker (lower left)", "显示属性追踪器（左下角）"],
     ["Show individual stat gains log (upper right)", "显示属性掉落日志（右上角）"],
     ["Show enhanced loot tracker (upper right)", "显示增强型掉落追踪器（右上角）"],
@@ -1295,6 +1295,7 @@ const PlaceholderTranslation = new Map([
     ["Price", "价格"],
     ["Set name", "配装名称"],
     ["Search player...", "搜索玩家..."],
+    ["Enter amount in €", "输入要支付的€"]
 ]);
 if(!Settings.debug) [...Translation.values()].forEach(value => Translation.set(value, value));
 // #region EquipTrans
@@ -1302,7 +1303,7 @@ const EquipTranslation = new Map([
     // quality
     ["Worn", "破旧的"], ["Refined", "精制的"], ["Runed", "铭文的"], ["Ascended", "进阶的"], ["Eternal", "永恒的"],
     // type
-    ["Neophyte", "初学者"], ["Initiate", "初始"], ["Novice", "新手"], ["Apprentice", "学徒"], ["Acolyte", "助手"], ["Adept", "熟手"], ["Scholar", "专家"], ["Magus", "术士"], ["Invoker", "祈求者"], ["Archmage", "大巫师"], ["Eldritch", "异界"], ["Primordial", "原初"], ["Celestial", "星辉"], ["Lumberjack's", "伐木工"], ["Tidecaller's", "唤潮人"], ["Prospector's", "探矿者"], ["Thaumaturge", "奇术师"], ["Incantator", "唤魔者"], ["Disciple", "门徒"],
+    ["Neophyte", "新手"], ["Initiate", "初始"], ["Novice", "见习"], ["Apprentice", "学徒"], ["Acolyte", "助手"], ["Adept", "熟手"], ["Scholar", "专家"], ["Magus", "术士"], ["Invoker", "祈求者"], ["Archmage", "大巫师"], ["Eldritch", "异界"], ["Primordial", "原初"], ["Celestial", "星辉"], ["Lumberjack's", "伐木工"], ["Tidecaller's", "唤潮人"], ["Prospector's", "探矿者"], ["Thaumaturge", "奇术师"], ["Incantator", "唤魔者"], ["Disciple", "门徒"],
     // part
     ["Staff", "法杖"], ["Hood", "兜帽"], ["Pendant", "项链"], ["Cloak", "斗篷"], ["Robes", "法袍"], ["Gloves", "手套"], ["Sandals", "鞋子"], ["Ring", "戒指"], [" of Water", "水"], [" of Fire", "火"], [" of Nature", "自然"], ["Helmet", "头盔"], ["Pickaxe", "镐子"], ["Axe", "斧头"], ["Rod", "鱼竿"], ["Jacket", "夹克"], ["Cape", "披风"], ["Boots", "靴子"], ["Hat", "帽子"], ["Tunic", "外衣"],
     // Sigil
@@ -1357,6 +1358,7 @@ const DialogTranslation = new Map([
     ["Leave Event Queue", "取消准备"],
     ["Are you sure you want to leave the event queue?", "确定要取消准备吗？"],
     ["Total Contributions", "所有贡献"],
+    ["Purchase item", "购买物品"],
 ]);
 // #region ElementalRif
 const ElementalRiftTranslation = new Map([
@@ -1373,14 +1375,30 @@ const ElementalRiftTranslation = new Map([
     ["Page ", "第 "],
     [" of", " /"],
 ]);
-// #region Elnaeth
+// #region ElnaethTL
 const ElnaethTranslation = new Map([
     ["Battle Experience Boost", "经验"],
     ["Mana Dust Boost", Settings.manaDustName],
     ["Elemental Shard Boost", "元素碎片"],
     ["Stat drop", "属性点掉率"],
     ["Base Resource Amount", "资源"],
-])
+]);
+//#region PremiumTL
+const PremiumShopTranslation = new Map([
+    ["Premium Shop", "高级商店"],
+    ["Ascension", "晋升"],
+    ["All purchases also give Ascension Points on top of the", "所有购买在获得的"],
+    [" received", " 之上还会给予晋升点数"],
+    ["Purchase ", "每消费 1€ 可获得 "],
+    [" per 1€. Min 5€.", "。最低消费 5€。"],
+    [" Codex and", " 法典和"],
+    [" Crystallized Mana for ", " 魔力结晶，支付 "],
+    ["Don't broadcast purchase in chat", "不要在聊天中广播支付消息"],
+    ["Next title: ", "下一头衔："],
+    [" Ascension Points)", " 晋升点数)"],
+    ["Unlock for ", "解锁消耗 "],
+    [" and 1 ", " 和 1 "], // premium
+]);
 const equipRegex = /(?<lbracket>\[?)(?:Sigil of (?<sigilType>[A-Za-z]+))|(?:(?<quality>Worn|Refined|Runed|Ascended|Eternal) (?<type>[A-Za-z']+) (?<part>[A-Za-z]+)(?<elementType> of Water| of Fire| of Nature)?(?<upgradeLevel> \+[0-9]+)? \((?<level>[0-9]+)\)(?<rbracket>\]?))/;
 const EquipTextTranslate = (text) => {
     const result = equipRegex.exec(text);
@@ -1417,6 +1435,7 @@ const __TypedTranslation = new Map([
     ["help", SystemMsgTranslation],
     ["dialog", DialogTranslation],
     ["elementalRift", ElementalRiftTranslation],
+    ["premium", PremiumShopTranslation],
     ["default", Translation],
 ]);
 const _Translate = (ele, type = "default", keepOriginalText = false) => {
@@ -1631,7 +1650,10 @@ const LogTranslator = (channelType, nodes) => {
                 nodes[0].textContent = `${result[1]} 将 `;
                 nodes[2].textContent = ` 还给了你。`
             }
-            else if(result = /You sent ([^ ])+ ([^ ])+ \[([^\]])\]/.exec(text)){
+            else if(result = /([^ ])+ enchanted your \[([^\]])\]/.exec(text)){
+                nodes[0].textContent = `${result[1]} 附魔了你的 `;
+            }
+            else if(result = /[Yy]ou sent ([^ ])+ ([^ ])+ \[([^\]])\]/.exec(text)){
                 nodes[0].textContent = `你送给了 ${result[1]} ${result[2]} `;
             }
             else console.log(`cannot translate|${text}|(All)`);
@@ -1641,6 +1663,35 @@ const LogTranslator = (channelType, nodes) => {
 };
 const FindAndReplaceText = () => {try {
     switch(window.location.pathname){
+        //#region /shop
+        case "/shop":{
+            CheckTranslation(document, "main div.font-semibold.text-center.text-2xl[data-slot='card-title']", _TypedTranslate("premium"));
+            CheckTranslation(document, "main div[data-slot='card-description']", (div) => [
+                div.childNodes[0],
+                div.childNodes[3],
+            ].forEach(_TypedTranslate("premium")));
+            CheckTranslation(document, "div[data-slot='card']:nth-child(1) div.px-6.space-y-4[data-slot='card-content']>div:nth-child(1)", (div) => [
+                // Purchase 30 [codex] and 1 [cryistallized mana] ...
+                div.childNodes[0],
+                div.childNodes[4],
+                div.childNodes[6],
+            ].forEach(_TypedTranslate("premium")));
+            CheckTranslation(document, "div[data-slot='card']:nth-child(1) div.px-6.space-y-4[data-slot='card-content']>div:nth-child(3)", (div) => [
+                div.childNodes[0],
+                div.childNodes[2],
+                div.childNodes[5],
+            ].forEach(_TypedTranslate("premium")));
+            CheckTranslation(document, "div[data-slot='card']:nth-child(1) div.px-6.space-y-4[data-slot='card-content']>div:nth-child(4)", (div) => _Translate(div.childNodes[1], "premium"));
+            CheckTranslation(document, "div[data-slot='card']:nth-child(2) div.px-6.space-y-2[data-slot='card-content']>div:nth-child(2)>div:nth-child(1)", (div) => {
+                _Translate(div.childNodes[0], "premium");
+                _Translate(div.childNodes[1], "equipment");
+                _Translate(div.childNodes[3].childNodes[4], "premium");
+            });
+            CheckTranslation(document, "div[data-slot='card']:nth-child(2) div.px-6.space-y-2[data-slot='card-content']>div:nth-child(2)>div:nth-child(3)", (div) => {
+                _Translate(div.childNodes[0], "premium");
+            })
+            break;
+        }
         // #region /event
         case "/event":{
             CheckTranslation(document, "main>div:nth-child(1)>div:nth-child(1):not([class])", div => {
