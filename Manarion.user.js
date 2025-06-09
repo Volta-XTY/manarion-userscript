@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.16.7
+// @version      0.16.8
 // @description  Manarion Chinese Translation and Quest notification, on any issue occurred, please /whisper VoltaX in game
 // @description:zh  Manarion 文本汉化，以及任务通知（非自动点击），如果汉化出现任何问题，可以游戏私信VoltaX，在greasyfork页面留下评论，或者通过其他方式联系我
 // @author       VoltaX
@@ -1389,8 +1389,8 @@ const PremiumShopTranslation = new Map([
     ["Ascension", "晋升"],
     ["All purchases also give Ascension Points on top of the", "所有购买在获得的"],
     [" received", " 之上还会给予晋升点数"],
-    ["Purchase ", "每消费 1€ 可获得 "],
-    [" per 1€. Min 5€.", "。最低消费 5€。"],
+    ["Purchase ", "消费获得 "],
+    [" per 1€. Min 5€.", " 每€。最低消费 5€。"],
     [" Codex and", " 法典和"],
     [" Crystallized Mana for ", " 魔力结晶，支付 "],
     ["Don't broadcast purchase in chat", "不要在聊天中广播支付消息"],
@@ -2232,7 +2232,12 @@ const FindAndReplaceText = () => {try {
         _Translate(a.parentElement.children[1]);
     });
     // #region menuitem
-    CheckTranslation(document, 'div[data-slot="dropdown-menu-item"]', _TypedTranslate(window.location.pathname.startsWith("/market")? "default" : "menuitem"));
+    CheckTranslation(document, 'div[data-slot="dropdown-menu-item"]', _TypedTranslate(
+        window.location.pathname.startsWith("/market")? 
+            "default" : 
+            window.location.pathname === "/shop" ?
+                "equipment" :
+                "menuitem"));
     // #region nav
     document.querySelectorAll(`html body div#root div.flex.max-h-screen.min-h-screen.flex-col.overflow-x-hidden nav.bg-card.small-caps.border-primary.z-1.w-full.max-w-screen.border-b.shadow-md div.flex.items-center.px-4.py-2 div.ml-auto.flex.w-full.max-w-full.items-center.gap-2 div.flex.w-0.flex-shrink.flex-grow.justify-end.gap-1.overflow-x-hidden a.text-muted-foreground.hover\\:bg-primary\\/50.ring-primary.mx-1.my-1.flex.flex-shrink-0.items-center.gap-2.rounded-lg.px-1.py-1.transition.hover\\:ring:not([translated])`).forEach(a => {
         a.setAttribute("translated", "");
@@ -2869,10 +2874,9 @@ wakeElnaeth();
 const CheckForUpdate = async () => {try {
     const request = await fetch(GM_info.script.updateURL, {mode: "cors", cache: "reload"});
     const text = await request.text();
-    console.log(text);
     const result = /\/\/ *@version +(.*)$/m.exec(text);
     if(result){
-        console.log(result[1]);
+        console.log("Checked for update:", result[1]);
         const versions = result[1].split(".");
         const current = GM_info.script.version.split(".");
         for(let i = 0; i < versions.length; i++){
@@ -2883,5 +2887,5 @@ const CheckForUpdate = async () => {try {
             }
         }
     }
-}catch(e){console.error(e)}finally{setTimeout(CheckForUpdate, 30*60*1000)}};
+}catch(e){console.error(e)}finally{setTimeout(CheckForUpdate, 10*60*1000)}};
 CheckForUpdate();
