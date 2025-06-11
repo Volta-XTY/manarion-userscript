@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.16.10
+// @version      0.16.11
 // @description  Manarion Chinese Translation and Quest notification, on any issue occurred, please /whisper VoltaX in game
 // @description:zh  Manarion 文本汉化，以及任务通知（非自动点击），如果汉化出现任何问题，可以游戏私信VoltaX，在greasyfork页面留下评论，或者通过其他方式联系我
 // @author       VoltaX
@@ -94,6 +94,9 @@ const _Settings = {
     doTranslate: true,
     debug: false,
     manaDustName: "魔法尘",
+    worldshaperName: "再塑世界之敌",
+    worldburnerName: "焚毁世界之敌",
+    worlddrownerName: "沉没世界之敌",
     notifyQuestComplete: true,
     notifyElementalRiftBegin: true,
     notifyPowerRiftBegin: true,
@@ -518,6 +521,7 @@ const Translation = new Map([
     ["Choose Sigil", "选择魔符"],
     ["View Event", "查看事件"],
     ["View Players", "查看玩家"],
+    ["Extend", "续费"],
     // #region research
     ["Staff (Damage)", "法杖（元素伤害）"],
     ["Cloak (Resistance)", "斗篷（元素抗性）"],
@@ -689,6 +693,24 @@ const Translation = new Map([
     ["Sleeping Quarters", "睡眠区"],
     ["Increases maximum actions by 1% per level", "每级使成员最大行动次数 +1%"],
     // #region update text
+    ["Added Quality of Life 'subscription' for 5", "加入了便利性月卡，价格为 5"], // default
+    ["/month.", "每月"], // default
+    ["- Auto join events (configurable)", "- 自动参加事件（可设置）"], // default
+    ["- Use enchanting skills of guild members", "- 利用公会成员的附魔能力"], // default
+    ["Added more settings", "新增更多设置"], // default
+    ["- Automatically join elemental rift (requires QoL)", "- 自动参加元素裂隙事件（需要便利升级月卡）"], // default
+    ["- Automatically siphon rift of power up to X times (requires QoL)", "- 自动参加力量裂隙，并在单次裂隙中最多汲取 X 次力量（需要便利升级月卡）"], // default
+    ["- Automatically disenchant item drops up to rarity", "- 自动分解特定稀有度以下的掉落装备"], // default
+    ["- Option to block others from enchanting your equipment", "- 阻止他人为你的装备附魔"], // default
+    ["- Channel prefix display options", "- 设置频道前缀显示模式"], // default
+    ["- Disable title/color options", "- 禁用头衔/更改头衔颜色"], // default
+    ["Added option to color your titles once you accumulate 50 Ascension Points", "新增自定义头衔颜色，要求累计获得 50 晋升点数"], // default
+    ["Elemental Rift event actions now also progress your quest", "元素裂隙事件行动现在也可以增加你的任务进度了"], // default
+    ["Show the enchant level for resistance enchants in tooltips", "在装备弹窗中还会显示抗性附魔对应等级"], // default
+    ["Added limit of 200 enemy attacks to battles, after which you will give up", "战斗现在有 200 敌方攻击次数上限，超过此限制你将会放弃此次战斗"], // default
+    ["Clicking your action during an event no longer tries to leave the event, you can select your activity on the Town page if you really want to leave", "事件中，点击导航栏的行动图标不再导致你离开当前事件，如果你确实希望离开，你可以在城镇中手动选择行动"], // default
+    ["Fix farm fully grown icon not showing without visiting the farm page first", "修复了未访问农场页面的情况下，农场完全生长的图标不显示的问题。"], // default
+    ["Fix quest notification sometimes not triggering with Sigil of Purpose", "修复了携带目标魔符时，任务完成通知有时不触发的问题"], // default
     ["Added premium shop with Codex and Crystallized Mana", "新增可购买法典和魔力结晶的高级商店"],
     ["Added more item names for battle items by level. Existing items have been renamed.", "新增更多战斗装备的等级名。现有装备的名称同样会改变。"],
     ["Added cosmetic chat titles matching these names that can be unlocked with Crystallized Mana", "新增装饰性聊天头衔，可以通过魔力结晶解锁"],
@@ -1037,9 +1059,9 @@ const Translation = new Map([
     ["Edit Profile", "编辑资料"],
     ["Enchant", "附魔"],
     ["📜 Game Rules", "📜 游戏规则"],
-    ["Worldshaper", "再塑世界之敌"],
-    ["Worldburner", "焚毁世界之敌"],
-    ["Worlddrowner", "沉没世界之敌"],
+    ["Worldshaper", Settings.worldshaperName],
+    ["Worldburner", Settings.worldburnerName],
+    ["Worlddrowner", Settings.worlddrownerName],
     [" Online", " 在线"],
     [" Active", " 活动中"],
     ["Connection lost", "连接中断"],
@@ -1110,7 +1132,9 @@ const SettingsTranslation = new Map([
     ["Potion expired", "药水耗尽"],
     ["Rift of Power (Event)", "力量裂隙（事件）"],
     ["Added on", "添加于"],
-    ["Refer your friends to the game and get an additional 5% of any", "将游戏推荐给朋友，然后额外获得他们掉落的"],
+    ["Refer your friends to the game and get an additional 5% of their", "将游戏推荐给朋友，然后额外获得他们充值获得的"],
+    [" purchases and their base", " 5% 以及他们掉落的"], // settings
+    [" drops.", " 的基础值的 5%。"],
     [" they find.", " 的 5%。"],
     ["You must both verify your account by linking an identity provider to earn rewards.", "双方均需绑定账号以获取奖励。"],
     ["Other devices", "其他设备"],
@@ -1124,6 +1148,22 @@ const SettingsTranslation = new Map([
     ["Tooltip mode:", "物品悬浮窗触发方式："],
     ["Hover", "鼠标悬浮"],
     ["Click", "鼠标点击"],
+    ["Channel Prefix:", "频道前缀："], // settings
+    ["Chat Titles:", "聊天头衔："], // settings
+    ["Long", "长"], // settings
+    ["Short", "短"], // settings
+    ["None", "无"], // settings
+    ["Colored", "彩色"], // settings
+    ["Gray", "灰色"], // settings
+    ["Hidden", "不显示"], // settings
+    ["Game Preferences", "游戏偏好"], // settings
+    ["UI Preferences", "界面偏好"], // settings
+    ["Automatically join Elemental Rift", "自动参加元素裂隙事件"], // settings
+    ["Automatically siphon Rift of Power up to", "自动参加力量裂隙事件，直到汲取力量次数到达"], // settings
+    ["times", "次"],
+    ["Automatically disenchant item drops up to", "自动分解稀有度"], // settings
+    ["rarity", "以下的掉落装备"],
+    ["Block others from enchanting your equipment", "阻止其他人为你的装备附魔"], // settings
 ]);
 // #region FarmTrans
 const FarmTranslation = new Map([
@@ -1166,7 +1206,7 @@ const FarmTranslation = new Map([
     ["Increases the maximum amount of potions you can store.", "增加你最多可以保存的药水数量。"],
 ]);
 [...FarmTranslation.values()].forEach(value => FarmTranslation.set(value, value));
-// #region GuildTrans
+// #region GuildTL
 const GuildTranslation = new Map([
     ["Guild Funds", "公会仓库"],
     ["Name", "玩家名称"],
@@ -1359,6 +1399,7 @@ const DialogTranslation = new Map([
     ["Are you sure you want to leave the event queue?", "确定要取消准备吗？"],
     ["Total Contributions", "所有贡献"],
     ["Purchase item", "购买物品"],
+    ["Confirm guild upgrade", "确认公会升级"],
 ]);
 // #region ElementalRif
 const ElementalRiftTranslation = new Map([
@@ -1398,6 +1439,12 @@ const PremiumShopTranslation = new Map([
     [" Ascension Points)", " 晋升点数)"],
     ["Unlock for ", "解锁消耗 "],
     [" and 1 ", " 和 1 "], // premium
+    ["Quality of Life", "便利升级"], // premium
+    ["Automates some things for 5", "提供一些自动化功能，费用 5"], // premium
+    [" per 30 days. Configuration options available in", " 每月。配置选项请前往"], // premium
+    ["settings", "设置"], // premium
+    ["Automatically Join Events", "自动参加时间"], // premium
+    ["Use enchanting skills of guild members", "使用公会成员的附魔能力"], // premium
 ]);
 const equipRegex = /(?<lbracket>\[?)(?:Sigil of (?<sigilType>[A-Za-z]+))|(?:(?<quality>Worn|Refined|Runed|Ascended|Eternal) (?<type>[A-Za-z']+) (?<part>[A-Za-z]+)(?<elementType> of Water| of Fire| of Nature)?(?<upgradeLevel> \+[0-9]+)? \((?<level>[0-9]+)\)(?<rbracket>\]?))/;
 const EquipTextTranslate = (text) => {
@@ -1562,6 +1609,10 @@ const LogTranslator = (channelType, nodes) => {
                 nodes[0].textContent = `${result[1]} 将 `;
                 nodes[2].textContent = ` 捐赠至装备库。`;
             }
+            if(result = /([^ ]+) withdrew \[[^\]]+\] from the armory\./.exec(text)){
+                nodes[0].textContent = `${result[1]} 将 `;
+                nodes[2].textContent = ` 从装备库中取出。`;
+            }
             else if(result = /([^ ]+) returned \[[^\]]+\] to the armory\./.exec(text)){
                 nodes[0].textContent = `${result[1]} 将 `;
                 nodes[2].textContent = ` 返还至装备库。`;
@@ -1580,6 +1631,9 @@ const LogTranslator = (channelType, nodes) => {
             }
             else if(result = /([^ ]+) has upgraded the ([A-Za-z ]+)/.exec(text)){
                 nodes[0].textContent = `${result[1]} 升级了「${Translation.get(result[2])}」`;
+            }
+            else if(result = /([^ ]+) has marked (.*) as the next upgrade/.exec(text)){
+                nodes[0].textContent = `${result[1]} 将「${Translation.get(result[2])}」标记为下个升级。`;
             }
             else if(result = /([^ ]+) has upgraded ([A-Za-z ]+)/.exec(text)){
                 nodes[0].textContent = `${result[1]} 升级了「${Translation.get(result[2])}」`;
@@ -1604,6 +1658,13 @@ const LogTranslator = (channelType, nodes) => {
                 nodes[0].textContent = `${result[1]} 离开了公会。`
             }
             else console.log(`cannot translate|${text}|(Guild)`);
+            break;
+        }
+        case "General":{
+            if(result = /([^ ]+) purchased ([0-9]+) \[[^\]]+\] and ([0-9]+) \[[^\]]+\]/.exec(text)){
+                nodes[0].textContent = `${result[1]} 购买了 ${result[2]} `;
+                nodes[2].textContent = ` 和 ${result[3]} `;
+            }
             break;
         }
         //#region Global
@@ -1692,6 +1753,18 @@ const FindAndReplaceText = () => {try {
             });
             CheckTranslation(document, "div[data-slot='card']:nth-child(2) div.px-6.space-y-2[data-slot='card-content']>div:nth-child(2)>div:nth-child(3)", (div) => {
                 _Translate(div.childNodes[0], "premium");
+            })
+            CheckTranslation(document, "div[data-slot='card']:nth-child(3) div.px-6.space-y-2[data-slot='card-content']", (div) => {
+                [
+                    div.children[0].childNodes[0],
+                    div.children[0].childNodes[3],
+                    div.children[0].childNodes[5],
+                    div.children[1].children[0],
+                    div.children[1].children[1],
+                ].forEach(_TypedTranslate("premium"));
+                const div20 = div.children[2].children[0];
+                const result = /QoL active until ([0-9]+)\/([0-9]+)\/([0-9]+),(.*)/.exec(div20.textContent);
+                if(result) div20.textContent = `便利升级有效期至 ${result[3]}/${result[1]}/${result[2]},${result[4]}`;
             })
             break;
         }
@@ -1812,14 +1885,20 @@ const FindAndReplaceText = () => {try {
         case "/guild":{
             CheckTranslation(document, "th span.mr-1", _TypedTranslate("guild"));
             CheckTranslation(document, "th[data-slot='table-head']", _TypedTranslate("guild"));
-            CheckTranslation(document, 'div[data-slot="table-container"]>table>tbody>tr>td:nth-child(2)', td => {
+            [...document.querySelectorAll('div[data-slot="table-container"]>table>tbody>tr>td:nth-child(2)>div:nth-child(1)')].forEach(td => {
                 if(!td.textContent) return;
                 let result;
+                const Translate = (translated) => {
+                    const clone = td.cloneNode(true);
+                    clone.textContent = translated;
+                    td.setAttribute("hidden", "");
+                    td.insertAdjacentElement("afterend", clone);
+                }
                 if(result = /about ([^ ]+) hours? ago/.exec(td.textContent)){
-                    td.textContent = `约 ${result[1]} 小时前`;
+                    Translate(`约 ${result[1]} 小时前`);
                 }
                 else if(result = /([^ ]+) minutes? ago/.exec(td.textContent)){
-                    td.textContent = `${result[1]} 分钟前`;
+                    Translate(`${result[1]} 分钟前`);
                 }
             })
             break;
@@ -2047,6 +2126,8 @@ const FindAndReplaceText = () => {try {
         }
         // #region /settings
         case "/settings":{
+            CheckTranslation(document, "main>div.space-y-2>div.space-y-4>div.flex.items-center.gap-2>span:nth-child(1):not([class])", _TypedTranslate("settings"));
+            CheckTranslation(document, "main>div.space-y-2>div.space-y-4>div.flex.items-center.gap-2>span:nth-child(3):nth-last-child(1):not([class])", _TypedTranslate("settings"));
             CheckTranslation(document, "div.space-y-6>div>div.flex.gap-4>span.whitespace-nowrap", span => {
                 _Translate(span.childNodes[0], "settings");
             })
@@ -2057,6 +2138,7 @@ const FindAndReplaceText = () => {try {
                 [  
                     div.children[1].childNodes[0],
                     div.children[1].childNodes[3],
+                    div.children[1].childNodes[6],
                     div.children[3],
                 ].filter(div => div).forEach((div) => _Translate(div, "settings"));
             });
@@ -2402,6 +2484,10 @@ const FindAndReplaceText = () => {try {
             span.childNodes[2].textContent = `${result[1]} 送给了你 `;
             return;
         }
+        if(result = /([A-Za-z]+) sent you ([^ ]+) /.exec(span.childNodes[2]?.textContent ?? "")){
+            span.childNodes[2].textContent = `${result[1]} 送给了你 ${result[2]} `;
+            return;
+        }
         const message = span.children[1];
         if(!message) {
             console.log("no message", span.innerHTML);
@@ -2468,6 +2554,13 @@ const FindAndReplaceText = () => {try {
             titleEle.childNodes[0].textContent = "赠送 ";
         }
         else switch(title){
+            case "Confirm guild upgrade":{
+                const text = div.children[0].childNodes[1].textContent;
+                const result = /Are you sure you want to upgrade (.*)/.exec(text);
+                if(!result) break;
+                div.children[0].childNodes[1].textContent = `确定要升级${Translation.get(result[1])}吗？`;
+                break;
+            }
             case "Enchant item":{
                 CheckTranslation(div, "div.flex.flex-col.gap-2.rounded-lg.p-3", div => {
                     [
