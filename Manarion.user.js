@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.16.12
+// @version      0.16.13
 // @description  Manarion Chinese Translation and Quest notification, on any issue occurred, please /whisper VoltaX in game
 // @description:zh  Manarion 文本汉化，以及任务通知（非自动点击），如果汉化出现任何问题，可以游戏私信VoltaX，在greasyfork页面留下评论，或者通过其他方式联系我
 // @author       VoltaX
@@ -19,6 +19,14 @@
 TODO: 
     * wait for firefox to implement position-anchor feature and use it on settings dropdown menu
 */
+const WatchNode = (node, callback) => {
+    const OnMutate = (_, observer) => {
+        observer.disconnect();
+        callback(node);
+        observer.observe(node, {childList: true, subtree: true, characterData: true});
+    };
+    OnMutate(undefined, new MutationObserver(OnMutate));
+}
 const Temp = {
     DeathNotificationSet: new Set(),
 };
@@ -694,7 +702,7 @@ const Translation = new Map([
     ["Increases maximum actions by 1% per level", "每级使成员最大行动次数 +1%"],
     // #region update text
     ["Added Quality of Life 'subscription' for 5", "加入了便利性月卡，价格为 5"], // default
-    ["/month.", "每月"], // default
+    ["/month.", " 每月"], // default
     ["- Auto join events (configurable)", "- 自动参加事件（可设置）"], // default
     ["- Use enchanting skills of guild members", "- 利用公会成员的附魔能力"], // default
     ["Added more settings", "新增更多设置"], // default
@@ -705,10 +713,10 @@ const Translation = new Map([
     ["- Channel prefix display options", "- 设置频道前缀显示模式"], // default
     ["- Disable title/color options", "- 禁用头衔/更改头衔颜色"], // default
     ["Added option to color your titles once you accumulate 50 Ascension Points", "新增自定义头衔颜色，要求累计获得 50 晋升点数"], // default
-    ["Elemental Rift event actions now also progress your quest", "元素裂隙事件行动现在也可以增加你的任务进度了"], // default
+    ["Elemental Rift event actions now also progress your quest", "元素裂隙事件行动现在也会计入任务进度（和击败的事件 boss 数目无关）"], // default
     ["Show the enchant level for resistance enchants in tooltips", "在装备弹窗中还会显示抗性附魔对应等级"], // default
     ["Added limit of 200 enemy attacks to battles, after which you will give up", "战斗现在有 200 敌方攻击次数上限，超过此限制你将会放弃此次战斗"], // default
-    ["Clicking your action during an event no longer tries to leave the event, you can select your activity on the Town page if you really want to leave", "事件中，点击导航栏的行动图标不再导致你离开当前事件，如果你确实希望离开，你可以在城镇中手动选择行动"], // default
+    ["Clicking your action during an event no longer tries to leave the event, you can select your activity on the Town page if you really want to leave", "事件中，点击导航栏的行动图标不再导致你离开当前事件，而是切换到事件页面，如果你确实希望离开，你可以在城镇页面中选择行动"], // default
     ["Fix farm fully grown icon not showing without visiting the farm page first", "修复了未访问农场页面的情况下，农场完全生长的图标不显示的问题。"], // default
     ["Fix quest notification sometimes not triggering with Sigil of Purpose", "修复了携带目标魔符时，任务完成通知有时不触发的问题"], // default
     ["Added premium shop with Codex and Crystallized Mana", "新增可购买法典和魔力结晶的高级商店"],
@@ -1230,16 +1238,28 @@ const GuildTranslation = new Map([
     ["Info", "信息"],
     ["Message of the Day", "每日消息"],
 ]);
-// #region ChatTrans
+// #region ChatTL
 const ChatTranslation = new Map([
-    ["Global", "广播"],
-    ["Whispers", "私信"],
     ["Whispers ", "私信 "],
-    ["All", "所有"],
-    ["General", "通用"],
-    ["Trade", "交易"],
-    ["Guild", "公会"],
-    ["Help", "帮助"],
+    ...[
+        ["Whispers", "私信"],
+        ["Global", "广播"],
+        ["All", "所有"],
+        ["General", "通用"],
+        ["Trade", "交易"],
+        ["Guild", "公会"],
+        ["Help", "帮助"],
+    ].flatMap(([key, value]) => [
+        [key, value],
+        [`[${key}]${key.toLowerCase()}`, `[${value}]`],
+    ]),
+    ["[W]whispers", "[私]"],
+    ["[G]global", "[广]"],
+    ["[A]all", "[全]"],
+    ["[G]general", "[通]"],
+    ["[T]trade", "[易]"],
+    ["[G]guild", "[会]"],
+    ["[H]help", "[助]"],
 ]);
 // #region MenuItemTL
 const MenuItemTranslation = new Map([
@@ -1604,7 +1624,7 @@ const LogTranslator = (channelType, nodes) => {
             break;
         }
         //#region Guild↑ActLog
-        case "Guild":{
+        case "guild":{
             if(result = /([^ ]+) deposited \[[^\]]+\] into the armory\./.exec(text)){
                 nodes[0].textContent = `${result[1]} 将 `;
                 nodes[2].textContent = ` 捐赠至装备库。`;
@@ -1660,7 +1680,7 @@ const LogTranslator = (channelType, nodes) => {
             else console.log(`cannot translate|${text}|(Guild)`);
             break;
         }
-        case "General":{
+        case "general":{
             if(result = /([^ ]+) purchased ([0-9]+) \[[^\]]+\] and ([0-9]+) \[[^\]]+\]/.exec(text)){
                 nodes[0].textContent = `${result[1]} 购买了 ${result[2]} `;
                 nodes[2].textContent = ` 和 ${result[3]} `;
@@ -1668,7 +1688,7 @@ const LogTranslator = (channelType, nodes) => {
             break;
         }
         //#region Global
-        case "Global":{
+        case "gloabl":{
             if(result = /([^ ]+) found a \[[^\]]+\]/.exec(text)){
                 nodes[0].textContent = `${result[1]} 发现了 `;
             }
@@ -1676,7 +1696,7 @@ const LogTranslator = (channelType, nodes) => {
             break;
         }
         //#region All
-        case "All":{
+        case "all":{
             if(SystemMsgTranslation.has(nodes[0].textContent)) _Translate(nodes[0], "help");
             else if(result = /Sold \[[^\]]+\] to ([^ ]+) for ([^ ]+) \[[^\]]+\]./.exec(text)){
                 nodes[0].textContent = "将 ";
@@ -2499,16 +2519,21 @@ const FindAndReplaceText = () => {try {
             console.log("no message", span.innerHTML);
             return;
         }
-        const channel = message.childNodes[2];
-        if(!channel) {
+        const channel = /text-\[var\(--channel-([^\)]+)\)\]/.exec(span.getAttribute("class") ?? "")?.[1] ?? "all";
+        if(channel === "whispers") {
             // should be whisper
             span.childNodes[2].textContent = {"From ":"来自 ","To ":"发给 "}[span.childNodes[2].textContent] ?? span.childNodes[2].textContent;
             return;
         }
-        const channelType = channel.textContent;
-        _Translate(channel);
-        const nodes = [...message.childNodes].slice(5);
-        LogTranslator(channelType, nodes);
+        WatchNode(message, (message) => {
+            const node = message.childNodes[1];
+            if(message.childNodes[1].nodeType === Node.TEXT_NODE){
+                const result = ChatTranslation.get(node.textContent + channel);
+                if(result) node.textContent = result;
+            }
+        });
+        const nodes = [...message.childNodes].slice(message.childNodes[1].nodeType === Node.TEXT_NODE ? 3 : 1);
+        LogTranslator(channel, nodes);
     });
     // #region loot tracker
     CheckTranslation(document, `div#root div.flex.max-h-screen.min-h-screen.flex-col.overflow-x-hidden div.flex.max-w-screen.grow.flex-col.overflow-y-scroll.lg\\:flex-row.lg\\:flex-wrap div.border-primary.flex.w-full.shrink-0.flex-col.p-2.text-xs.max-lg\\:border-t.lg\\:w-70.lg\\:border-l div.relative.mb-1.text-center.text-lg`, div => _Translate(div.childNodes[0]));
