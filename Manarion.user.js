@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.16.11
+// @version      0.16.12
 // @description  Manarion Chinese Translation and Quest notification, on any issue occurred, please /whisper VoltaX in game
 // @description:zh  Manarion 文本汉化，以及任务通知（非自动点击），如果汉化出现任何问题，可以游戏私信VoltaX，在greasyfork页面留下评论，或者通过其他方式联系我
 // @author       VoltaX
@@ -1443,7 +1443,7 @@ const PremiumShopTranslation = new Map([
     ["Automates some things for 5", "提供一些自动化功能，费用 5"], // premium
     [" per 30 days. Configuration options available in", " 每月。配置选项请前往"], // premium
     ["settings", "设置"], // premium
-    ["Automatically Join Events", "自动参加时间"], // premium
+    ["Automatically Join Events", "自动参加事件"], // premium
     ["Use enchanting skills of guild members", "使用公会成员的附魔能力"], // premium
 ]);
 const equipRegex = /(?<lbracket>\[?)(?:Sigil of (?<sigilType>[A-Za-z]+))|(?:(?<quality>Worn|Refined|Runed|Ascended|Eternal) (?<type>[A-Za-z']+) (?<part>[A-Za-z]+)(?<elementType> of Water| of Fire| of Nature)?(?<upgradeLevel> \+[0-9]+)? \((?<level>[0-9]+)\)(?<rbracket>\]?))/;
@@ -1763,8 +1763,12 @@ const FindAndReplaceText = () => {try {
                     div.children[1].children[1],
                 ].forEach(_TypedTranslate("premium"));
                 const div20 = div.children[2].children[0];
-                const result = /QoL active until ([0-9]+)\/([0-9]+)\/([0-9]+),(.*)/.exec(div20.textContent);
-                if(result) div20.textContent = `便利升级有效期至 ${result[3]}/${result[1]}/${result[2]},${result[4]}`;
+                new MutationObserver((_, observer) => {
+                    observer.disconnect();
+                    div20.textContent = div20.textContent.replace("QoL active until", "便利升级有效期至");
+                    div20.textContent = div20.textContent.replace("You currently do not have QoL", "你还没有购买便利升级");
+                    observer.observe(div20, {childList: true, subtree: true, characterData: true});
+                }).observe(div20, {childList: true, subtree: true, characterData: true});
             })
             break;
         }
@@ -1958,11 +1962,13 @@ const FindAndReplaceText = () => {try {
                     _Translate(node);
                 });
             });
+            /*
             CheckTranslation(document, "main h2.text-lg", h2 => {
                 const dateComp = h2.textContent.split("/");
                 dateComp.reverse();
                 h2.textContent = dateComp.join("/");
             })
+            */
             break;
         }
         // #region /rankings
