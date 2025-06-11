@@ -530,6 +530,7 @@ const Translation = new Map([
     ["View Event", "查看事件"],
     ["View Players", "查看玩家"],
     ["Extend", "续费"],
+    ["Invite", "邀请"],
     // #region research
     ["Staff (Damage)", "法杖（元素伤害）"],
     ["Cloak (Resistance)", "斗篷（元素抗性）"],
@@ -2532,8 +2533,9 @@ const FindAndReplaceText = () => {try {
                 if(result) node.textContent = result;
             }
         });
-        const nodes = [...message.childNodes].slice(message.childNodes[1].nodeType === Node.TEXT_NODE ? 3 : 1);
-        LogTranslator(channel, nodes);
+        const isSystem = !message.querySelector("span[aria-haspopup='menu']");
+        const nodes = [...message.childNodes].slice((message.childNodes[2].nodeType === Node.TEXT_NODE && message.childNodes[2].textContent === " ") ? 3 : 2);
+        if(isSystem) LogTranslator(channel, nodes);
     });
     // #region loot tracker
     CheckTranslation(document, `div#root div.flex.max-h-screen.min-h-screen.flex-col.overflow-x-hidden div.flex.max-w-screen.grow.flex-col.overflow-y-scroll.lg\\:flex-row.lg\\:flex-wrap div.border-primary.flex.w-full.shrink-0.flex-col.p-2.text-xs.max-lg\\:border-t.lg\\:w-70.lg\\:border-l div.relative.mb-1.text-center.text-lg`, div => _Translate(div.childNodes[0]));
