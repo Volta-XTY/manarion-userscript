@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.17.2
+// @version      0.17.3
 // @description  Manarion Chinese Translation and Quest notification, on any issue occurred, please /whisper VoltaX in game
 // @description:zh  Manarion 文本汉化，以及任务通知（非自动点击），如果汉化出现任何问题，可以游戏私信VoltaX，在greasyfork页面留下评论，或者通过其他方式联系我
 // @author       VoltaX
@@ -3044,29 +3044,7 @@ const CheckDeaths = () => {
     setTimeout(CheckDeaths, 1000);
 }
 CheckDeaths();
-// #region OnMutate
-const OnMutate = async (mutlist, observer) => {
-    observer.disconnect();
-    AddSettings();
-    AddSettingsNavItem();
-    if(Settings.doTranslate){
-        FindAndReplaceText();
-    }
-    TranslateEvent();
-    if(ADD_FAQ) AddFAQ();
-    observer.observe(document, {subtree: true, childList: true});
-};
-observer = new MutationObserver(OnMutate).observe(document, {subtree: true, childList: true});
-const wakeElnaeth = () => {
-    console.log("wakeElnaeth");
-    let next = 3000;
-    if(!elnaethWaken && !document.getElementById("elnaeth-settings-button")){
-        window.dispatchEvent(new Event("load"));
-        setTimeout(wakeElnaeth, next *= 2);
-    }
-};
-console.log('chinese translation loaded');
-wakeElnaeth();
+//#region Check4Upd
 let CCFlag = GM_info.script.connects.includes("update.greasyfork.cc");
 const _UpdateDOMParser = new DOMParser();
 const scriptID = 537308;
@@ -3102,3 +3080,26 @@ const CheckForUpdate = async () => {try {
         }
     }
 }catch(e){console.error(e)}finally{setTimeout(CheckForUpdate, 10*60*1000)}};
+// #region OnMutate
+const OnMutate = async (mutlist, observer) => {
+    observer.disconnect();
+    AddSettings();
+    AddSettingsNavItem();
+    if(Settings.doTranslate){
+        FindAndReplaceText();
+    }
+    TranslateEvent();
+    if(ADD_FAQ) AddFAQ();
+    observer.observe(document, {subtree: true, childList: true});
+};
+observer = new MutationObserver(OnMutate).observe(document, {subtree: true, childList: true});
+const wakeElnaeth = () => {
+    console.log("wakeElnaeth");
+    let next = 3000;
+    if(!elnaethWaken && !document.getElementById("elnaeth-settings-button")){
+        window.dispatchEvent(new Event("load"));
+        setTimeout(wakeElnaeth, next *= 2);
+    }
+};
+console.log('chinese translation loaded');
+wakeElnaeth();
