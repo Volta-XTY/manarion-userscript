@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.16.16
+// @version      0.17.0
 // @description  Manarion Chinese Translation and Quest notification, on any issue occurred, please /whisper VoltaX in game
 // @description:zh  Manarion 文本汉化，以及任务通知（非自动点击），如果汉化出现任何问题，可以游戏私信VoltaX，在greasyfork页面留下评论，或者通过其他方式联系我
 // @author       VoltaX
@@ -1659,7 +1659,7 @@ const LogTranslator = (channelType, nodes) => {
                 nodes[0].textContent = `${result[1]} 将 `;
                 nodes[2].textContent = ` 捐赠至装备库。`;
             }
-            if(result = /([^ ]+) withdrew \[[^\]]+\] from the armory\./.exec(text)){
+            else if(result = /([^ ]+) withdrew \[[^\]]+\] from the armory\./.exec(text)){
                 nodes[0].textContent = `${result[1]} 将 `;
                 nodes[2].textContent = ` 从装备库中取出。`;
             }
@@ -1681,6 +1681,9 @@ const LogTranslator = (channelType, nodes) => {
             }
             else if(result = /([^ ]+) has upgraded the ([A-Za-z ]+)/.exec(text)){
                 nodes[0].textContent = `${result[1]} 升级了「${Translation.get(result[2])}」`;
+            }
+            else if(result = /([^ ]+) has marked the (.*) as the next upgrade/.exec(text)){
+                nodes[0].textContent = `${result[1]} 将「${Translation.get(result[2])}」标记为下个升级。`;
             }
             else if(result = /([^ ]+) has marked (.*) as the next upgrade/.exec(text)){
                 nodes[0].textContent = `${result[1]} 将「${Translation.get(result[2])}」标记为下个升级。`;
@@ -1706,6 +1709,24 @@ const LogTranslator = (channelType, nodes) => {
             }
             else if(result = /([^ ]+) has left the guild/.exec(text)){
                 nodes[0].textContent = `${result[1]} 离开了公会。`
+            }
+            else if(result = /([^ ]+) donated ([^ ]+) \[[^\]]+\]/.exec(text)){
+                nodes[0].textContent = `${result[1]} 捐赠了 ${result[2]} `;
+            }
+            else if(result = /([^ ]+) withdrew ([^ ]+) \[[^\]]+\]/.exec(text)){
+                nodes[0].textContent = `${result[1]} 提取了 ${result[2]} `;
+            }
+            else if(result = /([^ ]+) changed ([^']+)'s rank to (.*)/.exec(text)){
+                nodes[0].textContent = `${result[1]} 将 ${result[2]} 的职位变为 ${result[3]}`;
+            }
+            else if(result = /([^ ]+) updated rank (.*) permissions/.exec(text)){
+                nodes[0].textContent = `${result[1]} 更改了 ${result[2]} 的权限`;
+            }
+            else if(result = /([^ ]+) updated (.*) (Wood|Fish|Iron|Elemental Shards|Mana Dust|Battle XP) tax from ([^ ]+) to ([^ ]+)/.exec(text)){
+                nodes[0].textContent = `${result[1]} 更改了 ${result[2]} 关于${Translation.get(result[3]) ?? result[3]}的税率： ${result[4]} 🡢 ${result[5]}`;
+            }
+            else if(result = /The guild has advanced to level ([0-9]+)/.exec(text)){
+                nodes[0].textContent = `公会到达 ${result[1]} 级`;
             }
             else console.log(`cannot translate|${text}|(Guild)`);
             break;
@@ -1936,14 +1957,12 @@ const FindAndReplaceText = () => {try {
         // #region /guild/log
         case "/guild/log":{
             CheckTranslation(document, "main h1", _TypedTranslate("guild"));
-            CheckTranslation(document, 'main button[data-slot="select-trigger"]:not([translated])', (button) => {
+            CheckTranslation(document, 'main button[data-slot="select-trigger"]', (button) => {
                 _Translate(button.childNodes[0]);
-                /*
-                new MutationObserver(() => {
-                    _Translate(button.childNodes[0]);
-                }).observe(button, {attributeFilter: ["data-state"], attributes: true});
-                */
-            });
+            }, false);
+            CheckTranslation(document, "main div.space-y-2>div.space-x-1.text-sm.leading-4", div => {
+                LogTranslator("guild", [...div.children[1].childNodes]);
+            })
             break;
         }
         // #region /guild/(list)
