@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.16.14
+// @version      0.16.15
 // @description  Manarion Chinese Translation and Quest notification, on any issue occurred, please /whisper VoltaX in game
 // @description:zh  Manarion 文本汉化，以及任务通知（非自动点击），如果汉化出现任何问题，可以游戏私信VoltaX，在greasyfork页面留下评论，或者通过其他方式联系我
 // @author       VoltaX
@@ -275,6 +275,9 @@ const css =
     --curr-font-family-zh: ${Settings.fontFamily};
 }
 body{
+    font-family: var(--temp-font-family-en, var(--curr-font-family-en, ${Settings.fontFamilyEn})), var(--temp-font-family-zh, var(--curr-font-family-zh, ${Settings.fontFamily}));
+}
+ol[data-sonner-toast]>li{
     font-family: var(--temp-font-family-en, var(--curr-font-family-en, ${Settings.fontFamilyEn})), var(--temp-font-family-zh, var(--curr-font-family-zh, ${Settings.fontFamily}));
 }
 main div.space-y-4:nth-child(1) div[data-slot="card"]:nth-child(2) div.space-y-1 div.min-h-8{
@@ -702,6 +705,9 @@ const Translation = new Map([
     ["Sleeping Quarters", "睡眠区"],
     ["Increases maximum actions by 1% per level", "每级使成员最大行动次数 +1%"],
     // #region update text
+    ["Rift of Power: Added detail about upgrades to the chat message and activity log.", "力量裂隙：在聊天和活动日志中加入了升级详情。"], // default
+    ["Market: Quantity field can now be left empty. Which will buy/sell as much as possible at the specified price without creating an open order. Also added confirmation when leaving price empty.", "市场：数量输入框现在可以留空。留空时会尽可能多地以所指定价格购买/出售而不挂单。同样加入了留空时的二次确认。"], // default
+    ["Changed most feedback warning/error messages to be displayed as toasts instead of in the chat.", "将大多数警告/错误信息从聊天移到新增弹窗中。"], // default
     ["Added Quality of Life 'subscription' for 5", "加入了便利性月卡，价格为 5"], // default
     ["/month.", " 每月"], // default
     ["- Auto join events (configurable)", "- 自动参加事件（可设置）"], // default
@@ -797,7 +803,7 @@ const Translation = new Map([
     ["Can now upgrade/discard potions in potion belt", "现在可以升级/丢弃药水腰带中的药水了"],
     ["Added extra confirmation for brewing potion not matching active action type", "制作不符合当前行动的药水时，新增二次确认"],
     ["Added farming + potions", "新增农场和药水"],
-    ["Next guild upgrade can now be marked for anyone to complete", "下一个公会升级现在可以被标记，任何成员均可完成"],
+    ["Next guild upgrade can now be marked for anyone to complete", "新增标记下一公会升级功能，使任何成员均可完成"],
     ["Added field for internal guild info", "新增公会内部信息功能"],
     ["Added guild message of the day", "新增公会当日消息功能"],
     ["Remember mass disenchant option", "保存批量分解选项"],
@@ -809,19 +815,19 @@ const Translation = new Map([
     ["Added Quality column and secondary boost filter for combat skills to equipment market", "为装备市场增加了品质列和战斗第二加成过滤选项"],
     ["Fixed notification going through when player is ignored", "修复玩家被屏蔽时通知不生效的问题"],
     ["Scroll to top when switching chat tabs, don't clear selected chat channel", "切换聊天频道时自动滚动至顶端，并且不会清除选中频道的聊天记录"],
-    ["Player profile and research pages now show correct totals including Nexus Crystal and base crit chance/damage", "玩家简介和研究页面现在会正确显示连结水晶升级后以及计算基础暴击率/暴击伤害后的加成值"],
+    ["Player profile and research pages now show correct totals including Nexus Crystal and base crit chance/damage", "玩家简介和研究页面现在会正确显示连结水晶升级后以及计算基础暴击率/暴击伤害后的属性值"],
     ["Added equipment market", "新增装备市场"],
     ["Show chance to upgrade each specific boost on upgrade page", "在强化页面显示每项装备属性获得升级的概率"],
     ["Rare items now have same amount of modifiers as epics, with lower values", "稀有物品的属性数现在和史诗物品一样，但是数值更低"],
     ["Increased average/maximum roll values for non-legendary items", "增加了非传说物品属性值的平均值/最大值"],
     ["Significantly buffed mana regeneration from spirit", "极大增加了精神属性提供的魔力回复"],
     ["Can leave price field blank in market to sell/buy at market price", "在价格输入框留空可以直接以当前市场价出售/购买"],
-    ["Can click funds in guild to prefill", "可以在公会页中点击仓库剩余数量填充捐赠输入框"],
+    ["Can click funds in guild to prefill", "可以在公会升级页面中点击个人仓库剩余数量以快速填写捐赠输入框"],
     ["Added /ignored, /wire, /afk, /profile commands", "新增 /ignored, /wire, /afk, /profile 指令"],
     ["Added ability to add text on profile page", "新增主页自定义文字功能"],
     ["Allowed line breaks in guild description", "公会介绍现在可以换行了"],
-    ["Added clear button to loot tracker", "为掉落追踪栏新增清除按钮"],
-    [" rerolls if all boosts are same, 50% chance to pick active mastery on staffs", " 重新随机，如果所有加成均为相同类型，对于法杖，有 50% 的概率选择当前行动对应的元素精通加成"],
+    ["Added clear button to loot tracker", "为掉落追踪器新增清除按钮"],
+    [" rerolls if all boosts are same, 50% chance to pick active mastery on staffs", " 会在随机后的所有属性类型和原来完全相同时重新随机，对于法杖，有 50% 的概率选择当前行动对应的元素精通加成"],
     ["Added activity log for players and guilds", "新增玩家和公会的活动记录"],
     ["Added cap of level 22 on enchanting skills, increasing by 1 every Monday", "所有附魔等级新增 22 级上限，每周一上限增加 1"],
     ["Added leaderboards for enchanting", "新增附魔等级排行榜"],
@@ -829,17 +835,17 @@ const Translation = new Map([
     ["Increased chance of epic gear and legendary jewelry drops", "增加了史诗装备和传说首饰的掉落概率"],
     ["Increased chatbox size, decreased line spacing", "增加了聊天框的大小，减少了行间距"],
     ["Added ctrl + click item linking", "新增 Ctrl + 点击物品链接至聊天的功能"],
-    ["Reset enchanting skills, refunded formulas, cancelled market orders for formulas", "重置所有附魔等级，返回相应术式，取消所有术式的市场挂牌"],
+    ["Reset enchanting skills, refunded formulas, cancelled market orders for formulas", "重置所有附魔等级，返还相应术式，取消所有附魔术式的市场挂牌"],
     ["Added option to reset codex boosts, cost based on non-action boosts", "新增重置法典升级的选项，重置消耗基于行动次数以外的升级计算"],
-    ["Can enchant items from profiles", "可以在个人主页附魔装备"],
+    ["Can enchant items from profiles", "可以在玩家资料页附魔装备"],
     ["Added ignore functionality and /help command", "新增屏蔽功能和 /help 指令"],
     ["Guilds can tax ", "公会可以对 "],
     [", withdraw", " 收税，凭借新增的公会权限回收"],
     ["/", "/"],
     [" with new rank permission", ""],
     ["Slightly nerfed enemy ward/focus scaling in final areas", "略微削弱了最终区域敌人的抗性/集中增长率"],
-    ["Changed battle xp curve, reducing by up to 11% under level 160, increasing later", "调整了战斗经验曲线，160 等级以下所需经验最高减少 11%，在之后"],
-    ["Armory shows if borrowed items are unequipped", "装备库现在显示借出但未被装备的物品"],
+    ["Changed battle xp curve, reducing by up to 11% under level 160, increasing later", "调整了战斗经验曲线，160 战斗等级以下所需经验最高减少 11%，在之后则会增加"],
+    ["Armory shows if borrowed items are unequipped", "装备库现在标识借出但未被装备的物品"],
     ["Reverted part of enemy scaling due to error", "由于报错，回退了一部分敌人成长调整"],
     ["Display online/active player count", "显示在线/活动玩家数量"],
     ["Display last active time in guild roster", "在公会名单中显示上次活动时间"],
@@ -848,12 +854,12 @@ const Translation = new Map([
     ["Added color options for theme and chat colors in settings", "在设置中新增主题颜色和聊天颜色选项"],
     ["Added /transferguild command", "新增 /transferguild 指令"],
     ["Enchanting reagent cost scaling changed to 3 per level", "附魔材料消耗调整至每级 3 个"],
-    ["Fire/Water/Nature Essence added to gathering skill drop tables", "火/水/自然精华加入采集技能掉落表中"],
+    ["Fire/Water/Nature Essence added to gathering skill drop tables", "火/水/自然精华加入采集技能掉落物中"],
     ["Adjusted droprates of some reagents", "调整了某些附魔材料的掉落率"],
-    ["Added leaderboard for strongest enemy defeated in final zones", "新增最终区域击败的最强敌人排行榜"],
-    ["Leaderboards filtered to remove admins/inactive players", "排行榜现在会过滤管理员和不活跃玩家"],
+    ["Added leaderboard for strongest enemy defeated in final zones", "新增最终区域击败敌人最高强度排行榜"],
+    ["Leaderboards filtered to remove admins/inactive players", "排行榜现在会移除管理员和不活跃玩家"],
     ["Can favorite items to prevent mass disenchant", "可以保护物品，防止其被批量分解"],
-    ["Mass disenchant only applies to filtered item list", "批量分解现在只会分解过滤后的物品清单"],
+    ["Mass disenchant only applies to filtered item list", "批量分解现在只会分解清单中过滤后的物品"],
     ["Fixed issues with item links in chat input", "修复了聊天输入框关于物品链接的问题"],
     ["Can no longer transfer items to banned/guest accounts", "无法再向封禁/访客账号发送物品"],
     ["Added leaderboards for different categories", "新增不同类别的排行榜"],
@@ -864,12 +870,12 @@ const Translation = new Map([
     ["Item transfers now show in whispers for persistence", "物品收发记录现在在私聊栏中长期显示"],
     ["Whisper tab shows unread count, including in All tab", "私聊栏现在显示未读数量，包括「所有」栏"],
     ["Manual refresh may be needed to see changes", "改动可能需要手动刷新生效"],
-    ["New guild upgrade: Study Room +1% base experience per level for gatherers and battlers", "新的公会升级：学习室。每级使战斗和采集成员基础经验值 +1%"],
+    ["New guild upgrade: Study Room +1% base experience per level for gatherers and battlers", "新增公会升级：学习室。每级使战斗和采集成员基础经验值 +1%"],
     ["Banned players’ names struck through on guild roster and profile", "封禁玩家的名字会在个人资料页和公会名单上用删除线划去"],
-    [" logic updated to preserve existing modifier types", " 机制变为保留已有的属性"],
+    [" logic updated to preserve existing modifier types", " 机制更新，现在会保留已有的属性"],
     [" from quest rewards changed to", " 在任务奖励中变为"],
-    [" until quest counter reaches 1000", "，直至任务数字到达 1000"],
-    ["Normal tradeable codex drop rates buffed to 1/4k base", "普通的可交易法典掉落率增加至 1/4000 基础值"],
+    [" until quest counter reaches 1000", "，直至任务所需行动数到达 1000"],
+    ["Normal tradeable codex drop rates buffed to 1/4k base", "普通的可交易法典掉落率基础值增加至 1/4000"],
     ["Closed 50 accounts for multi farming/botting", "封禁了 50 个小号/脚本"],
     // #region town text
     ["Welcome to Manarion", "欢迎来到 Manarion"],
@@ -1315,7 +1321,7 @@ const UpgradeTranslation = new Map([
 ]);
 // #region ProfileTL
 const ProfileTranslation = new Map([
-    ["Guild: ", "公会："],
+    ["Guild:", "公会："],
     ["Activity: ", "当前活动："],
     ["battle", "战斗"],
     ["mining", "采矿"],
@@ -1422,6 +1428,18 @@ const DialogTranslation = new Map([
     ["Purchase item", "购买物品"],
     ["Confirm guild upgrade", "确认公会升级"],
 ]);
+//#region ToastTL
+const ToastTranslation = new Map([
+    ["You already have an open order for this item.", "你已经有一个此物品的交易挂单了。"],
+    ["You have recently cancelled an order for this item and must wait 10 minutes before creating new orders less than 1% above the best price.", "你在不久前取消了一个此物品的挂单，因此如果你新创建的挂单价格小于当前最高买价的 101%，将有 10 分钟的挂单冷却时间。"],
+    ["You have recently cancelled an order for this item and must wait 10 minutes before creating new orders less than 1% under the best price.", "你在不久前取消了一个此物品的挂单，因此如果你新创建的挂单价格大于当前最低卖价的 99%，将有 10 分钟的挂单冷却时间。"],
+    ["Player not found.", "未找到玩家。"],
+    ["Already equipped", "已经装备"],
+    ["Potion belt is full.", "药水腰带容量已满。"],
+    ["No items match filter", "没有符合条件的物品。"],
+    ["Next Elemental Rift is now!", "元素裂隙事件进行中！"],
+    ["The Elemental Rift is opening in 5 minutes!", "元素裂隙还有 5 分钟开始！"],
+]);
 // #region ElementalRif
 const ElementalRiftTranslation = new Map([
     ["Name", "玩家名"],
@@ -1504,8 +1522,10 @@ const __TypedTranslation = new Map([
     ["dialog", DialogTranslation],
     ["elementalRift", ElementalRiftTranslation],
     ["premium", PremiumShopTranslation],
+    ["toast", ToastTranslation],
     ["default", Translation],
 ]);
+//#region _Translate()
 const _Translate = (ele, type = "default", keepOriginalText = false) => {
     if(ele?.nodeType !== Node.TEXT_NODE && (!ele || !ele.textContent || [...ele.childNodes].filter(node => node.nodeType !== Node.TEXT_NODE).length > 0)){
         console.log("_Translate() return early");
@@ -1688,6 +1708,19 @@ const LogTranslator = (channelType, nodes) => {
             }
             break;
         }
+        case "trade":{
+            if(result = /MARKET: You sold ([^ ]+) \[[^\]]+\] for ([^ ]+) \(([^ ]+) each\)\./.exec(text)){
+                nodes[0].textContent = "市场";
+                nodes[2].textContent = `你卖出了 ${result[1]} `;
+                nodes[4].textContent = `, 获得 ${result[2]} ${Settings.manaDustName}（单价 ${result[3]}）`;
+            }
+            else if(result = /MARKET: You bought ([^ ]+) \[[^\]]+\] for ([^ ]+) \(([^ ]+) each\)\./.exec(text)){
+                nodes[0].textContent = "市场";
+                nodes[2].textContent = `你购买了 ${result[1]} `;
+                nodes[4].textContent = `, 花费 ${result[2]} ${Settings.manaDustName}（单价 ${result[3]}）`;
+            }
+            break;
+        }
         //#region Global
         case "gloabl":{
             if(result = /([^ ]+) found a \[[^\]]+\]/.exec(text)){
@@ -1707,18 +1740,8 @@ const LogTranslator = (channelType, nodes) => {
                 nodes[0].textContent = `从 ${result[1]} 处购买了 `;
                 nodes[2].textContent = `, 花费 ${result[2]} `;
             }
-            else if(result = /MARKET: You sold ([^ ]+) \[[^\]]+\] for ([^ ]+) \(([^ ]+) each\)\./.exec(text)){
-                nodes[0].textContent = "市场";
-                nodes[2].textContent = `你卖出了 ${result[1]} `;
-                nodes[4].textContent = `, 获得 ${result[2]} ${Settings.manaDustName}（单价 ${result[3]}）`;
-            }
             else if(result = /You sent ([^ ]+) ([^ ]+) /.exec(text)){
                 nodes[0].textContent = `你送给了 ${result[1]} ${result[2]} `;
-            }
-            else if(result = /MARKET: You bought ([^ ]+) \[[^\]]+\] for ([^ ]+) \(([^ ]+) each\)\./.exec(text)){
-                nodes[0].textContent = "市场";
-                nodes[2].textContent = `你购买了 ${result[1]} `;
-                nodes[4].textContent = `, 花费 ${result[2]} ${Settings.manaDustName}（单价 ${result[3]}）`;
             }
             else if(result = /Your \[[^\]]+\] has increased in power\./.exec(text)){
                 nodes[0].textContent = "你的 ";
@@ -2636,6 +2659,9 @@ const FindAndReplaceText = () => {try {
         }
         _Translate(titleEle, "dialog");
     })
+    //#region toast
+    CheckTranslation(document, "ol.toaster.group", (ol) => ol.style.removeProperty("font-family"));
+    CheckTranslation(document, "ol.toaster.group>li[data-sonner-toast] div[data-title]", _TypedTranslate("toast"));
     // #region elnaeth
     // 属性掉落记录
     CheckTranslation(document, "#shard-drop-range", span => {
