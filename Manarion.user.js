@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.17.0
+// @version      0.17.1
 // @description  Manarion Chinese Translation and Quest notification, on any issue occurred, please /whisper VoltaX in game
 // @description:zh  Manarion 文本汉化，以及任务通知（非自动点击），如果汉化出现任何问题，可以游戏私信VoltaX，在greasyfork页面留下评论，或者通过其他方式联系我
 // @author       VoltaX
@@ -11,7 +11,7 @@
 // @grant        GM_addStyle
 // @grant        GM_info
 // @run-at       document-start
-// @connect      update.greasyfork.org
+// @connect      update.greasyfork.cc
 // @downloadURL https://update.greasyfork.org/scripts/537308/Manarion%20Chinese%20Translation.user.js
 // @updateURL https://update.greasyfork.org/scripts/537308/Manarion%20Chinese%20Translation.meta.js
 // ==/UserScript==
@@ -2948,8 +2948,8 @@ const AddSettings = () => {
                 }},
                     HTML("div", {class: "flex"},
                         HTML("div", {class: "flex-grow text-2xl"}, "汉化脚本设置"),
-                        HTML("button", {id: UpdateButtonID, class: ButtonClass, translated: "", hidden: "", _click: () => {
-                            const a = HTML("a", {href: GM_info.script.downloadURL, target: "_blank", download: "", hidden: "", style: "display:none;"});
+                        HTML("button", {id: UpdateButtonID, "data-href": GM_info.script.downloadURL, class: ButtonClass, translated: "", hidden: "", _click: (ev) => {
+                            const a = HTML("a", {href: ev.currentTarget.dataset.href, target: "_blank", download: "", hidden: "", style: "display:none;"});
                             a.click();
                         }}, "有可用更新"),
                     ),
@@ -3027,6 +3027,7 @@ const AddSettingsNavItem = () => {
             HTML('span', {class: 'hidden lg:inline'}, "汉化设置"),
         )
     )
+    CheckForUpdate();
 };
 const CheckDeaths = () => {
     const set = Temp.DeathNotificationSet;
@@ -3066,21 +3067,38 @@ const wakeElnaeth = () => {
 };
 console.log('chinese translation loaded');
 wakeElnaeth();
+let CCFlag = GM_info.script.connects.includes("update.greasyfork.cc");
+const _UpdateDOMParser = new DOMParser();
+const scriptID = 537308;
 const CheckForUpdate = async () => {try {
-    const request = await fetch(GM_info.script.updateURL, {mode: "cors", cache: "reload"});
-    const text = await request.text();
-    const result = /\/\/ *@version +(.*)$/m.exec(text);
-    if(result){
-        console.log("Checked for update:", result[1]);
-        const versions = result[1].split(".");
-        const current = GM_info.script.version.split(".");
-        for(let i = 0; i < versions.length; i++){
-            if(Number(versions[i]) > Number(current[i] ?? 0)){
-                document.getElementById(UpdateButtonID).removeAttribute("hidden");
-                document.getElementById(UpdateDotID).removeAttribute("hidden");
-                break;
-            }
+    let versions;
+    if(CCFlag){
+        console.log("this script comes from .cc mirror site!");
+        const versionDOM = await (await fetch("https://greasyfork.cc/en/scripts/537308-manarion-chinese-translation/versions", {mode: "cors"})).text();
+        const _document = _UpdateDOMParser.parseFromString(versionDOM, "text/html").documentElement;
+        const a = _document.querySelector("ul.history_versions>li:first-child a");
+        if(!a) return;
+        const versionStr = a.textContent;
+        versions = versionStr.slice(1).split(".");
+        const versionId = new URL(a.href).searchParams.get("version");
+        document.getElementById(UpdateButtonID).setAttribute("data-href", `https://update.greasyfork.cc/scripts/${scriptID}/${versionId}/Manarion%20Chinese%20Translation.user.js`);
+    }
+    else{
+        const request = await fetch(GM_info.script.updateURL, {mode: "cors", cache: "reload"});
+        const text = await request.text();
+        const result = /\/\/ *@version +(.*)$/m.exec(text);
+        if(result){
+            console.log("Checked for update:", result[1]);
+            versions = result[1].split(".");
+        }
+    }
+    const current = GM_info.script.version.split(".");
+    console.log(versions, current);
+    for(let i = 0; i < versions.length; i++){
+        if(Number(versions[i]) > Number(current[i] ?? 0)){
+            document.getElementById(UpdateButtonID)?.removeAttribute("hidden");
+            document.getElementById(UpdateDotID)?.removeAttribute("hidden");
+            break;
         }
     }
 }catch(e){console.error(e)}finally{setTimeout(CheckForUpdate, 10*60*1000)}};
-CheckForUpdate();
