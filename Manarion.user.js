@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.16.15
+// @version      0.16.16
 // @description  Manarion Chinese Translation and Quest notification, on any issue occurred, please /whisper VoltaX in game
 // @description:zh  Manarion 文本汉化，以及任务通知（非自动点击），如果汉化出现任何问题，可以游戏私信VoltaX，在greasyfork页面留下评论，或者通过其他方式联系我
 // @author       VoltaX
@@ -1641,6 +1641,15 @@ const LogTranslator = (channelType, nodes) => {
             else if(result = /You have earned ([^ ]+) event points\. ([^ ]+) bosses were defeated in the Elemental Rift/.exec(text)){
                 nodes[0].textContent = `你获得了 ${result[1]} 事件点数。此次元素裂隙事件共有 ${result[2]} 只 boss 被击败！`
             }
+            else if(result = /Your \[([^\]]+)\] has increased in power \(([^\)]+)\)/.exec(text)){
+                nodes[0].textContent = `你的 `;
+                const boosts = result[2].split(", ").map(boost => {
+                    console.log(boost);
+                    const result = /([^ ]+) (.*)/.exec(boost);
+                    return `${result[1]} ${Translation.get(result[2]) ?? result[2]}`;
+                }).join("，");
+                nodes[2].textContent = ` 增强了力量（${boosts}）`;
+            }
             else console.log(`cannot translate|${text}|(Activity Log)`);
             break;
         }
@@ -1735,6 +1744,15 @@ const LogTranslator = (channelType, nodes) => {
             else if(result = /Sold \[[^\]]+\] to ([^ ]+) for ([^ ]+) \[[^\]]+\]./.exec(text)){
                 nodes[0].textContent = "将 ";
                 nodes[2].textContent = ` 卖给了 ${result[1]}，获得 ${result[2]} `;
+            }
+            else if(result = /Your \[([^\]]+)\] has increased in power \(([^\)]+)\)/.exec(text)){
+                nodes[0].textContent = `你的 `;
+                const boosts = result[2].split(", ").map(boost => {
+                    console.log(boost);
+                    const result = /([^ ]+) (.*)/.exec(boost);
+                    return `${result[1]} ${Translation.get(result[2]) ?? result[2]}`;
+                }).join("，");
+                nodes[2].textContent = ` 增强了力量（${boosts}）`;
             }
             else if(result = /Bought \[[^\]]+\] from ([^ ]+) for ([^ ]+) \[[^\]]+\]\./.exec(text)){
                 nodes[0].textContent = `从 ${result[1]} 处购买了 `;
