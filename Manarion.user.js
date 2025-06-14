@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.17.4
+// @version      0.17.5
 // @description  Manarion Chinese Translation and Quest notification, on any issue occurred, please /whisper VoltaX in game
 // @description:zh  Manarion 文本汉化，以及任务通知（非自动点击），如果汉化出现任何问题，可以游戏私信VoltaX，在greasyfork页面留下评论，或者通过其他方式联系我
 // @author       VoltaX
@@ -1537,7 +1537,7 @@ const _Translate = (ele, type = "default", keepOriginalText = false) => {
         return;
     }
     if(ele.nodeType !== Node.TEXT_NODE && ele.childNodes.length > 1){
-        console.log("_Translate() replace multiple childNodes", ele);
+        console.log("_Translate() replace multiple childNodes", ele.outerHTML);
     }
     const text = ele.textContent;
     const translation = __TypedTranslation.get(type) ?? Translation;
