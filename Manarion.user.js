@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.17.3
+// @version      0.17.4
 // @description  Manarion Chinese Translation and Quest notification, on any issue occurred, please /whisper VoltaX in game
 // @description:zh  Manarion 文本汉化，以及任务通知（非自动点击），如果汉化出现任何问题，可以游戏私信VoltaX，在greasyfork页面留下评论，或者通过其他方式联系我
 // @author       VoltaX
@@ -705,6 +705,9 @@ const Translation = new Map([
     ["Sleeping Quarters", "睡眠区"],
     ["Increases maximum actions by 1% per level", "每级使成员最大行动次数 +1%"],
     // #region update text
+    ["Potion Boost can now be bought on the potions page with", "现在可以购买药水加成升级，消耗"], // default
+    [" ", " "], // default
+    [", providing a permanent buff to potions. (Same effect as the Sigil of Distillation)", "，提供永久性的药水增强。（和蒸馏魔符的作用相同）"], // default
     ["Rift of Power: Added detail about upgrades to the chat message and activity log.", "力量裂隙：在聊天和活动日志中加入了升级详情。"], // default
     ["Market: Quantity field can now be left empty. Which will buy/sell as much as possible at the specified price without creating an open order. Also added confirmation when leaving price empty.", "市场：数量输入框现在可以留空。留空时会尽可能多地以所指定价格购买/出售而不挂单。同样加入了留空时的二次确认。"], // default
     ["Changed most feedback warning/error messages to be displayed as toasts instead of in the chat.", "将大多数警告/错误信息从聊天移到新增弹窗中。"], // default
@@ -1182,6 +1185,8 @@ const SettingsTranslation = new Map([
 ]);
 // #region FarmTrans
 const FarmTranslation = new Map([
+    ["Potion Boost", "药水增强"], // farm
+    ["Increases the potency of potions.", "增强药水的效果"], // farm
     [" (Tier ", " (等级 "],
     [" Ticks)", " 刻)"],
     [" more in potion belt", " 瓶存于药水腰带"],
