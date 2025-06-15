@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.17.6
+// @version      0.17.7
 // @description  Manarion Chinese Translation and Quest notification, on any issue occurred, please /whisper VoltaX in game
 // @description:zh  Manarion 文本汉化，以及任务通知（非自动点击），如果汉化出现任何问题，可以游戏私信VoltaX，在greasyfork页面留下评论，或者通过其他方式联系我
 // @author       VoltaX
@@ -705,6 +705,11 @@ const Translation = new Map([
     ["Sleeping Quarters", "睡眠区"],
     ["Increases maximum actions by 1% per level", "每级使成员最大行动次数 +1%"],
     // #region update text
+    ["Added extra options to the Quantity and Unit Price field in the market to more easily choose these values", "为市场的数量和单价输入框新增了方便输入数值的按钮"], // default
+    ["Add Notifications channel where you will find the system messages that previously appeared in all channels", "新增通知频道，之前出现在所有频道中的系统信息现在会出现在这里"], // default
+    ["Added QoL option to automatically collect farm every 3 hours", "新增便利升级设置项，可每 3 小时收获一次农场"], // default
+    ["Added rankings for total level and total base stats", "新增总等级和总属性排行榜"], // default
+    ["Fix guild members leaving not being logged correctly", "修复了公会成员离开无法正确被日志记录的问题"], // default
     ["Potion Boost can now be bought on the potions page with", "现在可以购买药水加成升级，消耗"], // default
     [" ", " "], // default
     [", providing a permanent buff to potions. (Same effect as the Sigil of Distillation)", "，提供永久性的药水增强。（和蒸馏魔符的作用相同）"], // default
@@ -1130,6 +1135,7 @@ const Translation = new Map([
 ]);
 // #region SettingTrans
 const SettingsTranslation = new Map([
+    ["Auto collect farm every 3 hours", "每 3 小时自动收获农场"], // settings
     ["，", "，"],
     ["Referrer Link", "推荐链接"],
     ["Guild Taxes", "公会税收"],
@@ -1143,6 +1149,7 @@ const SettingsTranslation = new Map([
     ["Trade", "交易频道"],
     ["Guild", "公会频道"],
     ["Help", "帮助频道"],
+    ["Notifications", "通知频道"],
     ["Identity Providers", "身份验证"],
     ["Quest Complete", "任务完成"],
     ["Fatigue", "行动计数归零"],
@@ -1261,6 +1268,7 @@ const ChatTranslation = new Map([
         ["Trade", "交易"],
         ["Guild", "公会"],
         ["Help", "帮助"],
+        ["Notifications", "通知"],
     ].flatMap(([key, value]) => [
         [key, value],
         [`[${key}]${key.toLowerCase()}`, `[${value}]`],
@@ -1745,16 +1753,6 @@ const LogTranslator = (channelType, nodes) => {
             break;
         }
         case "trade":{
-            if(result = /MARKET: You sold ([^ ]+) \[[^\]]+\] for ([^ ]+) \(([^ ]+) each\)\./.exec(text)){
-                nodes[0].textContent = "市场";
-                nodes[2].textContent = `你卖出了 ${result[1]} `;
-                nodes[4].textContent = `, 获得 ${result[2]} ${Settings.manaDustName}（单价 ${result[3]}）`;
-            }
-            else if(result = /MARKET: You bought ([^ ]+) \[[^\]]+\] for ([^ ]+) \(([^ ]+) each\)\./.exec(text)){
-                nodes[0].textContent = "市场";
-                nodes[2].textContent = `你购买了 ${result[1]} `;
-                nodes[4].textContent = `, 花费 ${result[2]} ${Settings.manaDustName}（单价 ${result[3]}）`;
-            }
             break;
         }
         //#region Global
@@ -1766,8 +1764,17 @@ const LogTranslator = (channelType, nodes) => {
             break;
         }
         //#region All
+        case "notifications":
         case "all":{
             if(SystemMsgTranslation.has(nodes[0].textContent)) _Translate(nodes[0], "help");
+            if(result = /You sold ([^ ]+) \[[^\]]+\] for ([^ ]+) \(([^ ]+) each\)\./.exec(text)){
+                nodes[0].textContent = `你卖出了 ${result[1]} `;
+                nodes[2].textContent = `, 获得 ${result[2]} ${Settings.manaDustName}（单价 ${result[3]}）`;
+            }
+            else if(result = /You bought ([^ ]+) \[[^\]]+\] for ([^ ]+) \(([^ ]+) each\)\./.exec(text)){
+                nodes[0].textContent = `你购买了 ${result[1]} `;
+                nodes[2].textContent = `, 花费 ${result[2]} ${Settings.manaDustName}（单价 ${result[3]}）`;
+            }
             else if(result = /Sold \[[^\]]+\] to ([^ ]+) for ([^ ]+) \[[^\]]+\]./.exec(text)){
                 nodes[0].textContent = "将 ";
                 nodes[2].textContent = ` 卖给了 ${result[1]}，获得 ${result[2]} `;
@@ -2243,7 +2250,7 @@ const FindAndReplaceText = () => {try {
                     }
                 });
             });
-            document.querySelectorAll("main h2.text-2xl:not([translated]), main label:not([translated]), main span.w-20.text-lg:not([translated]), main div.text-xl:not([translated])").forEach(div => {
+            document.querySelectorAll("main h2.text-2xl:not([translated]), main label:not([translated]), main span.w-30.text-lg:not([translated]), main div.text-xl:not([translated])").forEach(div => {
                 div.setAttribute("translated", "");
                 _Translate(div, "settings");
             });
@@ -2601,6 +2608,7 @@ const FindAndReplaceText = () => {try {
         });
         const isSystem = !message.querySelector("span[aria-haspopup='menu']");
         const nodes = [...message.childNodes].slice((message.childNodes[2].nodeType === Node.TEXT_NODE && message.childNodes[2].textContent === " ") ? 3 : 2);
+        console.log(channel, nodes);
         if(isSystem) LogTranslator(channel, nodes);
     });
     // #region loot tracker
