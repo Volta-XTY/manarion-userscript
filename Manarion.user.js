@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.17.5
+// @version      0.17.6
 // @description  Manarion Chinese Translation and Quest notification, on any issue occurred, please /whisper VoltaX in game
 // @description:zh  Manarion 文本汉化，以及任务通知（非自动点击），如果汉化出现任何问题，可以游戏私信VoltaX，在greasyfork页面留下评论，或者通过其他方式联系我
 // @author       VoltaX
@@ -1375,7 +1375,7 @@ const EquipTranslation = new Map([
     // quality
     ["Worn", "破旧的"], ["Refined", "精制的"], ["Runed", "铭文的"], ["Ascended", "进阶的"], ["Eternal", "永恒的"],
     // type
-    ["Neophyte", "新手"], ["Initiate", "初始"], ["Novice", "见习"], ["Apprentice", "学徒"], ["Acolyte", "助手"], ["Adept", "熟手"], ["Scholar", "专家"], ["Magus", "术士"], ["Invoker", "祈求者"], ["Archmage", "大巫师"], ["Eldritch", "异界"], ["Primordial", "原初"], ["Celestial", "星辉"], ["Lumberjack's", "伐木工"], ["Tidecaller's", "唤潮人"], ["Prospector's", "探矿者"], ["Thaumaturge", "奇术师"], ["Incantator", "唤魔者"], ["Disciple", "门徒"], ["Paragon", "贤者"],
+    ["Neophyte", "新手"], ["Initiate", "初始"], ["Novice", "见习"], ["Apprentice", "学徒"], ["Acolyte", "助手"], ["Adept", "熟手"], ["Scholar", "专家"], ["Magus", "术士"], ["Invoker", "祈求者"], ["Archmage", "大巫师"], ["Eldritch", "异界"], ["Primordial", "原初"], ["Celestial", "星辉"], ["Lumberjack's", "伐木工"], ["Tidecaller's", "唤潮人"], ["Prospector's", "探矿者"], ["Thaumaturge", "奇术师"], ["Incantator", "唤魔者"], ["Disciple", "门徒"], ["Paragon", "贤者"], ["Elysian", "天界"], ["Daemon", "精灵"],
     // part
     ["Staff", "法杖"], ["Hood", "兜帽"], ["Pendant", "项链"], ["Cloak", "斗篷"], ["Robes", "法袍"], ["Gloves", "手套"], ["Sandals", "鞋子"], ["Ring", "戒指"], [" of Water", "水"], [" of Fire", "火"], [" of Nature", "自然"], ["Helmet", "头盔"], ["Pickaxe", "镐子"], ["Axe", "斧头"], ["Rod", "鱼竿"], ["Jacket", "夹克"], ["Cape", "披风"], ["Boots", "靴子"], ["Hat", "帽子"], ["Tunic", "外衣"],
     // Sigil
@@ -1444,6 +1444,7 @@ const ToastTranslation = new Map([
     ["No items match filter", "没有符合条件的物品。"],
     ["Next Elemental Rift is now!", "元素裂隙事件进行中！"],
     ["The Elemental Rift is opening in 5 minutes!", "元素裂隙还有 5 分钟开始！"],
+    ["Farm is not ready to collect", "农场现在还无法采摘"],
 ]);
 // #region ElementalRif
 const ElementalRiftTranslation = new Map([
