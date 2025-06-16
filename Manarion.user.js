@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.17.7
+// @version      0.17.8
 // @description  Manarion Chinese Translation and Quest notification, on any issue occurred, please /whisper VoltaX in game
 // @description:zh  Manarion 文本汉化，以及任务通知（非自动点击），如果汉化出现任何问题，可以游戏私信VoltaX，在greasyfork页面留下评论，或者通过其他方式联系我
 // @author       VoltaX
@@ -3059,7 +3059,7 @@ const CheckDeaths = () => {
 }
 CheckDeaths();
 //#region Check4Upd
-let CCFlag = GM_info.script.connects.includes("update.greasyfork.cc");
+let CCFlag = GM_info?.script?.connects?.includes("update.greasyfork.cc") ?? false;
 const _UpdateDOMParser = new DOMParser();
 const scriptID = 537308;
 const CheckForUpdate = async () => {try {
