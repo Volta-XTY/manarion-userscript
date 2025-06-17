@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.17.8
+// @version      0.17.9
 // @description  Manarion Chinese Translation and Quest notification, on any issue occurred, please /whisper VoltaX in game
 // @description:zh  Manarion 文本汉化，以及任务通知（非自动点击），如果汉化出现任何问题，可以游戏私信VoltaX，在greasyfork页面留下评论，或者通过其他方式联系我
 // @author       VoltaX
@@ -1792,9 +1792,6 @@ const LogTranslator = (channelType, nodes) => {
                 nodes[0].textContent = `从 ${result[1]} 处购买了 `;
                 nodes[2].textContent = `, 花费 ${result[2]} `;
             }
-            else if(result = /You sent ([^ ]+) ([^ ]+) /.exec(text)){
-                nodes[0].textContent = `你送给了 ${result[1]} ${result[2]} `;
-            }
             else if(result = /Your \[[^\]]+\] has increased in power\./.exec(text)){
                 nodes[0].textContent = "你的 ";
                 nodes[2].textContent = " 从裂隙中获得了力量。"
@@ -1806,15 +1803,19 @@ const LogTranslator = (channelType, nodes) => {
             else if(result = /You have earned ([^ ]+) event points\./.exec(text)){
                 nodes[0].textContent = `你获得了 ${result[1]} 事件点数。`
             }
-            else if(result = /([^ ])+ returned \[([^\]])\] to you/.exec(text)){
+            else if(result = /([^ ])+ returned \[[^\]]+\] to you/.exec(text)){
                 nodes[0].textContent = `${result[1]} 将 `;
                 nodes[2].textContent = ` 还给了你。`
             }
-            else if(result = /([^ ])+ enchanted your \[([^\]])\]/.exec(text)){
+            else if(result = /([^ ])+ enchanted your \[[^\]]+\]/.exec(text)){
                 nodes[0].textContent = `${result[1]} 附魔了你的 `;
             }
-            else if(result = /[Yy]ou sent ([^ ])+ ([^ ])+ \[([^\]])\]/.exec(text)){
+            else if(result = /[Yy]ou sent ([^ ]+) ([^ ]+) \[[^\]]+\]/.exec(text)){
                 nodes[0].textContent = `你送给了 ${result[1]} ${result[2]} `;
+            }
+            else if(result = /[Yy]ou sent ([^ ]+) \[[^\]]+\] to ([^ ]+)\./.exec(text)){
+                nodes[0].textContent = `你送给了 ${result[2]} ${result[1]} `;
+                nodes[2].textContent = "";
             }
             else console.log(`cannot translate|${text}|(All)`);
             break;
@@ -3059,7 +3060,7 @@ const CheckDeaths = () => {
 }
 CheckDeaths();
 //#region Check4Upd
-let CCFlag = GM_info?.script?.connects?.includes("update.greasyfork.cc") ?? false;
+let CCFlag = GM_info?.script?.connects?.includes("update.greasyfork.cc") ?? GM_info?.script?.connect?.includes("update.greasyfork.cc") ?? false;
 const _UpdateDOMParser = new DOMParser();
 const scriptID = 537308;
 const CheckForUpdate = async () => {try {
