@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.17.9
+// @version      0.17.10
 // @description  Manarion Chinese Translation and Quest notification, on any issue occurred, please /whisper VoltaX in game
 // @description:zh  Manarion 文本汉化，以及任务通知（非自动点击），如果汉化出现任何问题，可以游戏私信VoltaX，在greasyfork页面留下评论，或者通过其他方式联系我
 // @author       VoltaX
@@ -402,6 +402,7 @@ const Translation = new Map([
         ["Orb of Power", "强化球"],
         ["Orb of Chaos", "混沌球"],
         ["Orb of Divinity", "神圣球"],
+        ["Orb of Legacy", "古物球"],
         ["Sunpetal", "太阳花瓣"],
         ["Sageroot", "智慧之根"],
         ["Bloomwell", "繁茂精华"],
@@ -670,6 +671,7 @@ const Translation = new Map([
     ["Increases your chance to get additional stat rolls and mastery.", "提升掉落额外属性点和元素精通点的概率。"],
     ["Increases the maximum amount of actions you can do.", "增加最大行动次数。"],
     ["Increases your chance to find nearly any item drop.", "提升获得绝大多数掉落物的概率。"],
+    ["Turns a Legendary item into an Heirloom. Halving the power but removing the level requirement.", "将一件传说装备变为传承装备。装备属性值减半，但会移除等级限制。"],
     // #region guild text
     ["Manage Ranks (Admin)", "调整职位（管理员）"],
     ["Invite Members", "邀请成员"],
@@ -705,6 +707,14 @@ const Translation = new Map([
     ["Sleeping Quarters", "睡眠区"],
     ["Increases maximum actions by 1% per level", "每级使成员最大行动次数 +1%"],
     // #region update text
+    ["New drop ", "新增掉落物 "], // default
+    [" (rarer than Orb of Divinity)", "（稀有度比神圣球更高）"], // default
+    ["- Turns a Legendary item into an Heirloom. Halving the power (level) but removing the level requirement.", "- 将一件传说装备变为传承装备。装备属性值（等级）减半，但是不再有等级限制。"], // default
+    ["- Used to create catch-up gear that can be used by new players or players looking to switch", "- 用来生成追赶装备，供新玩家或者转职玩家使用"], // default
+    ["- Would also like to remind everyone that there are diminishing returns on the base shard drop amount boost from total level", "- 同样希望提醒各位玩家，总等级对基础元素碎片掉落量的加成会逐渐衰减"], // default
+    ["New Potion of Resonance: Provides +Elemental Shards % boost (Additive with equipment bonus). Uses both ", "新的回响药水：提供元素碎片 % 加成（和装备加成累加）。同时消耗 "], // default
+    [". Same scaling as the Potion of Wisdom", "。数值成长和智慧药水相同"], // default
+    ["Guild levels now also provide a multiplicative bonus to Orb and Formula drop rates", "公会等级现在还会提供特殊球和术式掉落率的累乘加成"], // default
     ["Added extra options to the Quantity and Unit Price field in the market to more easily choose these values", "为市场的数量和单价输入框新增了方便输入数值的按钮"], // default
     ["Add Notifications channel where you will find the system messages that previously appeared in all channels", "新增通知频道，之前出现在所有频道中的系统信息现在会出现在这里"], // default
     ["Added QoL option to automatically collect farm every 3 hours", "新增便利升级设置项，可每 3 小时收获一次农场"], // default
@@ -1128,6 +1138,8 @@ const Translation = new Map([
     ["Send", "发送"],
     ["Account", "账号"],
     ["Event", "事件"],
+    ["Total Level", "总等级"],
+    ["Base Stats", "基础属性值"],
     // #region elnaeth
     ["Loot Tracker", "掉落追踪器"],
     ["\n        Tracker settings\n      ", "掉落追踪脚本设置"],
@@ -1222,11 +1234,13 @@ const FarmTranslation = new Map([
     ["Potion of Renewal", "刷新药水"],
     ["Potion of Wisdom", "智慧药水"],
     ["Potion of Harvesting", "收获药水"],
+    ["Potion of Resonance", "回响药水"],
     ["Restores 200 actions when you run out.", "当行动次数不足时回复 200 次数"],
     ["当行动次数不足时回复 ", "当行动次数不足时回复 "],
     [" 200 次数", " 200 次数"],
     [" Battle Experience for 1 hour.", " 战斗经验，持续 1 小时。"],
     [" Base Resource Amount for 1 hour.", " 基础资源量，持续 1 小时。"],
+    [" Elemental Shards for 1 hour.", " 元素碎片，持续 1 小时。"],
     ["Potion Belt", "药水腰带"],
     ["Potion belt", "药水腰带"],
     ["Brewing", "酿药"],
@@ -1280,6 +1294,7 @@ const ChatTranslation = new Map([
     ["[T]trade", "[易]"],
     ["[G]guild", "[会]"],
     ["[H]help", "[助]"],
+    ["[N]notifications", "[通]"],
 ]);
 // #region MenuItemTL
 const MenuItemTranslation = new Map([
@@ -1375,7 +1390,7 @@ const PlaceholderTranslation = new Map([
     ["Price", "价格"],
     ["Set name", "配装名称"],
     ["Search player...", "搜索玩家..."],
-    ["Enter amount in €", "输入要支付的€"]
+    ["Enter amount in €", "输入要支付的€"],
 ]);
 if(!Settings.debug) [...Translation.values()].forEach(value => Translation.set(value, value));
 // #region EquipTL
@@ -1383,7 +1398,7 @@ const EquipTranslation = new Map([
     // quality
     ["Worn", "破旧的"], ["Refined", "精制的"], ["Runed", "铭文的"], ["Ascended", "进阶的"], ["Eternal", "永恒的"],
     // type
-    ["Neophyte", "新手"], ["Initiate", "初始"], ["Novice", "见习"], ["Apprentice", "学徒"], ["Acolyte", "助手"], ["Adept", "熟手"], ["Scholar", "专家"], ["Magus", "术士"], ["Invoker", "祈求者"], ["Archmage", "大巫师"], ["Eldritch", "异界"], ["Primordial", "原初"], ["Celestial", "星辉"], ["Lumberjack's", "伐木工"], ["Tidecaller's", "唤潮人"], ["Prospector's", "探矿者"], ["Thaumaturge", "奇术师"], ["Incantator", "唤魔者"], ["Disciple", "门徒"], ["Paragon", "贤者"], ["Elysian", "天界"], ["Daemon", "精灵"],
+    ["Neophyte", "新手"], ["Initiate", "初始"], ["Novice", "见习"], ["Apprentice", "学徒"], ["Acolyte", "助手"], ["Adept", "熟手"], ["Scholar", "专家"], ["Magus", "术士"], ["Invoker", "祈求者"], ["Archmage", "大巫师"], ["Eldritch", "异界"], ["Primordial", "原初"], ["Celestial", "星辉"], ["Lumberjack's", "伐木工"], ["Tidecaller's", "唤潮人"], ["Prospector's", "探矿者"], ["Thaumaturge", "奇术师"], ["Incantator", "唤魔者"], ["Disciple", "门徒"], ["Paragon", "贤者"], ["Elysian", "天界"], ["Daemon", "精灵"], ["Archon", "神使"],
     // part
     ["Staff", "法杖"], ["Hood", "兜帽"], ["Pendant", "项链"], ["Cloak", "斗篷"], ["Robes", "法袍"], ["Gloves", "手套"], ["Sandals", "鞋子"], ["Ring", "戒指"], [" of Water", "水"], [" of Fire", "火"], [" of Nature", "自然"], ["Helmet", "头盔"], ["Pickaxe", "镐子"], ["Axe", "斧头"], ["Rod", "鱼竿"], ["Jacket", "夹克"], ["Cape", "披风"], ["Boots", "靴子"], ["Hat", "帽子"], ["Tunic", "外衣"],
     // Sigil
@@ -1756,7 +1771,7 @@ const LogTranslator = (channelType, nodes) => {
             break;
         }
         //#region Global
-        case "gloabl":{
+        case "global":{
             if(result = /([^ ]+) found a \[[^\]]+\]/.exec(text)){
                 nodes[0].textContent = `${result[1]} 发现了 `;
             }
@@ -2346,7 +2361,7 @@ const FindAndReplaceText = () => {try {
                 OnMutate(undefined, observer);
             });
             CheckTranslation(document, `${potionsId} div.space-x-2>span:nth-child(1)`, _TypedTranslate("farm"));
-            CheckTranslation(document, `${potionsId} div.ml-1.space-y-4 div.flex.flex-wrap.items-end.gap-2>div:nth-last-child(2)`, (div) => {
+            CheckTranslation(document, `${potionsId} div.ml-1.space-y-4 div.flex.flex-wrap.items-end.gap-2>div:nth-last-child(2)>div`, (div) => {
                 div.childNodes[3].textContent = " 每份消耗";
             });
             break;
@@ -2609,7 +2624,6 @@ const FindAndReplaceText = () => {try {
         });
         const isSystem = !message.querySelector("span[aria-haspopup='menu']");
         const nodes = [...message.childNodes].slice((message.childNodes[2].nodeType === Node.TEXT_NODE && message.childNodes[2].textContent === " ") ? 3 : 2);
-        console.log(channel, nodes);
         if(isSystem) LogTranslator(channel, nodes);
     });
     // #region loot tracker
@@ -2874,7 +2888,6 @@ const CreateFontSelect = (settingsProp, FontOptions, FontOptionsLookup, lang) =>
     return HTML("div", {class: "font-selector", _click: (ev) => {
         const self = ev.currentTarget;
         const rect = self.getBoundingClientRect();
-        console.log("self rect", rect);
         const detectBox = HTML("div", {class: "detect-box fixed"});
         document.body.append(detectBox);
         detectBox.style.width = `${rect.width + 2}px`;
