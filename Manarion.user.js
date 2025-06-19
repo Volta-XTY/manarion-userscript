@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.17.10
+// @version      0.17.11
 // @description  Manarion Chinese Translation and Quest notification, on any issue occurred, please /whisper VoltaX in game
 // @description:zh  Manarion 文本汉化，以及任务通知（非自动点击），如果汉化出现任何问题，可以游戏私信VoltaX，在greasyfork页面留下评论，或者通过其他方式联系我
 // @author       VoltaX
@@ -2547,7 +2547,14 @@ const FindAndReplaceText = () => {try {
             _Translate(link);
             if(Settings.enableTestFeature) link.insertAdjacentElement("afterend", HTML("div", {class: "text-foreground float-right cursor-pointer text-sm underline select-none", _click: () => AddToAnalysis(div)}, " 加入分析"));
         });
-        div.querySelectorAll(":scope div.text-foreground.mb-2.flex.justify-between.gap-2").forEach(div => {console.log(div.outerHTML); _Translate(div.children[0].childNodes[0]), _Translate(div.children[1].childNodes[0]), _Translate(div.children[1].childNodes[2])});
+        div.querySelectorAll(":scope div.text-foreground.mb-2.flex.justify-between.gap-2").forEach(div => {
+            console.log(div.outerHTML);
+            const div00 = div.children[0].childNodes[0];
+            const result = /(.*) ([0-9]+)/.exec(div00.textContent);
+            div00.textContent = `${Translation.get(result[1]) ?? result[1]} ${result[2]}`;
+            _Translate(div.children[1].childNodes[0]);
+            _Translate(div.children[1].childNodes[2])
+        });
         // Enchantment
         div.querySelectorAll(":scope div.flex.justify-between.text-green-500").forEach(div => _Translate(div.children[0]));
     });
