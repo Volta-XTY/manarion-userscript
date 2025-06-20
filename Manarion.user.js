@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.17.12
+// @version      0.17.13
 // @description  Manarion Chinese Translation and Quest notification, on any issue occurred, please /whisper VoltaX in game
 // @description:zh  Manarion 文本汉化，以及任务通知（非自动点击），如果汉化出现任何问题，可以游戏私信VoltaX，在greasyfork页面留下评论，或者通过其他方式联系我
 // @author       VoltaX
@@ -707,43 +707,43 @@ const Translation = new Map([
     ["Sleeping Quarters", "睡眠区"],
     ["Increases maximum actions by 1% per level", "每级使成员最大行动次数 +1%"],
     // #region update text
-    ["New drop ", "新增掉落物 "], // default
-    [" (rarer than Orb of Divinity)", "（稀有度比神圣球更高）"], // default
-    ["- Turns a Legendary item into an Heirloom. Halving the power (level) but removing the level requirement.", "- 将一件传说装备变为传承装备。装备属性值（等级）减半，但是不再有等级限制。"], // default
-    ["- Used to create catch-up gear that can be used by new players or players looking to switch", "- 用来生成追赶装备，供新玩家或者转职玩家使用"], // default
-    ["- Would also like to remind everyone that there are diminishing returns on the base shard drop amount boost from total level", "- 同样希望提醒各位玩家，总等级对基础元素碎片掉落量的加成会逐渐衰减"], // default
-    ["New Potion of Resonance: Provides +Elemental Shards % boost (Additive with equipment bonus). Uses both ", "新的回响药水：提供元素碎片 % 加成（和装备加成累加）。同时消耗 "], // default
-    [". Same scaling as the Potion of Wisdom", "。数值成长和智慧药水相同"], // default
-    ["Guild levels now also provide a multiplicative bonus to Orb and Formula drop rates", "公会等级现在还会提供特殊球和术式掉落率的累乘加成"], // default
-    ["Added extra options to the Quantity and Unit Price field in the market to more easily choose these values", "为市场的数量和单价输入框新增了方便输入数值的按钮"], // default
-    ["Add Notifications channel where you will find the system messages that previously appeared in all channels", "新增通知频道，之前出现在所有频道中的系统信息现在会出现在这里"], // default
-    ["Added QoL option to automatically collect farm every 3 hours", "新增便利升级设置项，可每 3 小时收获一次农场"], // default
-    ["Added rankings for total level and total base stats", "新增总等级和总属性排行榜"], // default
-    ["Fix guild members leaving not being logged correctly", "修复了公会成员离开无法正确被日志记录的问题"], // default
-    ["Potion Boost can now be bought on the potions page with", "现在可以购买药水加成升级，消耗"], // default
-    [" ", " "], // default
-    [", providing a permanent buff to potions. (Same effect as the Sigil of Distillation)", "，提供永久性的药水增强。（和蒸馏魔符的作用相同）"], // default
-    ["Rift of Power: Added detail about upgrades to the chat message and activity log.", "力量裂隙：在聊天和活动日志中加入了升级详情。"], // default
-    ["Market: Quantity field can now be left empty. Which will buy/sell as much as possible at the specified price without creating an open order. Also added confirmation when leaving price empty.", "市场：数量输入框现在可以留空。留空时会尽可能多地以所指定价格购买/出售而不挂单。同样加入了留空时的二次确认。"], // default
-    ["Changed most feedback warning/error messages to be displayed as toasts instead of in the chat.", "将大多数警告/错误信息从聊天移到新增弹窗中。"], // default
-    ["Added Quality of Life 'subscription' for 5", "加入了便利性月卡，价格为 5"], // default
-    ["/month.", " 每月"], // default
-    ["- Auto join events (configurable)", "- 自动参加事件（可设置）"], // default
-    ["- Use enchanting skills of guild members", "- 利用公会成员的附魔能力"], // default
-    ["Added more settings", "新增更多设置"], // default
-    ["- Automatically join elemental rift (requires QoL)", "- 自动参加元素裂隙事件（需要便利升级月卡）"], // default
-    ["- Automatically siphon rift of power up to X times (requires QoL)", "- 自动参加力量裂隙，并在单次裂隙中最多汲取 X 次力量（需要便利升级月卡）"], // default
-    ["- Automatically disenchant item drops up to rarity", "- 自动分解特定稀有度以下的掉落装备"], // default
-    ["- Option to block others from enchanting your equipment", "- 阻止他人为你的装备附魔"], // default
-    ["- Channel prefix display options", "- 设置频道前缀显示模式"], // default
-    ["- Disable title/color options", "- 禁用头衔/更改头衔颜色"], // default
-    ["Added option to color your titles once you accumulate 50 Ascension Points", "新增自定义头衔颜色，要求累计获得 50 晋升点数"], // default
-    ["Elemental Rift event actions now also progress your quest", "元素裂隙事件行动现在也会计入任务进度（和击败的事件 boss 数目无关）"], // default
-    ["Show the enchant level for resistance enchants in tooltips", "在装备弹窗中还会显示抗性附魔对应等级"], // default
-    ["Added limit of 200 enemy attacks to battles, after which you will give up", "战斗现在有 200 敌方攻击次数上限，超过此限制你将会放弃此次战斗"], // default
-    ["Clicking your action during an event no longer tries to leave the event, you can select your activity on the Town page if you really want to leave", "事件中，点击导航栏的行动图标不再导致你离开当前事件，而是切换到事件页面，如果你确实希望离开，你可以在城镇页面中选择行动"], // default
-    ["Fix farm fully grown icon not showing without visiting the farm page first", "修复了未访问农场页面的情况下，农场完全生长的图标不显示的问题。"], // default
-    ["Fix quest notification sometimes not triggering with Sigil of Purpose", "修复了携带目标魔符时，任务完成通知有时不触发的问题"], // default
+    ["New drop ", "新增掉落物 "],
+    [" (rarer than Orb of Divinity)", "（稀有度比神圣球更高）"],
+    ["- Turns a Legendary item into an Heirloom. Halving the power (level) but removing the level requirement.", "- 将一件传说装备变为传承装备。装备属性值（等级）减半，但是不再有等级限制。"],
+    ["- Used to create catch-up gear that can be used by new players or players looking to switch", "- 用来生成追赶装备，供新玩家或者转职玩家使用"],
+    ["- Would also like to remind everyone that there are diminishing returns on the base shard drop amount boost from total level", "- 同样希望提醒各位玩家，总等级对基础元素碎片掉落量的加成会逐渐衰减"],
+    ["New Potion of Resonance: Provides +Elemental Shards % boost (Additive with equipment bonus). Uses both ", "新的回响药水：提供元素碎片 % 加成（和装备加成累加）。同时消耗 "],
+    [". Same scaling as the Potion of Wisdom", "。数值成长和智慧药水相同"],
+    ["Guild levels now also provide a multiplicative bonus to Orb and Formula drop rates", "公会等级现在还会提供特殊球和术式掉落率的累乘加成"],
+    ["Added extra options to the Quantity and Unit Price field in the market to more easily choose these values", "为市场的数量和单价输入框新增了方便输入数值的按钮"],
+    ["Add Notifications channel where you will find the system messages that previously appeared in all channels", "新增通知频道，之前出现在所有频道中的系统信息现在会出现在这里"],
+    ["Added QoL option to automatically collect farm every 3 hours", "新增便利升级设置项，可每 3 小时收获一次农场"],
+    ["Added rankings for total level and total base stats", "新增总等级和总属性排行榜"],
+    ["Fix guild members leaving not being logged correctly", "修复了公会成员离开无法正确被日志记录的问题"],
+    ["Potion Boost can now be bought on the potions page with", "现在可以购买药水加成升级，消耗"],
+    [" ", " "],
+    [", providing a permanent buff to potions. (Same effect as the Sigil of Distillation)", "，提供永久性的药水增强。（和蒸馏魔符的作用相同）"],
+    ["Rift of Power: Added detail about upgrades to the chat message and activity log.", "力量裂隙：在聊天和活动日志中加入了升级详情。"],
+    ["Market: Quantity field can now be left empty. Which will buy/sell as much as possible at the specified price without creating an open order. Also added confirmation when leaving price empty.", "市场：数量输入框现在可以留空。留空时会尽可能多地以所指定价格购买/出售而不挂单。同样加入了留空时的二次确认。"],
+    ["Changed most feedback warning/error messages to be displayed as toasts instead of in the chat.", "将大多数警告/错误信息从聊天移到新增弹窗中。"],
+    ["Added Quality of Life 'subscription' for 5", "加入了便利性月卡，价格为 5"],
+    ["/month.", " 每月"],
+    ["- Auto join events (configurable)", "- 自动参加事件（可设置）"],
+    ["- Use enchanting skills of guild members", "- 利用公会成员的附魔能力"],
+    ["Added more settings", "新增更多设置"],
+    ["- Automatically join elemental rift (requires QoL)", "- 自动参加元素裂隙事件（需要便利升级月卡）"],
+    ["- Automatically siphon rift of power up to X times (requires QoL)", "- 自动参加力量裂隙，并在单次裂隙中最多汲取 X 次力量（需要便利升级月卡）"],
+    ["- Automatically disenchant item drops up to rarity", "- 自动分解特定稀有度以下的掉落装备"],
+    ["- Option to block others from enchanting your equipment", "- 阻止他人为你的装备附魔"],
+    ["- Channel prefix display options", "- 设置频道前缀显示模式"],
+    ["- Disable title/color options", "- 禁用头衔/更改头衔颜色"],
+    ["Added option to color your titles once you accumulate 50 Ascension Points", "新增自定义头衔颜色，要求累计获得 50 晋升点数"],
+    ["Elemental Rift event actions now also progress your quest", "元素裂隙事件行动现在也会计入任务进度（和击败的事件 boss 数目无关）"],
+    ["Show the enchant level for resistance enchants in tooltips", "在装备弹窗中还会显示抗性附魔对应等级"],
+    ["Added limit of 200 enemy attacks to battles, after which you will give up", "战斗现在有 200 敌方攻击次数上限，超过此限制你将会放弃此次战斗"],
+    ["Clicking your action during an event no longer tries to leave the event, you can select your activity on the Town page if you really want to leave", "事件中，点击导航栏的行动图标不再导致你离开当前事件，而是切换到事件页面，如果你确实希望离开，你可以在城镇页面中选择行动"],
+    ["Fix farm fully grown icon not showing without visiting the farm page first", "修复了未访问农场页面的情况下，农场完全生长的图标不显示的问题。"],
+    ["Fix quest notification sometimes not triggering with Sigil of Purpose", "修复了携带目标魔符时，任务完成通知有时不触发的问题"],
     ["Added premium shop with Codex and Crystallized Mana", "新增可购买法典和魔力结晶的高级商店"],
     ["Added more item names for battle items by level. Existing items have been renamed.", "新增更多战斗装备的等级名。现有装备的名称同样会改变。"],
     ["Added cosmetic chat titles matching these names that can be unlocked with Crystallized Mana", "新增装饰性聊天头衔，可以通过魔力结晶解锁"],
@@ -969,6 +969,7 @@ const Translation = new Map([
     // #region battle text
     ["Your guild received:", "你的公会获得了："],
     ["Battle XP", "战斗经验"],
+    [" Battle XP", " 战斗经验"],
     ["Player", "玩家"],
     ["Ward Strength: ", "抗性强度："],
     ["Average Damage Per Spell:", "每次施法平均伤害："],
@@ -1147,7 +1148,7 @@ const Translation = new Map([
 ]);
 // #region SettingTrans
 const SettingsTranslation = new Map([
-    ["Auto collect farm every 3 hours", "每 3 小时自动收获农场"], // settings
+    ["Auto collect farm every 3 hours", "每 3 小时自动收获农场"],
     ["，", "，"],
     ["Referrer Link", "推荐链接"],
     ["Guild Taxes", "公会税收"],
@@ -1170,7 +1171,7 @@ const SettingsTranslation = new Map([
     ["Rift of Power (Event)", "力量裂隙（事件）"],
     ["Added on", "添加于"],
     ["Refer your friends to the game and get an additional 5% of their", "将游戏推荐给朋友，然后额外获得他们充值获得的"],
-    [" purchases and their base", " 5% 以及他们掉落的"], // settings
+    [" purchases and their base", " 5% 以及他们掉落的"],
     [" drops.", " 的基础值的 5%。"],
     [" they find.", " 的 5%。"],
     ["You must both verify your account by linking an identity provider to earn rewards.", "双方均需绑定账号以获取奖励。"],
@@ -1185,22 +1186,22 @@ const SettingsTranslation = new Map([
     ["Tooltip mode:", "物品悬浮窗触发方式："],
     ["Hover", "鼠标悬浮"],
     ["Click", "鼠标点击"],
-    ["Channel Prefix:", "频道前缀："], // settings
-    ["Chat Titles:", "聊天头衔："], // settings
-    ["Long", "长"], // settings
-    ["Short", "短"], // settings
-    ["None", "无"], // settings
-    ["Colored", "彩色"], // settings
-    ["Gray", "灰色"], // settings
-    ["Hidden", "不显示"], // settings
-    ["Game Preferences", "游戏偏好"], // settings
-    ["UI Preferences", "界面偏好"], // settings
-    ["Automatically join Elemental Rift", "自动参加元素裂隙事件"], // settings
-    ["Automatically siphon Rift of Power up to", "自动参加力量裂隙事件，直到汲取力量次数到达"], // settings
+    ["Channel Prefix:", "频道前缀："],
+    ["Chat Titles:", "聊天头衔："],
+    ["Long", "长"],
+    ["Short", "短"],
+    ["None", "无"],
+    ["Colored", "彩色"],
+    ["Gray", "灰色"],
+    ["Hidden", "不显示"],
+    ["Game Preferences", "游戏偏好"],
+    ["UI Preferences", "界面偏好"],
+    ["Automatically join Elemental Rift", "自动参加元素裂隙事件"],
+    ["Automatically siphon Rift of Power up to", "自动参加力量裂隙事件，直到汲取力量次数到达"],
     ["times", "次"],
-    ["Automatically disenchant item drops up to", "自动分解稀有度"], // settings
+    ["Automatically disenchant item drops up to", "自动分解稀有度"],
     ["rarity", "以下的掉落装备"],
-    ["Block others from enchanting your equipment", "阻止其他人为你的装备附魔"], // settings
+    ["Block others from enchanting your equipment", "阻止其他人为你的装备附魔"],
 ]);
 // #region FarmTrans
 const FarmTranslation = new Map([
@@ -1270,6 +1271,9 @@ const GuildTranslation = new Map([
     ["Activity Log", "活动日志"],
     ["Info", "信息"],
     ["Message of the Day", "每日消息"],
+    ["% resources", "% 资源"],
+    ["% Orb drop rate", "% 特殊球掉落率"],
+    ["% Formula drop rate", "% 术式掉落率"],
 ]);
 // #region ChatTL
 const ChatTranslation = new Map([
@@ -1396,7 +1400,7 @@ if(!Settings.debug) [...Translation.values()].forEach(value => Translation.set(v
 // #region EquipTL
 const EquipTranslation = new Map([
     // quality
-    ["Worn", "破旧的"], ["Refined", "精制的"], ["Runed", "铭文的"], ["Ascended", "进阶的"], ["Eternal", "永恒的"],
+    ["Worn", "破旧的"], ["Refined", "精制的"], ["Runed", "铭文的"], ["Ascended", "进阶的"], ["Eternal", "永恒的"], ["Heirloom", "传承的"],
     // type
     ["Neophyte", "新手"], ["Initiate", "初始"], ["Novice", "见习"], ["Apprentice", "学徒"], ["Acolyte", "助手"], ["Adept", "熟手"], ["Scholar", "专家"], ["Magus", "术士"], ["Invoker", "祈求者"], ["Archmage", "大巫师"], ["Eldritch", "异界"], ["Primordial", "原初"], ["Celestial", "星辉"], ["Lumberjack's", "伐木工"], ["Tidecaller's", "唤潮人"], ["Prospector's", "探矿者"], ["Thaumaturge", "奇术师"], ["Incantator", "唤魔者"], ["Disciple", "门徒"], ["Paragon", "贤者"], ["Elysian", "天界"], ["Daemon", "精灵"], ["Archon", "神使"],
     // part
@@ -1514,12 +1518,15 @@ const PremiumShopTranslation = new Map([
     ["Automatically Join Events", "自动参加事件"], // premium
     ["Use enchanting skills of guild members", "使用公会成员的附魔能力"], // premium
 ]);
-const equipRegex = /(?<lbracket>\[?)(?:Sigil of (?<sigilType>[A-Za-z]+))|(?:(?<quality>Worn|Refined|Runed|Ascended|Eternal) (?<type>[A-Za-z']+) (?<part>[A-Za-z]+)(?<elementType> of Water| of Fire| of Nature)?(?<upgradeLevel> \+[0-9]+)? \((?<level>[0-9]+)\)(?<rbracket>\]?))/;
+const equipRegex = /(?<lbracket>\[?)(?:Sigil of (?<sigilType>[A-Za-z]+))|(?:(?<quality>Worn|Refined|Runed|Ascended|Eternal|Heirloom) (?<type>[A-Za-z']+) (?<part>[A-Za-z]+)(?<elementType> of Water| of Fire| of Nature)?(?<upgradeLevel> \+[0-9]+)? \((?<level>[0-9]+)\)(?<rbracket>\]?))/;
 const EquipTextTranslate = (text) => {
     const result = equipRegex.exec(text);
     const group = result.groups;
     if(result) return group.sigilType? `${EquipTranslation.get(group.sigilType)}魔符` : `${group.lbracket ?? ""}${EquipTranslation.get(group.quality)}${EquipTranslation.get(group.type) ?? group.type}${group.elementType ? EquipTranslation.get(group.elementType) : ""}${EquipTranslation.get(group.part) ?? group.part}${group.upgradeLevel ?? ""} (${group.level})${group.rbracket ?? ""}`;
-    else return "";
+    else{
+        console.log(`cannot translate Equiptext|${text}|`);
+        return "";
+    }
 }
 const EquipTranslate = (ele) => {
     const tl = EquipTextTranslate(ele.textContent);
@@ -2042,8 +2049,7 @@ const FindAndReplaceText = () => {try {
             CheckTranslation(document, "main>div.space-y-2 div.mt-4.gap-6>div.border-primary:nth-child(1)>div:nth-child(3):nth-last-child(2)", div => {
                 div.childNodes[3].textContent = " 战斗经验";
             })
-            document.querySelectorAll("div.mt-4:nth-child(4) div.border-primary.flex.w-full.flex-col.border.p-2.md\\:w-80:not([translated])").forEach(div => {
-                div.setAttribute("translated", "");
+            CheckTranslation(document, "div.mt-4:nth-child(4) div.border-primary.flex.w-full.flex-col.border.p-2.md\\:w-80:nth-child(n+2)", div => {
                 [
                     div.children[0],
                     div.children[1],
@@ -2055,6 +2061,15 @@ const FindAndReplaceText = () => {try {
                 const result21 = /([^ ]+) (.*)/.exec(text21);
                 if(!result21) {console.log("result201 is null"); return;}
                 div21.textContent = `${result21[1]} ${GuildTranslation.get(result21[2]) ?? result21[2]}`;
+            });
+            CheckTranslation(document, "div.mt-4:nth-child(4) div.border-primary.flex.w-full.flex-col.border.p-2.md\\:w-80:nth-child(1)", div => {
+                _Translate(div.children[0]);
+                _Translate(div.children[1].childNodes[2], "guild");
+                _Translate(div.children[2].childNodes[2], "guild");
+                _Translate(div.children[3].childNodes[2], "guild");
+                const last = div.children[div.children.length - 1];
+                _Translate(last.children[0].childNodes[0]);
+                _Translate(last.children[1].childNodes[last.children[1].childNodes.length - 1]);
             });
             break;
         }
@@ -2493,7 +2508,7 @@ const FindAndReplaceText = () => {try {
         }
     });
     // #region item
-    document.querySelectorAll("span.rarity-common:not([translated]), span.rarity-uncommon:not([translated]), span.rarity-rare:not([translated]), span.rarity-epic:not([translated]), span.rarity-legendary:not([translated])").forEach(span => {
+    document.querySelectorAll("span.rarity-common:not([translated]), span.rarity-uncommon:not([translated]), span.rarity-rare:not([translated]), span.rarity-epic:not([translated]), span.rarity-legendary:not([translated]), span.rarity-heirloom:not([translated])").forEach(span => {
         span.setAttribute("translated", "");
         const itemName = span.textContent;
         let result;
@@ -2537,7 +2552,7 @@ const FindAndReplaceText = () => {try {
         else console.log("cannot translate|"+itemName+"|");
     });
     // #region equip detail
-    document.querySelectorAll("div.rarity-common.bg-popover:not([translated]), div.rarity-uncommon.bg-popover:not([translated]), div.rarity-rare.bg-popover:not([translated]), div.rarity-epic.bg-popover:not([translated]), div.rarity-legendary.bg-popover:not([translated])").forEach(div => {
+    document.querySelectorAll("div.rarity-common.bg-popover:not([translated]), div.rarity-uncommon.bg-popover:not([translated]), div.rarity-rare.bg-popover:not([translated]), div.rarity-epic.bg-popover:not([translated]), div.rarity-legendary.bg-popover:not([translated]), div.rarity-heirloom.bg-popover:not([translated])").forEach(div => {
         div.setAttribute("translated", "");
         div.querySelectorAll(":scope div.font-bold.text-lg").forEach(div => EquipTranslate(div));
         div.querySelectorAll(":scope div.text-foreground.flex.justify-between:not(.gap-2)").forEach(div => _Translate(div.children[0]));
@@ -2548,10 +2563,12 @@ const FindAndReplaceText = () => {try {
             if(Settings.enableTestFeature) link.insertAdjacentElement("afterend", HTML("div", {class: "text-foreground float-right cursor-pointer text-sm underline select-none", _click: () => AddToAnalysis(div)}, " 加入分析"));
         });
         div.querySelectorAll(":scope div.text-foreground.mb-2.flex.justify-between.gap-2").forEach(div => {
-            console.log(div.outerHTML);
             const div00 = div.children[0].childNodes[0];
-            const result = /(.*) ([0-9]+)/.exec(div00.textContent);
-            div00.textContent = `${Translation.get(result[1]) ?? result[1]} ${result[2]}`;
+            if(div00.textContent === "No Requirement") div00.textContent = "无等级";
+            else{
+                const result = /(.*) ([0-9]+)/.exec(div00.textContent);
+                div00.textContent = `${Translation.get(result[1]) ?? result[1]} ${result[2]}`;
+            }
             _Translate(div.children[1].childNodes[0]);
             _Translate(div.children[1].childNodes[2])
         });
