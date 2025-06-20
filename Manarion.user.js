@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.17.11
+// @version      0.17.12
 // @description  Manarion Chinese Translation and Quest notification, on any issue occurred, please /whisper VoltaX in game
 // @description:zh  Manarion 文本汉化，以及任务通知（非自动点击），如果汉化出现任何问题，可以游戏私信VoltaX，在greasyfork页面留下评论，或者通过其他方式联系我
 // @author       VoltaX
@@ -587,7 +587,7 @@ const Translation = new Map([
     ["Battle Level", "战斗等级"],
     ["Gather Level", "采集等级"],
     // #region equip
-    ["Common", "普通"], ["Uncommon", "稀有"], ["Rare", "罕见"], ["Epic", "史诗"], ["Legendary", "传说"],
+    ["Common", "普通"], ["Uncommon", "稀有"], ["Rare", "罕见"], ["Epic", "史诗"], ["Legendary", "传说"], ["Heirloom", "传承"],
     ["Ward Boost", "抗性增幅"],
     ["Battle Experience", "战斗经验"],
     ["Chest", "身体"],
