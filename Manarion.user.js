@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.17.13
+// @version      0.17.14
 // @description  Manarion Chinese Translation and Quest notification, on any issue occurred, please /whisper VoltaX in game
 // @description:zh  Manarion 文本汉化，以及任务通知（非自动点击），如果汉化出现任何问题，可以游戏私信VoltaX，在greasyfork页面留下评论，或者通过其他方式联系我
 // @author       VoltaX
@@ -516,6 +516,7 @@ const Translation = new Map([
     ["Cancel", "取消"],
     ["Edit", "修改"],
     ["Donate", "捐赠"],
+    ["Return", "返还"],
     ["Upgrade", "升级"],
     ["Load More", "查看更多"],
     ["Select Enemy", "选择敌人"],
@@ -707,6 +708,18 @@ const Translation = new Map([
     ["Sleeping Quarters", "睡眠区"],
     ["Increases maximum actions by 1% per level", "每级使成员最大行动次数 +1%"],
     // #region update text
+    ["Base Resource Amount bonus from level has been reduced to a flat 0.03 per level", "随等级变化的基础资源量加成现在变为固定每级 0.03"], // default
+    ["You can now invest into extra Base Resource Amount with Mana Dust", `现在你可以使用${Settings.manaDustName}研究升级基础资源量加成`], // default
+    ["Added diminishing returns when using multiple pieces of equipment with +Mana Dust %", `对同时装备多个具有${Settings.manaDustName}加成属性装备的情况，新增了递减收益`], // default
+    ["- 1 piece no penalty", "- 1 件装备时，无影响"], // default
+    ["- 2 pieces -5%", "- 2 件装备时，-5%"], // default
+    ["- 3 pieces -10%", "- 3 件装备时，-10%"], // default
+    ["- 4 pieces -15%", "- 4 件装备时，-15%"], // default
+    ["- 5 pieces -20%", "- 5 件装备时，-20%"], // default
+    ["- 6 pieces -25%", "- 6 件装备时，-25%"], // default
+    ["- 7 pieces -30%", "- 7 件装备时，-30%"], // default
+    ["- 8 pieces -35%", "- 8 件装备时，-35%"], // default
+    ["and ", "和 "], // default
     ["New drop ", "新增掉落物 "],
     [" (rarer than Orb of Divinity)", "（稀有度比神圣球更高）"],
     ["- Turns a Legendary item into an Heirloom. Halving the power (level) but removing the level requirement.", "- 将一件传说装备变为传承装备。装备属性值（等级）减半，但是不再有等级限制。"],
@@ -1045,8 +1058,9 @@ const Translation = new Map([
     ["Rerolls all modifiers of an item. Including the skill on gathering items.", "随机变化装备的所有属性。包括采集装备的采集种类。"],
     ["Upgrades an Epic item to Legendary.", "将一件史诗装备升级至传说。"],
     ["Used to make Potion of Renewal", "用于合成刷新药水"],
-    ["Used to make Potion of Wisdom", "用于合成智慧药水"],
-    ["Used to make Potion of Harvesting", "用于合成收获药水"],
+    ["Used to make Potion of Wisdom", "用于合成智慧药水"], // dummy
+    ["Used to make Potion of Harvesting", "用于合成收获药水"], // dummy
+    ["Used to make Potions", "药水的原材料"],
     ["A burning core of fire magic.", "燃烧着的火魔法核心。"],
     ["A swirling essence of water magic.", "漩涡状的水魔法精华。"],
     ["A living essence of nature's magic.", "拥有生命的自然魔法精华。"],
@@ -1145,6 +1159,7 @@ const Translation = new Map([
     ["Loot Tracker", "掉落追踪器"],
     ["\n        Tracker settings\n      ", "掉落追踪脚本设置"],
     ["\n              Save settings\n            ", "保存设置"],
+    ["Show item info on a single line", "单行显示装备信息"],
 ]);
 // #region SettingTrans
 const SettingsTranslation = new Map([
@@ -1317,6 +1332,7 @@ const MenuItemTranslation = new Map([
     ["Unfavorite", "取消保护"],
     ["Contributions", "查看贡献"],
     ["Leave Guild", "离开公会"],
+    ["Heirloom", "传承"],
 ]);
 // #region MarketTL
 const MarketTranslation = new Map([
@@ -1350,6 +1366,9 @@ const UpgradeTranslation = new Map([
     ["Increases the potency of potions.", "增强药水的效果。"],
     ["Increases your chance to get additional stat rolls and mastery.", "提高掉落额外属性点和元素精通的概率。"],
     ["Increases all base stats (intellect, stamina, focus, spirit, mana).", "提高全属性（智力、耐力、集中、精神、魔力）。"],
+    ["Convert", "将"],
+    ["into an heirloom.", "变为传承装备。"],
+    ["Converting this item into an heirloom will scale the item to half its level but remove the level requirement.", "将这件装备变为传承装备以后，会使其属性值变为现在等级的一半，但是不再有等级限制。"],
 ]);
 // #region ProfileTL
 const ProfileTranslation = new Map([
@@ -2076,6 +2095,14 @@ const FindAndReplaceText = () => {try {
         // #region /g*/armory
         case "/guild/armory":{
             CheckTranslation(document, "main>div:nth-child(1)>div:nth-child(2)", div => _Translate(div.childNodes[0], "guild"));
+            CheckTranslation(document, "main div.hover\\:bg-primary\\/20.mb-0\\.5.flex.items-center.gap-2>div.ml-auto", div => {
+                let result;
+                if(result = /Borrowed by ([^ ]+) \(Unequipped\)/.exec(div.textContent)){
+                    div.childNodes[0].textContent = `${result[1]} 借出`;
+                    div.childNodes[1].textContent = "（未装备）";
+                }
+                else if(result = /Borrowed by (.*)/.exec(div.textContent)) div.textContent = `${result[1]} 借出`;
+            }, false);
             break;
         }
         // #region /news
@@ -2435,6 +2462,11 @@ const FindAndReplaceText = () => {try {
                 div.children[3].childNodes[5],
             ].forEach(_TypedTranslate("upgrade"));
         });
+    }
+    //#region heirloom
+    if(window.location.pathname.endsWith("/heirloom")){
+        CheckTranslation(document, "main>div>h2", h2 => [h2.childNodes[0], h2.childNodes[4]].forEach(_TypedTranslate("upgrade")));
+        CheckTranslation(document, "main>div>div.space-x-3>div:not([class])", _TypedTranslate("upgrade"));
     }
     // #region active count
     CheckTranslation(document, 'div#root div.flex.max-h-screen.min-h-screen.flex-col.overflow-x-hidden div.flex.max-w-screen.grow.flex-col.overflow-y-scroll.lg\\:flex-row.lg\\:flex-wrap div.border-primary.w-full.max-lg\\:border-b.lg\\:w-60.lg\\:border-r div.border-primary.flex.justify-between.border-b.px-2.py-1.text-sm', (div) => {
