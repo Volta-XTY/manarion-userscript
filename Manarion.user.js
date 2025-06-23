@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Manarion Chinese Translation
 // @namespace    http://tampermonkey.net/
-// @version      0.17.14
+// @version      0.17.15
 // @description  Manarion Chinese Translation and Quest notification, on any issue occurred, please /whisper VoltaX in game
 // @description:zh  Manarion 文本汉化，以及任务通知（非自动点击），如果汉化出现任何问题，可以游戏私信VoltaX，在greasyfork页面留下评论，或者通过其他方式联系我
 // @author       VoltaX
@@ -692,6 +692,8 @@ const Translation = new Map([
     ["%, Resources", "%，资源"],
     ["Guild Level", "公会等级"],
     ["+0.5% resources per level", "每级使成员资源获取 +0.5%"],
+    ["Ethereal Refinery", "以太精炼"],
+    ["Reduces the cost of other buildings by 1% per level", "每级使其他升级的消耗 x99%"],
     ["Council Chamber", "会议厅"],
     ["Increases the maximum amount of guild members by 1 per level", "每级 +1 最大成员数"],
     ["Level ", "等级 "],
@@ -708,18 +710,23 @@ const Translation = new Map([
     ["Sleeping Quarters", "睡眠区"],
     ["Increases maximum actions by 1% per level", "每级使成员最大行动次数 +1%"],
     // #region update text
-    ["Base Resource Amount bonus from level has been reduced to a flat 0.03 per level", "随等级变化的基础资源量加成现在变为固定每级 0.03"], // default
-    ["You can now invest into extra Base Resource Amount with Mana Dust", `现在你可以使用${Settings.manaDustName}研究升级基础资源量加成`], // default
-    ["Added diminishing returns when using multiple pieces of equipment with +Mana Dust %", `对同时装备多个具有${Settings.manaDustName}加成属性装备的情况，新增了递减收益`], // default
-    ["- 1 piece no penalty", "- 1 件装备时，无影响"], // default
-    ["- 2 pieces -5%", "- 2 件装备时，-5%"], // default
-    ["- 3 pieces -10%", "- 3 件装备时，-10%"], // default
-    ["- 4 pieces -15%", "- 4 件装备时，-15%"], // default
-    ["- 5 pieces -20%", "- 5 件装备时，-20%"], // default
-    ["- 6 pieces -25%", "- 6 件装备时，-25%"], // default
-    ["- 7 pieces -30%", "- 7 件装备时，-30%"], // default
-    ["- 8 pieces -35%", "- 8 件装备时，-35%"], // default
-    ["and ", "和 "], // default
+    ["New guild upgrade: Ethereal Refinery", "新的公会升级项目：以太精炼"],
+    ["- Reduces the cost of other buildings by 1% per level", "- 每级使其他公会升级消耗 x99%"],
+    ["- Uses Mana Dust only", `- 只消耗${Settings.manaDustName}升级`],
+    ["Added various leaderboards", "新增各种排行榜"],
+    ["Changed base resource amount boost display on profile", "更改了资料页基础资源量加成的显示"],
+    ["Base Resource Amount bonus from level has been reduced to a flat 0.03 per level", "随等级变化的基础资源量加成现在变为固定每级 0.03"],
+    ["You can now invest into extra Base Resource Amount with Mana Dust", `现在你可以使用${Settings.manaDustName}研究升级基础资源量加成`],
+    ["Added diminishing returns when using multiple pieces of equipment with +Mana Dust %", `对同时装备多个具有${Settings.manaDustName}加成属性装备的情况，新增了递减收益`],
+    ["- 1 piece no penalty", "- 1 件装备时，无影响"],
+    ["- 2 pieces -5%", "- 2 件装备时，-5%"],
+    ["- 3 pieces -10%", "- 3 件装备时，-10%"],
+    ["- 4 pieces -15%", "- 4 件装备时，-15%"],
+    ["- 5 pieces -20%", "- 5 件装备时，-20%"],
+    ["- 6 pieces -25%", "- 6 件装备时，-25%"],
+    ["- 7 pieces -30%", "- 7 件装备时，-30%"],
+    ["- 8 pieces -35%", "- 8 件装备时，-35%"],
+    ["and ", "和 "],
     ["New drop ", "新增掉落物 "],
     [" (rarer than Orb of Divinity)", "（稀有度比神圣球更高）"],
     ["- Turns a Legendary item into an Heirloom. Halving the power (level) but removing the level requirement.", "- 将一件传说装备变为传承装备。装备属性值（等级）减半，但是不再有等级限制。"],
@@ -1135,6 +1142,11 @@ const Translation = new Map([
     ["% Upgrade Chance)", "% 强化概率)"],
     ["Event Points: ", "事件点数："],
     // #region dropdown text
+    ["Investments", "研究投入"],
+    ["Highest Mastery", "最高元素精通"],
+    ["Base Spellpower", "基础法术强度"],
+    ["Base Ward", "基础抗性"],
+    ["Highest Spell Rank", "最高魔法等级"],
     ["View Profile", "查看资料页"],
     ["Wire", "给予物品"],
     ["Whisper", "私聊"],
